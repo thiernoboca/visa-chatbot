@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scan Document - Visa CI</title>
+
+    <!-- Content Security Policy pour WASM (Innovatrics) -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.tailwindcss.com blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' blob:; worker-src 'self' blob:; child-src 'self' blob:;">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇨🇮</text></svg>">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Material Symbols Outlined (style prototype) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
+    
+    <!-- Innovatrics DOT -->
+    <script type="module" src="assets/innovatrics/index.umd.js"></script>
+    <script type="module" src="assets/innovatrics/document.umd.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10816A',
+                        success: '#22c55e',
+                        warning: '#f59e0b',
+                        error: '#ef4444'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100dvh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            overflow: hidden;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Full screen camera container */
+        #camera-container {
+            position: fixed;
+            inset: 0;
+            background: black;
+        }
+
+        x-dot-document-auto-capture,
+        x-dot-document-auto-capture-ui {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Overlay UI */
+        .overlay-ui {
+            position: fixed;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .overlay-ui > * {
+            pointer-events: auto;
+        }
+
+        /* Header */
+        .header-overlay {
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: env(safe-area-inset-top, 12px) 16px 12px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+        }
+
+        /* Footer with instruction */
+        .footer-overlay {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px env(safe-area-inset-bottom, 16px);
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        }
+
+        /* Instruction box */
+        .instruction-box {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .instruction-box.success {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.4);
+        }
+
+        /* Loading screen */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        /* Preview screen */
+        #preview-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            z-index: 90;
+            padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px);
+        }
+
+        #preview-screen.visible {
+            display: flex;
+        }
+
+        #preview-screen img {
+            max-height: 60vh;
+            object-fit: contain;
+            border-radius: 12px;
+            margin: auto 0;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #10816A, #0d6b59);
+            color: white;
+            font-weight: 600;
+            padding: 14px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-weight: 500;
+            padding: 14px 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        /* Spin animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Success animation */
+        @keyframes pulse-success {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+        .success-pulse {
+            animation: pulse-success 0.5s ease-in-out;
+        }
+
+        /* Error screen */
+        #error-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 100;
+            text-align: center;
+        }
+
+        #error-screen.visible {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="flex flex-col items-center">
+            <div class="size-20 bg-primary/20 rounded-2xl flex items-center justify-center mb-6">
+                <span class="material-symbols-outlined text-4xl text-primary">document_scanner</span>
+            </div>
+            <h1 class="text-xl font-bold text-white mb-2">Préparation de la caméra</h1>
+            <p class="text-gray-400 text-sm mb-8">Veuillez autoriser l'accès à la caméra</p>
+            <div class="size-8 border-3 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+        </div>
+    </div>
+
+    <!-- Error Screen -->
+    <div id="error-screen">
+        <div class="size-20 bg-error/20 rounded-2xl flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-4xl text-error">error</span>
+        </div>
+        <h2 class="text-xl font-bold text-white mb-2">Erreur de caméra</h2>
+        <p id="error-message" class="text-gray-400 text-sm mb-6">Une erreur est survenue lors de l'accès à la caméra.</p>
+        <button onclick="location.reload()" class="btn-primary max-w-xs">
+            <span class="material-symbols-outlined">refresh</span>
+            Réessayer
+        </button>
+    </div>
+
+    <!-- Camera Container -->
+    <div id="camera-container" class="hidden">
+        <x-dot-document-auto-capture id="document-capture"></x-dot-document-auto-capture>
+        <x-dot-document-auto-capture-ui id="document-capture-ui"></x-dot-document-auto-capture-ui>
+    </div>
+
+    <!-- Header Overlay -->
+    <div class="overlay-ui header-overlay hidden" id="header-overlay">
+        <div class="flex items-center justify-between">
+            <button onclick="window.close()" class="size-10 rounded-full bg-white/10 flex items-center justify-center text-white">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full">
+                <span class="size-2 rounded-full bg-success animate-pulse"></span>
+                <span class="text-white text-xs font-medium">Connecté</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Overlay -->
+    <div class="overlay-ui footer-overlay hidden" id="footer-overlay">
+        <div class="instruction-box" id="instruction-box">
+            <span class="material-symbols-outlined text-primary text-3xl mb-2" id="instruction-icon">document_scanner</span>
+            <p class="text-white text-sm font-medium" id="instruction-text">Positionnez le document devant la caméra</p>
+        </div>
+    </div>
+
+    <!-- Preview Screen -->
+    <div id="preview-screen">
+        <div class="flex items-center justify-between mb-4">
+            <button onclick="retakePhoto()" class="size-10 rounded-full bg-white/10 flex items-center justify-center text-white">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <h2 class="text-white font-semibold">Vérification</h2>
+            <div class="size-10"></div>
+        </div>
+        
+        <img id="preview-image" src="" alt="Document capturé">
+        
+        <div class="mt-auto pt-6 space-y-3">
+            <button onclick="confirmAndSend()" class="btn-primary">
+                <span class="material-symbols-outlined">check</span>
+                Utiliser cette photo
+            </button>
+            <button onclick="retakePhoto()" class="btn-secondary">
+                <span class="material-symbols-outlined">photo_camera</span>
+                Reprendre la photo
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        // Récupérer l'ID de session depuis l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session');
+
+        // Éléments
+        const loadingScreen = document.getElementById('loading-screen');
+        const errorScreen = document.getElementById('error-screen');
+        const errorMessage = document.getElementById('error-message');
+        const cameraContainer = document.getElementById('camera-container');
+        const headerOverlay = document.getElementById('header-overlay');
+        const footerOverlay = document.getElementById('footer-overlay');
+        const previewScreen = document.getElementById('preview-screen');
+        const previewImage = document.getElementById('preview-image');
+        const instructionBox = document.getElementById('instruction-box');
+        const instructionIcon = document.getElementById('instruction-icon');
+        const instructionText = document.getElementById('instruction-text');
+
+        // State
+        let capturedImageBlob = null;
+        let capturedImageBase64 = null;
+        let captureElement = null;
+
+        // Instructions en français
+        const instructions = {
+            document_not_present: { text: 'Positionnez le document', icon: 'document_scanner' },
+            document_centering: { text: 'Centrez le document', icon: 'center_focus_strong' },
+            document_too_far: { text: 'Rapprochez le document', icon: 'zoom_in' },
+            sharpness_too_low: { text: 'Image floue, stabilisez', icon: 'blur_on' },
+            brightness_too_low: { text: 'Pas assez de lumière', icon: 'light_mode' },
+            brightness_too_high: { text: 'Trop de lumière', icon: 'wb_sunny' },
+            hotspots_present: { text: 'Évitez les reflets', icon: 'flare' },
+            candidate_selection: { text: 'Ne bougez plus...', icon: 'check_circle', success: true }
+        };
+
+        // Vérifier le support de la caméra
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showError('Votre navigateur ne supporte pas l\'accès à la caméra.');
+        } else if (!sessionId) {
+            showError('Session invalide. Veuillez rescanner le QR code.');
+        } else {
+            initCamera();
+        }
+
+        function showError(message) {
+            loadingScreen.classList.add('hidden');
+            errorMessage.textContent = message;
+            errorScreen.classList.add('visible');
+        }
+
+        async function initCamera() {
+            try {
+                captureElement = document.getElementById('document-capture');
+                const captureUI = document.getElementById('document-capture-ui');
+                
+                if (!captureElement) {
+                    throw new Error('Composant de capture non disponible');
+                }
+
+                // Configurer l'UI
+                if (captureUI) {
+                    captureUI.props = {
+                        placeholder: 'id-solid-rounded',
+                        showCameraButtons: false,
+                        showDetectionLayer: false,
+                        backdropColor: 'rgba(0, 0, 0, 0.5)',
+                        theme: {
+                            colors: {
+                                instructionColor: 'white',
+                                instructionColorSuccess: '#22c55e',
+                                instructionTextColor: '#ffffff',
+                                placeholderColor: 'white',
+                                placeholderColorSuccess: '#22c55e'
+                            }
+                        }
+                    };
+
+                    // Écouter les changements d'instruction
+                    captureElement.addEventListener('document-auto-capture:instruction-changed', (e) => {
+                        updateInstruction(e.detail?.instructionCode);
+                    });
+                }
+
+                // Options de caméra (mode portrait pour mobile)
+                const cameraOptions = {
+                    // CRITIQUE: Chemin vers les assets WASM
+                    assetsDirectoryPath: '/hunyuanocr/visa-chatbot',
+
+                    cameraFacing: 'environment', // Caméra arrière
+                    captureMode: 'AUTO_CAPTURE',
+                    candidateSelectionDurationMillis: 1500,
+                    sessionToken: sessionId,
+
+                    onPhotoTaken: async (imageData, content) => {
+                        console.log('Photo capturée!');
+                        await handleCapture(imageData);
+                    },
+
+                    onError: (error) => {
+                        console.error('Erreur caméra:', error);
+                        showError(error?.message || 'Erreur lors de l\'accès à la caméra');
+                    },
+
+                    thresholds: {
+                        confidenceThreshold: 0.80,
+                        sharpnessThreshold: 0.5,
+                        brightnessLowThreshold: 0.2,
+                        brightnessHighThreshold: 0.9,
+                        hotspotsScoreThreshold: 0.1,
+                        outOfBoundsThreshold: 0.1,
+                        sizeSmallThreshold: 0.2
+                    }
+                };
+
+                captureElement.cameraOptions = cameraOptions;
+
+                // Montrer la caméra après un court délai
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    cameraContainer.classList.remove('hidden');
+                    headerOverlay.classList.remove('hidden');
+                    footerOverlay.classList.remove('hidden');
+                }, 1500);
+
+            } catch (error) {
+                console.error('Erreur init:', error);
+                showError(error.message || 'Impossible d\'initialiser la caméra');
+            }
+        }
+
+        function updateInstruction(code) {
+            const instruction = instructions[code] || instructions.document_not_present;
+            
+            instructionText.textContent = instruction.text;
+            instructionIcon.textContent = instruction.icon;
+
+            if (instruction.success) {
+                instructionBox.classList.add('success');
+                instructionIcon.classList.remove('text-primary');
+                instructionIcon.classList.add('text-success');
+            } else {
+                instructionBox.classList.remove('success');
+                instructionIcon.classList.add('text-primary');
+                instructionIcon.classList.remove('text-success');
+            }
+        }
+
+        async function handleCapture(imageData) {
+            if (!imageData?.image) {
+                showError('Image non valide');
+                return;
+            }
+
+            try {
+                // Traiter l'image
+                capturedImageBlob = await processImage(imageData.image, imageData?.data?.detection);
+                
+                // Convertir en base64
+                capturedImageBase64 = await blobToBase64(capturedImageBlob);
+                
+                // Afficher la preview
+                previewImage.src = URL.createObjectURL(capturedImageBlob);
+                previewScreen.classList.add('visible');
+                
+                // Cacher la caméra
+                cameraContainer.classList.add('hidden');
+                headerOverlay.classList.add('hidden');
+                footerOverlay.classList.add('hidden');
+
+            } catch (error) {
+                console.error('Erreur traitement:', error);
+                // Utiliser l'image originale
+                capturedImageBlob = imageData.image;
+                capturedImageBase64 = await blobToBase64(imageData.image);
+                previewImage.src = URL.createObjectURL(imageData.image);
+                previewScreen.classList.add('visible');
+            }
+        }
+
+        async function processImage(imageBlob, detection) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        let cropX = 0, cropY = 0;
+                        let cropWidth = img.width;
+                        let cropHeight = img.height;
+
+                        // Rogner si détection disponible
+                        if (detection?.topLeft && detection?.bottomRight) {
+                            const allNorm = detection.topLeft.x <= 1 && detection.topLeft.y <= 1;
+                            
+                            let x0 = allNorm ? detection.topLeft.x * img.width : detection.topLeft.x;
+                            let y0 = allNorm ? detection.topLeft.y * img.height : detection.topLeft.y;
+                            let x2 = allNorm ? detection.bottomRight.x * img.width : detection.bottomRight.x;
+                            let y2 = allNorm ? detection.bottomRight.y * img.height : detection.bottomRight.y;
+
+                            const marginX = (x2 - x0) * 0.03;
+                            const marginY = (y2 - y0) * 0.03;
+
+                            cropX = Math.max(0, x0 - marginX);
+                            cropY = Math.max(0, y0 - marginY);
+                            cropWidth = Math.min(img.width - cropX, x2 - x0 + marginX * 2);
+                            cropHeight = Math.min(img.height - cropY, y2 - y0 + marginY * 2);
+                        }
+
+                        canvas.width = cropWidth;
+                        canvas.height = cropHeight;
+
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+
+                        // Amélioration légère du contraste
+                        const imageData = ctx.getImageData(0, 0, cropWidth, cropHeight);
+                        const data = imageData.data;
+                        const contrastFactor = 1.1;
+
+                        for (let i = 0; i < data.length; i += 4) {
+                            data[i] = Math.min(255, Math.max(0, (data[i] - 128) * contrastFactor + 128));
+                            data[i + 1] = Math.min(255, Math.max(0, (data[i + 1] - 128) * contrastFactor + 128));
+                            data[i + 2] = Math.min(255, Math.max(0, (data[i + 2] - 128) * contrastFactor + 128));
+                        }
+                        ctx.putImageData(imageData, 0, 0);
+
+                        canvas.toBlob(resolve, 'image/jpeg', 0.92);
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+                img.onerror = reject;
+                img.src = URL.createObjectURL(imageBlob);
+            });
+        }
+
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        // Exposer les fonctions globalement
+        window.retakePhoto = function() {
+            previewScreen.classList.remove('visible');
+            cameraContainer.classList.remove('hidden');
+            headerOverlay.classList.remove('hidden');
+            footerOverlay.classList.remove('hidden');
+            capturedImageBlob = null;
+            capturedImageBase64 = null;
+        };
+
+        window.confirmAndSend = function() {
+            if (!capturedImageBase64 || !sessionId) {
+                alert('Erreur: Image ou session invalide');
+                return;
+            }
+
+            try {
+                // Stocker dans localStorage pour communication avec la page desktop
+                localStorage.setItem('mobile-capture-' + sessionId, capturedImageBase64);
+                
+                // Message de succès
+                previewScreen.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-center">
+                        <div class="size-20 bg-success/20 rounded-full flex items-center justify-center mb-6 success-pulse">
+                            <span class="material-symbols-outlined text-5xl text-success">check_circle</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white mb-2">Photo envoyée !</h2>
+                        <p class="text-gray-400 mb-8">Vous pouvez fermer cette fenêtre</p>
+                        <button onclick="window.close()" class="btn-secondary max-w-xs">
+                            Fermer
+                        </button>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Erreur envoi:', error);
+                alert('Erreur lors de l\'envoi. Veuillez réessayer.');
+            }
+        };
+    </script>
+</body>
+</html>
+

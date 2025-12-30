@@ -1,0 +1,428 @@
+/**
+ * Côte d'Ivoire e-Visa Chatbot - Styles CSS
+ * Architecture MVC - Styles extraits
+ */
+
+/* ========================================
+   SCROLLBAR STYLES
+   ======================================== */
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: #F3F4F6;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}
+
+/* ========================================
+   CARD PANEL - Clean design
+   ======================================== */
+
+.card-panel {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.dark .card-panel {
+    background: #1E293B;
+    border: 1px solid #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
+   FORM INPUTS
+   ======================================== */
+
+.clean-input {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    transition: all 0.2s ease;
+}
+
+.clean-input:focus {
+    border-color: #0D5C46;
+    box-shadow: 0 0 0 3px rgba(13, 92, 70, 0.1);
+}
+
+.dark .clean-input {
+    background: #1E293B;
+    border: 1px solid #334155;
+    color: white;
+}
+
+.dark .clean-input:focus {
+    border-color: #10816A;
+    box-shadow: 0 0 0 3px rgba(16, 129, 106, 0.2);
+}
+
+/* ========================================
+   MATERIAL SYMBOLS
+   ======================================== */
+
+.material-symbols-outlined {
+    font-family: 'Material Symbols Rounded';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.material-symbols-outlined.filled {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ========================================
+   BACKGROUND UTILITIES
+   ======================================== */
+
+.bg-clean {
+    background-color: #FAFAFA;
+}
+
+.dark .bg-clean {
+    background-color: #0F172A;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-enter {
+    animation: slideUpFade 0.3s ease-out forwards;
+}
+
+/* ========================================
+   MESSAGE BUBBLES
+   ======================================== */
+
+.msg-bubble-bot {
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+}
+
+.dark .msg-bubble-bot {
+    background: #1E293B;
+    border: 1px solid #334155;
+}
+
+.msg-bubble-user {
+    border-radius: 12px;
+    border-bottom-right-radius: 4px;
+    background: #0D5C46;
+    color: white;
+}
+
+/* ========================================
+   TYPING INDICATOR
+   ======================================== */
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background: #0D5C46;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.dark .typing-dot {
+    background: #10816A;
+}
+
+.typing-dot:nth-child(1) { animation-delay: 0s; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+/* ========================================
+   BUTTONS - Primary
+   ======================================== */
+
+.btn-primary {
+    background: #0D5C46;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background: #094536;
+    box-shadow: 0 2px 8px rgba(13, 92, 70, 0.25);
+}
+
+.btn-primary:active {
+    transform: translateY(1px);
+}
+
+/* ========================================
+   BUTTONS - Secondary
+   ======================================== */
+
+.btn-secondary {
+    background: #F3F4F6;
+    color: #1A1A2E;
+    border: 1px solid #E5E7EB;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: #E5E7EB;
+    border-color: #D1D5DB;
+}
+
+.dark .btn-secondary {
+    background: #334155;
+    color: #F1F5F9;
+    border-color: #475569;
+}
+
+/* ========================================
+   BUTTONS - Premium (Gradient)
+   ======================================== */
+
+.btn-premium {
+    background: linear-gradient(135deg, #0D5C46 0%, #10816A 100%);
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-premium:hover:not(:disabled) {
+    background: linear-gradient(135deg, #094536 0%, #0D5C46 100%);
+    transform: translateY(-1px);
+}
+
+.btn-premium:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-premium:disabled {
+    background: #9CA3AF;
+    cursor: not-allowed;
+}
+
+.dark .btn-premium {
+    background: linear-gradient(135deg, #10816A 0%, #14B88A 100%);
+}
+
+.dark .btn-premium:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0D5C46 0%, #10816A 100%);
+}
+
+/* ========================================
+   UPLOAD ZONE
+   ======================================== */
+
+.upload-zone {
+    border: 2px dashed #D1D5DB;
+    background: #FAFAFA;
+    transition: all 0.2s ease;
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over {
+    border-color: #0D5C46;
+    background: rgba(13, 92, 70, 0.02);
+}
+
+.dark .upload-zone {
+    border-color: #475569;
+    background: #1E293B;
+}
+
+/* ========================================
+   PROGRESS BAR
+   ======================================== */
+
+.progress-fill {
+    background: #0D5C46;
+}
+
+/* ========================================
+   STATUS INDICATORS
+   ======================================== */
+
+.status-active {
+    color: #0D5C46;
+}
+
+.status-pending {
+    color: #9CA3AF;
+}
+
+.status-complete {
+    color: #059669;
+}
+
+/* ========================================
+   NATIONAL FLAG ACCENT
+   ======================================== */
+
+.flag-accent {
+    height: 3px;
+    background: linear-gradient(to right, #F77F00 33%, #FFFFFF 33%, #FFFFFF 67%, #009A44 67%);
+}
+
+/* ========================================
+   GLASS PANEL - Glassmorphism
+   ======================================== */
+
+.glass-panel {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.dark .glass-panel {
+    background: rgba(30, 41, 59, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ========================================
+   SHADOW GLOW
+   ======================================== */
+
+.shadow-glow {
+    box-shadow: 0 4px 14px rgba(13, 92, 70, 0.4);
+}
+
+.shadow-glow:hover {
+    box-shadow: 0 6px 20px rgba(13, 92, 70, 0.5);
+}
+
+.dark .shadow-glow {
+    box-shadow: 0 4px 14px rgba(16, 129, 106, 0.4);
+}
+
+.dark .shadow-glow:hover {
+    box-shadow: 0 6px 20px rgba(16, 129, 106, 0.5);
+}
+
+/* ========================================
+   INNOVATRICS DOT COMPONENTS
+   Styles pour les composants de capture
+   caméra Innovatrics (passeport & photo)
+   ======================================== */
+
+/* Container générique pour les composants Innovatrics */
+.innovatrics-camera-container,
+#innovatrics-camera-container,
+#face-camera-container {
+    position: relative !important;
+    width: 100% !important;
+    background: #000 !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
+
+/* Composant de capture document - doit remplir le container */
+x-dot-document-auto-capture,
+#innovatrics-document-capture {
+    width: 100% !important;
+    display: block !important;
+}
+
+/* Composant de capture visage - doit remplir le container */
+x-dot-face-auto-capture,
+#face-auto-capture {
+    width: 100% !important;
+    display: block !important;
+}
+
+/* UI Overlay pour document - position absolute au-dessus de la vidéo */
+x-dot-document-auto-capture-ui,
+#innovatrics-document-capture-ui {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 10 !important;
+    pointer-events: auto !important;
+}
+
+/* UI Overlay pour visage - position absolute au-dessus de la vidéo */
+x-dot-face-auto-capture-ui,
+#face-auto-capture-ui {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 10 !important;
+    pointer-events: auto !important;
+}
+
+/* Assurer que le modal Innovatrics a un z-index suffisant */
+#innovatrics-camera-modal {
+    z-index: 200 !important;
+}
+
+/* Fix pour le Shadow DOM des composants UI Innovatrics */
+x-dot-document-auto-capture-ui::part(container),
+x-dot-face-auto-capture-ui::part(container) {
+    position: absolute !important;
+    inset: 0 !important;
+}
+
+/* Animation du loading overlay */
+#innovatrics-loading,
+#face-loading {
+    transition: opacity 0.3s ease-out;
+}
+
+#innovatrics-loading.hidden,
+#face-loading.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+

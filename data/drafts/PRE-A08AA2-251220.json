@@ -1,0 +1,67 @@
+{
+    "pre_application_id": "PRE-A08AA2-251220",
+    "session_id": "chat_c146493ecdee6ede1b1bc678c1bac885",
+    "language": "fr",
+    "current_step": "passport",
+    "workflow_category": "ORDINAIRE",
+    "collected_data": {
+        "pre_application_id": "PRE-A08AA2-251220",
+        "language": "fr",
+        "country_code": "ETH",
+        "city": "addis abeba",
+        "passport_data": {
+            "surname": {
+                "value": "TADESSE",
+                "confidence": 0.95
+            },
+            "given_names": {
+                "value": "YADON ABRHAM",
+                "confidence": 0.95
+            },
+            "date_of_birth": {
+                "value": "2012-02-23",
+                "confidence": 0.95
+            },
+            "place_of_birth": {
+                "value": "ADDIS ABABA",
+                "confidence": 0.85
+            },
+            "sex": {
+                "value": "Masculin",
+                "confidence": 0.99
+            },
+            "nationality": {
+                "value": "ETH",
+                "confidence": 0.95
+            },
+            "passport_number": {
+                "value": "EP8777353",
+                "confidence": 0.99
+            },
+            "date_of_issue": {
+                "value": "2024-04-05",
+                "confidence": 0.88
+            },
+            "date_of_expiry": {
+                "value": "2029-04-04",
+                "confidence": 0.95
+            },
+            "issuing_authority": {
+                "value": "MAIN DEPARTMENT FOR IMMIGRATION AND NATIONALITY AFFAIRS",
+                "confidence": 0.7
+            },
+            "place_of_issue": {
+                "value": "ADDIS ABABA",
+                "confidence": 0.75
+            }
+        },
+        "passport_type": "ORDINAIRE"
+    },
+    "completed_steps": [
+        "welcome",
+        "residence"
+    ],
+    "highest_step_reached": 2,
+    "saved_at": 1766262724,
+    "expires_at": 1766867524
+}

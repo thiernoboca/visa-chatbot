@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Extracteurs OCR - Triple Layer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #4ade80;
+        }
+
+        .architecture {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(74, 222, 128, 0.2);
+        }
+
+        .architecture h2 {
+            color: #4ade80;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .layers {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .layer {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .layer h3 {
+            color: #60a5fa;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .layer p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .test-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+
+        .test-card:hover {
+            border-color: rgba(74, 222, 128, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .test-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .test-card .icon {
+            font-size: 1.5rem;
+        }
+
+        .upload-zone {
+            border: 2px dashed rgba(74, 222, 128, 0.3);
+            border-radius: 8px;
+            padding: 2rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        .upload-zone:hover {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.05);
+        }
+
+        .upload-zone input {
+            display: none;
+        }
+
+        .upload-zone p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            background: #4ade80;
+            color: #1a1a2e;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #22c55e;
+        }
+
+        .btn:disabled {
+            background: #374151;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result.success {
+            border-left: 3px solid #4ade80;
+        }
+
+        .result.error {
+            border-left: 3px solid #ef4444;
+        }
+
+        .status {
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .status.loading {
+            display: block;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .status.success {
+            display: block;
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .status.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .cross-validation {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .cross-validation h2 {
+            color: #4ade80;
+            margin-bottom: 1rem;
+        }
+
+        #crossValidationResult {
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Extracteurs OCR - Triple Layer</h1>
+
+        <div class="architecture">
+            <h2>Architecture Triple Layer</h2>
+            <div class="layers">
+                <div class="layer">
+                    <h3>Layer 1: Google Vision</h3>
+                    <p>OCR brut (~200ms)</p>
+                </div>
+                <div class="layer">
+                    <h3>Layer 2: Gemini Flash</h3>
+                    <p>Structuration JSON (~800ms)</p>
+                </div>
+                <div class="layer">
+                    <h3>Layer 3: Claude Sonnet</h3>
+                    <p>Validation & Fraude (async)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-grid">
+            <!-- Passport -->
+            <div class="test-card" data-type="passport">
+                <h3><span class="icon">&#128706;</span> Passeport</h3>
+                <div class="upload-zone" onclick="this.querySelector('input').click()">
+                    <input type="file" accept="image/*,.pdf" onchange="handleFile(this, 'passport')">
+                    <p>Cliquez ou glissez un passeport</p>
+                </div>
+                <div class="status" id="status-passport"></div>
+                <button class="btn" disabled id="btn-passport">Extraire</button>
+                <div class="result" id="result-passport"></div>
+            </div>
+
+            <!-- Flight Ticket -->
+            <div class="test-card" data-type="ticket">
+                <h3><span class="icon">&#9992;</span> Billet d'avion</h3>
+                <div class="upload-zone" onclick="this.querySelector('input').click()">
+                    <input type="file" accept="image/*,.pdf" onchange="handleFile(this, 'ticket')">
+                    <p>Cliquez ou glissez un billet</p>
+                </div>
+                <div class="status" id="status-ticket"></div>
+                <button class="btn" disabled id="btn-ticket">Extraire</button>
+                <div class="result" id="result-ticket"></div>
+            </div>
+
+            <!-- Vaccination -->
+            <div class="test-card" data-type="vaccination">
+                <h3><span class="icon">&#128137;</span> Carnet Vaccinal</h3>
+                <div class="upload-zone" onclick="this.querySelector('input').click()">
+                    <input type="file" accept="image/*,.pdf" onchange="handleFile(this, 'vaccination')">
+                    <p>Cliquez ou glissez un carnet</p>
+                </div>
+                <div class="status" id="status-vaccination"></div>
+                <button class="btn" disabled id="btn-vaccination">Extraire</button>
+                <div class="result" id="result-vaccination"></div>
+            </div>
+
+            <!-- Hotel -->
+            <div class="test-card" data-type="hotel">
+                <h3><span class="icon">&#127976;</span> Reservation Hotel</h3>
+                <div class="upload-zone" onclick="this.querySelector('input').click()">
+                    <input type="file" accept="image/*,.pdf" onchange="handleFile(this, 'hotel')">
+                    <p>Cliquez ou glissez une reservation</p>
+                </div>
+                <div class="status" id="status-hotel"></div>
+                <button class="btn" disabled id="btn-hotel">Extraire</button>
+                <div class="result" id="result-hotel"></div>
+            </div>
+
+            <!-- Payment Proof -->
+            <div class="test-card" data-type="payment">
+                <h3><span class="icon">&#128176;</span> Preuve de Paiement</h3>
+                <div class="upload-zone" onclick="this.querySelector('input').click()">
+                    <input type="file" accept="image/*,.pdf" onchange="handleFile(this, 'payment')">
+                    <p>Cliquez ou glissez un recu</p>
+                </div>
+                <div class="status" id="status-payment"></div>
+                <button class="btn" disabled id="btn-payment">Extraire</button>
+                <div class="result" id="result-payment"></div>
+            </div>
+
+            <!-- Invitation Letter -->
+            <div class="test-card" data-type="invitation">
+                <h3><span class="icon">&#128196;</span> Lettre d'Invitation</h3>
+                <div class="upload-zone" onclick="this.querySelector('input').click()">
+                    <input type="file" accept="image/*,.pdf" onchange="handleFile(this, 'invitation')">
+                    <p>Cliquez ou glissez une lettre</p>
+                </div>
+                <div class="status" id="status-invitation"></div>
+                <button class="btn" disabled id="btn-invitation">Extraire</button>
+                <div class="result" id="result-invitation"></div>
+            </div>
+        </div>
+
+        <div class="cross-validation">
+            <h2>Cross-Validation Documents</h2>
+            <button class="btn" onclick="runCrossValidation()" style="margin-bottom: 1rem;">
+                Valider la cohérence
+            </button>
+            <div id="crossValidationResult">
+                <pre>Uploadez plusieurs documents pour tester la cross-validation</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const files = {};
+        const results = {};
+
+        function handleFile(input, type) {
+            const file = input.files[0];
+            if (!file) return;
+
+            files[type] = file;
+            const btn = document.getElementById(`btn-${type}`);
+            btn.disabled = false;
+            btn.onclick = () => extractDocument(type);
+
+            const zone = input.parentElement;
+            zone.querySelector('p').textContent = file.name;
+        }
+
+        async function extractDocument(type) {
+            const file = files[type];
+            if (!file) return;
+
+            const status = document.getElementById(`status-${type}`);
+            const result = document.getElementById(`result-${type}`);
+            const btn = document.getElementById(`btn-${type}`);
+
+            status.className = 'status loading';
+            status.textContent = 'Extraction en cours...';
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('document_type', type);
+                formData.append('validate_with_claude', 'false');
+
+                const response = await fetch('php/document-upload-handler-v2.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                results[type] = data;
+
+                if (data.success) {
+                    status.className = 'status success';
+                    status.textContent = `Extraction reussie (${data._metadata?.processing?.total_time_ms || '?'}ms)`;
+                    result.className = 'result show success';
+                } else {
+                    status.className = 'status error';
+                    status.textContent = `Erreur: ${data.error}`;
+                    result.className = 'result show error';
+                }
+
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = `Erreur: ${error.message}`;
+                result.className = 'result show error';
+                result.innerHTML = `<pre>${error.message}</pre>`;
+            }
+
+            btn.disabled = false;
+        }
+
+        function runCrossValidation() {
+            const output = document.getElementById('crossValidationResult');
+
+            if (Object.keys(results).length < 2) {
+                output.innerHTML = '<pre style="color: #f59e0b;">Uploadez au moins 2 documents pour la cross-validation</pre>';
+                return;
+            }
+
+            // Extraire les noms de chaque document
+            const names = {};
+            const dates = {};
+
+            if (results.passport?.fields?.surname) {
+                names.passport = `${results.passport.fields.surname.value} ${results.passport.fields.given_names?.value || ''}`.trim();
+                dates.passport_expiry = results.passport.fields.date_of_expiry?.value;
+            }
+
+            if (results.ticket?.fields?.passenger_name) {
+                names.ticket = results.ticket.fields.passenger_name.value;
+                dates.departure = results.ticket.fields.departure_date?.value;
+            }
+
+            if (results.hotel?.fields?.guest_name) {
+                names.hotel = results.hotel.fields.guest_name.value;
+                dates.check_in = results.hotel.fields.check_in_date?.value;
+            }
+
+            if (results.vaccination?.fields?.holder_name) {
+                names.vaccination = results.vaccination.fields.holder_name.value;
+            }
+
+            if (results.payment?.fields?.payer) {
+                names.payment = results.payment.fields.payer.value;
+            }
+
+            // Normaliser et comparer les noms
+            const normalizeNames = Object.entries(names).map(([doc, name]) => ({
+                document: doc,
+                original: name,
+                normalized: name?.toUpperCase().replace(/[^A-Z\s]/g, '').trim()
+            }));
+
+            const uniqueNames = [...new Set(normalizeNames.map(n => n.normalized))];
+            const namesConsistent = uniqueNames.length <= 1;
+
+            // Verifier coherence dates
+            const dateIssues = [];
+            if (dates.passport_expiry && dates.departure) {
+                const expiry = new Date(dates.passport_expiry);
+                const travel = new Date(dates.departure);
+                const sixMonths = new Date(travel);
+                sixMonths.setMonth(sixMonths.getMonth() + 6);
+
+                if (expiry < sixMonths) {
+                    dateIssues.push('Passeport expire dans moins de 6 mois apres le voyage');
+                }
+            }
+
+            if (dates.departure && dates.check_in) {
+                const flight = new Date(dates.departure);
+                const checkin = new Date(dates.check_in);
+                const diffDays = Math.abs((checkin - flight) / (1000 * 60 * 60 * 24));
+
+                if (diffDays > 2) {
+                    dateIssues.push(`Ecart de ${Math.round(diffDays)} jours entre vol et hotel`);
+                }
+            }
+
+            const validation = {
+                documents_analyzed: Object.keys(results),
+                name_validation: {
+                    consistent: namesConsistent,
+                    names: normalizeNames,
+                    unique_variations: uniqueNames
+                },
+                date_validation: {
+                    dates: dates,
+                    issues: dateIssues,
+                    valid: dateIssues.length === 0
+                },
+                overall_valid: namesConsistent && dateIssues.length === 0,
+                risk_level: !namesConsistent ? 'HIGH' : (dateIssues.length > 0 ? 'MEDIUM' : 'LOW')
+            };
+
+            output.innerHTML = `<pre>${JSON.stringify(validation, null, 2)}</pre>`;
+        }
+    </script>
+</body>
+</html>

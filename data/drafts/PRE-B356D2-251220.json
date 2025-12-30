@@ -1,0 +1,93 @@
+{
+    "pre_application_id": "PRE-B356D2-251220",
+    "session_id": "chat_fe9c7a179dbcb1505dc675eb5bb66dc8",
+    "language": "fr",
+    "current_step": "confirm",
+    "workflow_category": "ORDINAIRE",
+    "collected_data": {
+        "pre_application_id": "PRE-B356D2-251220",
+        "language": "fr",
+        "country_code": "KEN",
+        "city": "Nairobi",
+        "passport_data": {
+            "surname": {
+                "value": "ADERA",
+                "confidence": 0.95
+            },
+            "given_names": {
+                "value": "EDEN TESFAYE",
+                "confidence": 0.95
+            },
+            "date_of_birth": {
+                "value": "2000-03-18",
+                "confidence": 0.95
+            },
+            "place_of_birth": {
+                "value": "ADDIS ABABA",
+                "confidence": 0.85
+            },
+            "sex": {
+                "value": "Féminin",
+                "confidence": 0.99
+            },
+            "nationality": {
+                "value": "ETH",
+                "confidence": 0.95
+            },
+            "passport_number": {
+                "value": "EP9006473",
+                "confidence": 0.99
+            },
+            "date_of_issue": {
+                "value": "2024-07-27",
+                "confidence": 0.88
+            },
+            "date_of_expiry": {
+                "value": "2029-07-26",
+                "confidence": 0.95
+            },
+            "issuing_authority": {
+                "value": "MAIN DEPARTMENT FOR IMMIGRATION AND NATIONALITY AFFAIRS",
+                "confidence": 0.7
+            },
+            "place_of_issue": {
+                "value": "ADDIS ABABA",
+                "confidence": 0.75
+            }
+        },
+        "passport_type": "ORDINAIRE",
+        "workflow_type": "STANDARD",
+        "photo_path": "passportwudie-tibebu-passport.jpg",
+        "email": "thiernoboca@gmail.com",
+        "contact_substep": null,
+        "phone": "0933442344",
+        "whatsapp": true,
+        "arrival_date": "25 decembre",
+        "trip_substep": null,
+        "departure_date": "2 janvier",
+        "trip_purpose": "FAMILLE",
+        "visa_type": "COURT_SEJOUR",
+        "visa_entries": "Multiple",
+        "is_express": true,
+        "accommodation_type": "HOTEL",
+        "yellow_fever_vaccinated": true,
+        "health_substep": null,
+        "vaccination_certificate": "passportwudie-tibebu-passport.jpg",
+        "customs_declaration": false,
+        "customs_special_items": true,
+        "application_number": "VISA-647247EA"
+    },
+    "completed_steps": [
+        "welcome",
+        "residence",
+        "passport",
+        "photo",
+        "contact",
+        "trip",
+        "health",
+        "customs"
+    ],
+    "highest_step_reached": 8,
+    "saved_at": 1766267991,
+    "expires_at": 1766872791
+}

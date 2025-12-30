@@ -1,0 +1,78 @@
+{
+    "pre_application_id": "PRE-2BE5CD-251224",
+    "session_id": "chat_72ffa9d5a051b4aa1b705039dbd1fad5",
+    "language": "fr",
+    "current_step": "photo",
+    "workflow_category": "ORDINAIRE",
+    "collected_data": {
+        "pre_application_id": "PRE-2BE5CD-251224",
+        "language": "fr",
+        "passport_data": {
+            "surname": {
+                "value": "AZENE",
+                "confidence": 0.95
+            },
+            "given_names": {
+                "value": "DANIEL DEMISSIE",
+                "confidence": 0.95
+            },
+            "date_of_birth": {
+                "value": "1994-09-03",
+                "confidence": 0.95
+            },
+            "sex": {
+                "value": "Masculin",
+                "confidence": 0.99
+            },
+            "nationality": {
+                "value": "ETH",
+                "confidence": 0.95
+            },
+            "document_number": {
+                "value": "EP7707292",
+                "confidence": 0.99
+            },
+            "date_of_issue": {
+                "value": "2023-06-26",
+                "confidence": 0.9
+            },
+            "date_of_expiry": {
+                "value": "2028-06-24",
+                "confidence": 0.95
+            },
+            "place_of_birth": {
+                "value": "ADDIS ABABA",
+                "confidence": 0.85
+            },
+            "place_of_issue": {
+                "value": "MAIN DEPARTMENT FOR IMMIGRATION AND NATIONALITY AFFAIRS",
+                "confidence": 0.85
+            },
+            "passport_number": {
+                "value": "EP7707292",
+                "confidence": 0.99,
+                "source": "mrz"
+            },
+            "issuing_authority": {
+                "value": null,
+                "confidence": 0
+            }
+        },
+        "passport_type": "ORDINAIRE",
+        "workflow_type": "STANDARD",
+        "country_code": "ETH",
+        "is_resident_outside_nationality": false,
+        "has_vaccination": true,
+        "eligibility_substep": null,
+        "stay_duration": "3months_or_more"
+    },
+    "completed_steps": [
+        "welcome",
+        "passport",
+        "residence",
+        "eligibility"
+    ],
+    "highest_step_reached": 4,
+    "saved_at": 1766613194,
+    "expires_at": 1767217994
+}

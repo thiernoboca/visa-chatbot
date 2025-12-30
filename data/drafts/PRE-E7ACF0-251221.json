@@ -1,0 +1,70 @@
+{
+    "pre_application_id": "PRE-E7ACF0-251221",
+    "session_id": "chat_a2913bc0946dcfc455be8b9bb4394f9a",
+    "language": "fr",
+    "current_step": "photo",
+    "workflow_category": "ORDINAIRE",
+    "collected_data": {
+        "language": "fr",
+        "country_code": "ETH",
+        "pre_application_id": "PRE-E7ACF0-251221",
+        "city": "addis abeba",
+        "passport_data": {
+            "surname": {
+                "value": "HABTU",
+                "confidence": 0.95
+            },
+            "given_names": {
+                "value": "WOINSHET GETACHEW",
+                "confidence": 0.95
+            },
+            "date_of_birth": {
+                "value": "1979-06-23",
+                "confidence": 0.95
+            },
+            "place_of_birth": {
+                "value": "ADDIS ABABA",
+                "confidence": 0.85
+            },
+            "sex": {
+                "value": "Féminin",
+                "confidence": 0.99
+            },
+            "nationality": {
+                "value": "ETH",
+                "confidence": 0.95
+            },
+            "passport_number": {
+                "value": "E00037706",
+                "confidence": 0.99
+            },
+            "date_of_issue": {
+                "value": "2025-11-17",
+                "confidence": 0.88
+            },
+            "date_of_expiry": {
+                "value": "2035-11-16",
+                "confidence": 0.95
+            },
+            "issuing_authority": {
+                "value": "IMMIGRATION AND CITIZENSHIP SERVICE",
+                "confidence": 0.7
+            },
+            "place_of_issue": {
+                "value": "ADDIS ABABA",
+                "confidence": 0.75
+            }
+        },
+        "passport_type": "ORDINAIRE",
+        "workflow_type": "STANDARD"
+    },
+    "completed_steps": [
+        "welcome",
+        "residence",
+        "documents",
+        "passport"
+    ],
+    "highest_step_reached": 4,
+    "saved_at": 1766315206,
+    "expires_at": 1766920006
+}

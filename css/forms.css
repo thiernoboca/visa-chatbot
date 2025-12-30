@@ -1,0 +1,680 @@
+/**
+ * Forms & Validation Styles - Chatbot Visa CI
+ * Styles pour la validation temps réel et le date picker
+ */
+
+/* ========================================
+   VALIDATION INDICATORS
+======================================== */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.validation-indicator {
+    position: absolute;
+    right: 12px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.validation-indicator.valid {
+    color: var(--ci-green);
+    background: rgba(0, 154, 68, 0.15);
+}
+
+.validation-indicator.invalid {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.validation-indicator.warning {
+    color: var(--ci-orange);
+    background: rgba(247, 127, 0, 0.15);
+}
+
+/* Input States */
+.input-valid {
+    border-color: var(--ci-green) !important;
+    box-shadow: 0 0 0 2px rgba(0, 154, 68, 0.2);
+}
+
+.input-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.input-warning {
+    border-color: var(--ci-orange) !important;
+    box-shadow: 0 0 0 2px rgba(247, 127, 0, 0.2);
+}
+
+/* Validation Message */
+.validation-message {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.validation-message.error {
+    color: #ef4444;
+}
+
+.validation-message.warning {
+    color: var(--ci-orange);
+}
+
+.validation-message.success {
+    color: var(--ci-green);
+}
+
+/* ========================================
+   DATE PICKER
+======================================== */
+.datepicker-popup {
+    position: absolute;
+    z-index: 1000;
+    margin-top: 4px;
+}
+
+.datepicker-popup[hidden] {
+    display: none;
+}
+
+.datepicker {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    padding: var(--space-md);
+    min-width: 280px;
+}
+
+.datepicker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.datepicker-title {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.datepicker-nav {
+    background: var(--bg-quick-action);
+    border: 1px solid var(--border-color);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+
+.datepicker-nav:hover {
+    background: var(--ci-orange);
+    color: white;
+    border-color: var(--ci-orange);
+}
+
+.datepicker-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: var(--space-sm);
+    text-align: center;
+}
+
+.datepicker-weekdays span {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 4px;
+}
+
+.datepicker-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.datepicker-day {
+    aspect-ratio: 1;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.datepicker-day:hover:not(:disabled) {
+    background: var(--bg-quick-action);
+}
+
+.datepicker-day.today {
+    font-weight: 700;
+    color: var(--ci-orange);
+}
+
+.datepicker-day.today::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    width: 4px;
+    height: 4px;
+    background: var(--ci-orange);
+    border-radius: 50%;
+}
+
+.datepicker-day.selected {
+    background: var(--ci-orange);
+    color: white;
+    font-weight: 600;
+}
+
+.datepicker-day.highlighted {
+    background: rgba(0, 154, 68, 0.2);
+    color: var(--ci-green);
+}
+
+.datepicker-day.other-month {
+    color: var(--text-muted);
+    opacity: 0.4;
+}
+
+.datepicker-day:disabled {
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.3;
+}
+
+.datepicker-shortcuts {
+    display: flex;
+    gap: var(--space-xs);
+    margin-top: var(--space-md);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--border-color);
+}
+
+.datepicker-shortcuts button {
+    flex: 1;
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.7rem;
+    background: var(--bg-quick-action);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.datepicker-shortcuts button:hover {
+    background: var(--ci-green);
+    color: white;
+    border-color: var(--ci-green);
+}
+
+/* ========================================
+   FORM FIELDS IN CHAT
+======================================== */
+.chat-form-field {
+    margin: var(--space-md) 0;
+}
+
+.chat-form-field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-xs);
+}
+
+.chat-form-field input,
+.chat-form-field select {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: var(--transition-base);
+}
+
+.chat-form-field input:focus,
+.chat-form-field select:focus {
+    outline: none;
+    border-color: var(--ci-orange);
+    box-shadow: 0 0 0 3px rgba(247, 127, 0, 0.15);
+}
+
+.chat-form-field input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Phone Input with Country Code */
+.phone-input-group {
+    display: flex;
+    gap: var(--space-xs);
+}
+
+.phone-input-group .country-code {
+    width: 100px;
+    flex-shrink: 0;
+}
+
+.phone-input-group .phone-number {
+    flex: 1;
+}
+
+/* Email Suggestions */
+.email-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
+}
+
+.email-suggestion {
+    padding: 2px 8px;
+    background: var(--bg-quick-action);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.email-suggestion:hover {
+    background: var(--ci-orange);
+    color: white;
+    border-color: var(--ci-orange);
+}
+
+/* ========================================
+   DOCUMENT CHECKLIST PANEL
+======================================== */
+.document-checklist-panel {
+    position: fixed;
+    right: 20px;
+    bottom: 100px;
+    width: 320px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    z-index: 900;
+    transition: var(--transition-base);
+}
+
+.document-checklist-panel:not(.open) .checklist-content {
+    display: none;
+}
+
+.checklist-header {
+    padding: 0;
+}
+
+.checklist-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: var(--transition-fast);
+}
+
+.checklist-toggle:hover {
+    background: var(--bg-quick-action);
+}
+
+.checklist-icon {
+    font-size: 1.25rem;
+}
+
+.checklist-title {
+    flex: 1;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.checklist-badge {
+    padding: 2px 8px;
+    background: var(--ci-orange);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+}
+
+.checklist-content {
+    border-top: 1px solid var(--border-color);
+}
+
+.checklist-progress {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-quick-action);
+}
+
+.checklist-progress-bar {
+    height: 4px;
+    background: var(--border-color);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: var(--space-xs);
+}
+
+.checklist-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ci-orange), var(--ci-green));
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+}
+
+.checklist-progress-text {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.checklist-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition-fast);
+}
+
+.checklist-item:last-child {
+    border-bottom: none;
+}
+
+.checklist-item:hover {
+    background: var(--bg-quick-action);
+}
+
+.checklist-item .item-status {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.checklist-item.uploaded .item-status,
+.checklist-item.validated .item-status {
+    color: var(--ci-green);
+    font-weight: bold;
+}
+
+.checklist-item.pending .item-status {
+    color: var(--ci-orange);
+}
+
+.checklist-item.error .item-status {
+    color: #ef4444;
+}
+
+.checklist-item .item-icon {
+    font-size: 1rem;
+}
+
+.checklist-item .item-label {
+    flex: 1;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+}
+
+.checklist-item .item-optional {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-left: 4px;
+}
+
+.checklist-item .item-action {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    background: var(--ci-orange);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.checklist-item .item-action:hover {
+    background: var(--ci-green);
+}
+
+.checklist-item .item-error {
+    cursor: help;
+}
+
+.checklist-empty {
+    padding: var(--space-md);
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+@media (max-width: 480px) {
+    .datepicker {
+        min-width: 100%;
+        max-width: calc(100vw - 40px);
+    }
+
+    .datepicker-shortcuts {
+        flex-wrap: wrap;
+    }
+
+    .datepicker-shortcuts button {
+        flex: 1 1 45%;
+    }
+
+    /* Document Checklist Panel - Bottom Drawer on Mobile */
+    .document-checklist-panel {
+        position: fixed;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        top: auto;
+        width: 100%;
+        border-radius: 20px 20px 0 0;
+        max-height: 70vh;
+        transform: translateY(calc(100% - 60px));
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .document-checklist-panel.open {
+        transform: translateY(0);
+    }
+
+    .document-checklist-panel::before {
+        content: '';
+        display: block;
+        width: 36px;
+        height: 4px;
+        background: var(--border-color);
+        border-radius: 2px;
+        margin: 8px auto;
+    }
+
+    .checklist-toggle {
+        padding: var(--space-sm) var(--space-md);
+    }
+
+    .checklist-content {
+        max-height: calc(70vh - 80px);
+        overflow-y: auto;
+    }
+
+    .checklist-items {
+        max-height: none;
+    }
+
+    /* Collapsed state shows summary */
+    .document-checklist-panel:not(.open) .checklist-badge {
+        animation: pulse 2s ease-in-out infinite;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* ========================================
+   CAMERA CAPTURE
+======================================== */
+.camera-capture {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+}
+
+.camera-viewport {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.camera-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.camera-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.camera-guide {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.guide-frame {
+    width: 80vw;
+    max-width: 400px;
+    border: 3px solid white;
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    transition: var(--transition-base);
+}
+
+.camera-guide[data-type="passport"] .guide-frame {
+    aspect-ratio: 1.5;
+}
+
+.camera-guide[data-type="photo"] .guide-frame {
+    aspect-ratio: 0.75;
+    max-width: 200px;
+    border-radius: 50%;
+}
+
+.camera-guide[data-type="document"] .guide-frame {
+    aspect-ratio: 1.414;
+}
+
+.guide-label {
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.camera-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: var(--space-lg);
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.camera-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: transparent;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.camera-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.camera-btn-capture {
+    width: 70px;
+    height: 70px;
+    background: var(--ci-orange);
+    border-color: var(--ci-orange);
+}
+
+.camera-btn-capture:hover {
+    background: var(--ci-green);
+    border-color: var(--ci-green);
+}
+
+.camera-canvas {
+    display: none;
+}
+

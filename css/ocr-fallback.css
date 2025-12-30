@@ -1,0 +1,474 @@
+/**
+ * OCR Fallback Modal Styles
+ * Modal for handling OCR failures with manual entry or re-scan options
+ *
+ * @version 1.0.0
+ */
+
+/* ==============================================
+   Modal Container
+   ============================================== */
+
+.ocr-fallback-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4, 16px);
+    animation: fade-in 0.2s ease-out;
+}
+
+.ocr-fallback-modal.closing {
+    animation: fade-out 0.2s ease-out forwards;
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.ocr-fallback-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* ==============================================
+   Modal Content
+   ============================================== */
+
+.ocr-fallback-content {
+    position: relative;
+    background: var(--macos-bg-primary, #ffffff);
+    border-radius: var(--radius-xl, 16px);
+    max-width: 540px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2);
+    animation: slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ==============================================
+   Header
+   ============================================== */
+
+.ocr-fallback-header {
+    padding: var(--space-6, 24px);
+    text-align: center;
+    border-bottom: 1px solid var(--macos-border, rgba(0, 0, 0, 0.1));
+}
+
+.ocr-fallback-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto var(--space-3, 12px);
+    border-radius: var(--radius-full, 50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.ocr-fallback-icon.icon--error {
+    background: rgba(255, 59, 48, 0.12);
+}
+
+.ocr-fallback-icon.icon--warning {
+    background: rgba(255, 149, 0, 0.12);
+}
+
+.ocr-fallback-header h2 {
+    margin: 0 0 var(--space-2, 8px) 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary, #1d1d1f);
+}
+
+.ocr-fallback-header p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-secondary, #86868b);
+    line-height: 1.5;
+}
+
+.ocr-confidence-badge {
+    display: inline-block;
+    margin-top: var(--space-3, 12px);
+    padding: var(--space-1, 4px) var(--space-3, 12px);
+    background: rgba(255, 149, 0, 0.12);
+    color: var(--warning, #ff9500);
+    border-radius: var(--radius-full, 50px);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ==============================================
+   Option Buttons
+   ============================================== */
+
+.ocr-fallback-options {
+    padding: var(--space-4, 16px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3, 12px);
+}
+
+.ocr-option-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3, 12px);
+    padding: var(--space-4, 16px);
+    background: var(--macos-bg-secondary, #f5f5f7);
+    border: 2px solid transparent;
+    border-radius: var(--radius-lg, 12px);
+    cursor: pointer;
+    text-align: left;
+    transition: all var(--duration-fast, 100ms) var(--ease-out, ease-out);
+}
+
+.ocr-option-btn:hover {
+    background: var(--macos-bg-tertiary, #e5e5ea);
+}
+
+.ocr-option-btn:focus {
+    outline: none;
+    border-color: var(--accent, #007aff);
+}
+
+.ocr-option-btn.active {
+    background: rgba(0, 122, 255, 0.08);
+    border-color: var(--accent, #007aff);
+}
+
+.option-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.option-text strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary, #1d1d1f);
+}
+
+.option-text small {
+    font-size: 12px;
+    color: var(--text-secondary, #86868b);
+}
+
+/* ==============================================
+   Panels
+   ============================================== */
+
+.ocr-fallback-panel {
+    padding: var(--space-4, 16px) var(--space-6, 24px);
+    border-top: 1px solid var(--macos-border, rgba(0, 0, 0, 0.1));
+    animation: fade-in 0.2s ease-out;
+}
+
+.ocr-fallback-panel.hidden {
+    display: none;
+}
+
+.ocr-fallback-panel h3 {
+    margin: 0 0 var(--space-4, 16px) 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary, #1d1d1f);
+}
+
+/* ==============================================
+   Rescan Panel
+   ============================================== */
+
+.rescan-tips {
+    margin: 0 0 var(--space-4, 16px) 0;
+    padding-left: var(--space-5, 20px);
+    list-style: none;
+}
+
+.rescan-tips li {
+    position: relative;
+    padding: var(--space-2, 8px) 0;
+    font-size: 13px;
+    color: var(--text-primary, #1d1d1f);
+}
+
+.rescan-tips li::before {
+    content: '✓';
+    position: absolute;
+    left: -20px;
+    color: var(--success, #34c759);
+    font-weight: 600;
+}
+
+.rescan-upload-zone {
+    margin-top: var(--space-4, 16px);
+}
+
+.rescan-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2, 8px);
+    padding: var(--space-6, 24px);
+    background: var(--macos-bg-secondary, #f5f5f7);
+    border: 2px dashed var(--macos-border, rgba(0, 0, 0, 0.2));
+    border-radius: var(--radius-lg, 12px);
+    cursor: pointer;
+    transition: all var(--duration-fast, 100ms) var(--ease-out, ease-out);
+}
+
+.rescan-upload-label:hover {
+    background: var(--macos-bg-tertiary, #e5e5ea);
+    border-color: var(--accent, #007aff);
+}
+
+.upload-icon {
+    font-size: 32px;
+}
+
+.rescan-upload-label span:last-child {
+    font-size: 14px;
+    color: var(--accent, #007aff);
+    font-weight: 500;
+}
+
+/* ==============================================
+   Manual Entry Form
+   ============================================== */
+
+.manual-entry-form {
+    display: grid;
+    gap: var(--space-4, 16px);
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1, 4px);
+}
+
+.form-field label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary, #1d1d1f);
+}
+
+.required-mark {
+    color: var(--error, #ff3b30);
+    margin-left: 2px;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    padding: var(--space-3, 12px);
+    font-size: 14px;
+    border: 1px solid var(--macos-border, rgba(0, 0, 0, 0.15));
+    border-radius: var(--radius-md, 8px);
+    background: var(--macos-bg-primary, #ffffff);
+    color: var(--text-primary, #1d1d1f);
+    transition: border-color var(--duration-fast, 100ms) var(--ease-out, ease-out);
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: var(--accent, #007aff);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+}
+
+.form-field input:invalid:not(:placeholder-shown),
+.form-field select:invalid:not(:placeholder-shown) {
+    border-color: var(--error, #ff3b30);
+}
+
+.form-field textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.no-fields-message {
+    padding: var(--space-4, 16px);
+    background: rgba(255, 149, 0, 0.08);
+    border-radius: var(--radius-md, 8px);
+    color: var(--warning, #ff9500);
+    font-size: 13px;
+    text-align: center;
+}
+
+.form-actions {
+    margin-top: var(--space-4, 16px);
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* ==============================================
+   Footer
+   ============================================== */
+
+.ocr-fallback-footer {
+    padding: var(--space-4, 16px) var(--space-6, 24px);
+    border-top: 1px solid var(--macos-border, rgba(0, 0, 0, 0.1));
+    display: flex;
+    justify-content: flex-start;
+}
+
+/* ==============================================
+   Buttons
+   ============================================== */
+
+.btn-primary,
+.btn-secondary {
+    padding: var(--space-2, 8px) var(--space-4, 16px);
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--radius-md, 8px);
+    cursor: pointer;
+    transition: all var(--duration-fast, 100ms) var(--ease-out, ease-out);
+}
+
+.btn-primary {
+    background: var(--accent, #007aff);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-primary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-secondary, #86868b);
+    border: 1px solid var(--macos-border, rgba(0, 0, 0, 0.15));
+}
+
+.btn-secondary:hover {
+    background: var(--macos-bg-secondary, #f5f5f7);
+    color: var(--text-primary, #1d1d1f);
+}
+
+.btn-secondary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ==============================================
+   Responsive
+   ============================================== */
+
+@media (max-width: 480px) {
+    .ocr-fallback-modal {
+        padding: var(--space-2, 8px);
+    }
+
+    .ocr-fallback-content {
+        max-height: 95vh;
+    }
+
+    .ocr-fallback-header {
+        padding: var(--space-4, 16px);
+    }
+
+    .ocr-fallback-header h2 {
+        font-size: 18px;
+    }
+
+    .ocr-option-btn {
+        padding: var(--space-3, 12px);
+    }
+
+    .ocr-fallback-panel {
+        padding: var(--space-3, 12px) var(--space-4, 16px);
+    }
+}
+
+/* ==============================================
+   Dark Mode
+   ============================================== */
+
+@media (prefers-color-scheme: dark) {
+    .ocr-fallback-content {
+        background: rgba(28, 28, 30, 0.98);
+    }
+
+    .ocr-fallback-header {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .ocr-fallback-header h2,
+    .option-text strong,
+    .ocr-fallback-panel h3,
+    .form-field label,
+    .rescan-tips li {
+        color: rgba(255, 255, 255, 0.92);
+    }
+
+    .ocr-option-btn {
+        background: rgba(44, 44, 46, 0.8);
+    }
+
+    .ocr-option-btn:hover {
+        background: rgba(58, 58, 60, 0.8);
+    }
+
+    .ocr-option-btn.active {
+        background: rgba(0, 122, 255, 0.15);
+    }
+
+    .rescan-upload-label {
+        background: rgba(44, 44, 46, 0.6);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .rescan-upload-label:hover {
+        background: rgba(58, 58, 60, 0.8);
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+        background: rgba(44, 44, 46, 0.8);
+        border-color: rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.92);
+    }
+
+    .ocr-fallback-footer,
+    .ocr-fallback-panel {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary {
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(44, 44, 46, 0.8);
+        color: rgba(255, 255, 255, 0.92);
+    }
+}

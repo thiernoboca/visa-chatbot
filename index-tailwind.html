@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Côte d'Ivoire e-Visa Assistant</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Theme Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "primary-dark": "#0e5bc4",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a2634",
+                        "text-main": "#111418",
+                        "text-secondary": "#617289",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: { 
+                        "DEFAULT": "1rem", 
+                        "lg": "1.5rem", 
+                        "xl": "2rem", 
+                        "2xl": "2.5rem", 
+                        "full": "9999px" 
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Material Symbols */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+        .animate-pulse { animation: pulse 2s ease-in-out infinite; }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-500 { animation-delay: 0.5s; }
+        
+        /* Step visibility */
+        .step-content { display: none; }
+        .step-content.active { display: flex; }
+        
+        /* Toggle active state */
+        .toggle-btn.active {
+            background: #136dec;
+            color: white;
+            box-shadow: 0 1px 3px rgba(19, 109, 236, 0.3);
+        }
+        
+        /* Typing indicator */
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #136dec;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: 0s; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white transition-colors duration-200">
+    <div id="app" class="relative flex h-screen w-full flex-col overflow-hidden">
+        <!-- Header -->
+        <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f2f4] dark:border-gray-800 bg-surface-light dark:bg-surface-dark px-6 lg:px-10 py-3 z-20 shrink-0">
+            <div class="flex items-center gap-4">
+                <div class="size-8 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined text-[32px]">travel_explore</span>
+                </div>
+                <h2 class="text-text-main dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Côte d'Ivoire e-Visa</h2>
+            </div>
+            <div class="flex gap-2 items-center">
+                <!-- Language Toggle -->
+                <button id="lang-toggle" class="flex items-center justify-center overflow-hidden rounded-full h-10 bg-background-light dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-text-main dark:text-white px-4 gap-2 text-sm font-bold">
+                    <span class="material-symbols-outlined text-[20px]">translate</span>
+                    <span id="lang-label">FR</span>
+                </button>
+                <!-- Dark Mode Toggle -->
+                <button id="theme-toggle" class="flex items-center justify-center overflow-hidden rounded-full h-10 bg-background-light dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-text-main dark:text-white px-4 gap-2 text-sm font-bold">
+                    <span class="material-symbols-outlined text-[20px]" id="theme-icon">dark_mode</span>
+                </button>
+                <!-- Security Badge -->
+                <button class="flex items-center justify-center overflow-hidden rounded-full h-10 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-4 gap-2 text-sm font-bold">
+                    <span class="material-symbols-outlined text-[20px]">lock</span>
+                    <span class="hidden sm:inline">Sécurisé</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex justify-center p-4 lg:p-8 overflow-hidden">
+            <div class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 h-full">
+                
+                <!-- Left Column: Context & Hero -->
+                <div class="hidden lg:flex lg:col-span-5 flex-col justify-center gap-8 py-8 animate-fade-in">
+                    <div class="flex flex-col gap-4">
+                        <div class="inline-flex self-start items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-primary text-sm font-bold">
+                            <span class="material-symbols-outlined text-[18px]">verified</span>
+                            Service Officiel
+                        </div>
+                        <h1 class="text-4xl xl:text-5xl font-black leading-[1.1] tracking-[-0.033em] text-text-main dark:text-white">
+                            Côte d'Ivoire <br/>
+                            <span class="text-primary">e-Visa Assistant</span>
+                        </h1>
+                        <p class="text-text-secondary dark:text-gray-400 text-lg font-normal leading-relaxed max-w-md">
+                            Bienvenue sur le portail officiel. Obtenez votre e-Visa en quelques minutes grâce à notre assistant intelligent.
+                        </p>
+                    </div>
+                    
+                    <!-- Progress Indicator -->
+                    <div id="progress-panel" class="bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Progression</h3>
+                        <div class="flex flex-col gap-4">
+                            <!-- Progress Bar -->
+                            <div class="h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                <div id="progress-bar" class="h-full bg-primary rounded-full transition-all duration-500" style="width: 0%;"></div>
+                            </div>
+                            <!-- Step Indicators -->
+                            <div id="step-indicators" class="grid grid-cols-5 gap-2">
+                                <div class="step-indicator active flex flex-col items-center gap-1">
+                                    <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold">1</div>
+                                    <span class="text-xs text-center">Accueil</span>
+                                </div>
+                                <div class="step-indicator flex flex-col items-center gap-1">
+                                    <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 flex items-center justify-center text-sm font-bold">2</div>
+                                    <span class="text-xs text-center">Passeport</span>
+                                </div>
+                                <div class="step-indicator flex flex-col items-center gap-1">
+                                    <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 flex items-center justify-center text-sm font-bold">3</div>
+                                    <span class="text-xs text-center">Voyage</span>
+                                </div>
+                                <div class="step-indicator flex flex-col items-center gap-1">
+                                    <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 flex items-center justify-center text-sm font-bold">4</div>
+                                    <span class="text-xs text-center">Douanes</span>
+                                </div>
+                                <div class="step-indicator flex flex-col items-center gap-1">
+                                    <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 flex items-center justify-center text-sm font-bold">5</div>
+                                    <span class="text-xs text-center">Confirm</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Visual Context Card -->
+                    <div class="relative w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-xl group">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+                        <div class="absolute bottom-0 left-0 p-6 z-20 text-white">
+                            <p class="text-xl font-bold mb-1">Abidjan</p>
+                            <p class="text-sm opacity-90 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[16px]">location_on</span>
+                                Côte d'Ivoire
+                            </p>
+                        </div>
+                        <div class="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105" 
+                             style="background-image: url('https://images.unsplash.com/photo-1588096344356-9b497c98f7c3?w=800&h=600&fit=crop');"></div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Chat Interface -->
+                <div class="lg:col-span-7 flex flex-col h-full max-h-[850px] self-center w-full">
+                    <div class="flex flex-col flex-1 bg-surface-light dark:bg-surface-dark rounded-2xl lg:rounded-3xl shadow-2xl border border-[#f0f2f4] dark:border-gray-800 overflow-hidden relative">
+                        
+                        <!-- Mobile Header -->
+                        <div class="lg:hidden p-4 border-b border-[#f0f2f4] dark:border-gray-800 flex items-center gap-3">
+                            <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                <span class="material-symbols-outlined">smart_toy</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-base">Assistant Visa</h3>
+                                <p class="text-xs text-text-secondary flex items-center gap-1">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                    En ligne
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Chat Messages Area -->
+                        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-hide">
+                            <!-- Messages will be inserted here -->
+                        </div>
+                        
+                        <!-- Dynamic Action Area -->
+                        <div id="action-area" class="p-4 sm:p-6 bg-surface-light dark:bg-surface-dark border-t border-[#f0f2f4] dark:border-gray-800 z-10">
+                            <!-- Content changes based on current step -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- File Upload Modal -->
+    <div id="upload-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-surface-dark rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">upload_file</span>
+                        <span id="upload-modal-title">Upload Document</span>
+                    </h3>
+                    <button onclick="closeUploadModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                
+                <!-- Drop Zone -->
+                <div id="drop-zone" class="relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-primary transition-all cursor-pointer mb-4">
+                    <div class="flex flex-col items-center justify-center text-center px-4">
+                        <div class="size-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                            <span class="material-symbols-outlined text-primary text-3xl">cloud_upload</span>
+                        </div>
+                        <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                            <span class="font-semibold text-primary">Cliquez pour uploader</span> ou glissez-déposez
+                        </p>
+                        <p class="text-xs text-gray-400">JPG, PNG ou PDF (max. 5MB)</p>
+                    </div>
+                    <input type="file" id="file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf"/>
+                </div>
+                
+                <!-- Preview -->
+                <div id="upload-preview" class="hidden mb-4">
+                    <img id="preview-image" src="" alt="Preview" class="w-full h-48 object-cover rounded-xl"/>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex gap-3">
+                    <button onclick="useWebcam()" class="flex-1 flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-text-main dark:text-white rounded-full py-3 px-6 text-sm font-bold transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">photo_camera</span>
+                        Webcam
+                    </button>
+                    <button onclick="confirmUpload()" id="confirm-upload-btn" class="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white rounded-full py-3 px-6 text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <span class="material-symbols-outlined text-[20px]">check</span>
+                        Confirmer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main JavaScript -->
+    <script src="js/chatbot-tailwind.js"></script>
+</body>
+</html>
+

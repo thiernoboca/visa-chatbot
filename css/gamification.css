@@ -1,0 +1,720 @@
+/**
+ * Gamification CSS - Animations and Visual Effects
+ *
+ * Styles for:
+ * - Progress tracker
+ * - Step indicators
+ * - Toast notifications
+ * - Badge overlays
+ * - Prefill highlights
+ * - Time estimator
+ * - Animations
+ *
+ * @version 6.0.0
+ * @author Visa Chatbot Team
+ */
+
+/* ============================================================================
+   PROGRESS TRACKER
+   ============================================================================ */
+
+.progress-tracker-wrapper {
+    position: relative;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, rgba(13, 92, 70, 0.02) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.progress-tracker-wrapper.hidden {
+    display: none;
+}
+
+.progress-tracker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Header */
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.progress-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111418;
+}
+
+.dark .progress-title {
+    color: #ffffff;
+}
+
+.progress-flag {
+    font-size: 1.125rem;
+}
+
+.progress-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: #617289;
+}
+
+.progress-stats .material-symbols-outlined {
+    font-size: 1rem;
+    color: #0D5C46;
+}
+
+.docs-count {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Step Indicators */
+.progress-steps {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.progress-steps::-webkit-scrollbar {
+    display: none;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    position: relative;
+    flex-shrink: 0;
+    min-width: 40px;
+}
+
+.step-indicator {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.step-indicator .material-symbols-outlined {
+    font-size: 1rem;
+}
+
+/* Step States */
+.step-item.completed .step-indicator {
+    background: #0D5C46;
+    color: #ffffff;
+    transform: scale(1.1);
+    animation: stepComplete 0.4s ease-out;
+}
+
+.step-item.current .step-indicator {
+    background: rgba(13, 92, 70, 0.15);
+    color: #0D5C46;
+    border: 2px solid #0D5C46;
+    animation: stepPulse 2s ease-in-out infinite;
+}
+
+.step-item.pending .step-indicator {
+    background: #e2e8f0;
+    color: #94a3b8;
+}
+
+.dark .step-item.pending .step-indicator {
+    background: #334155;
+    color: #64748b;
+}
+
+.step-label {
+    font-size: 0.625rem;
+    font-weight: 500;
+    color: #617289;
+    white-space: nowrap;
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .step-label {
+        display: block;
+    }
+}
+
+.step-connector {
+    position: absolute;
+    top: 1rem;
+    left: 100%;
+    width: calc(100% - 2rem);
+    height: 2px;
+    background: #e2e8f0;
+}
+
+.step-item.completed + .step-item .step-connector,
+.step-item.completed .step-connector {
+    background: #0D5C46;
+}
+
+.dark .step-connector {
+    background: #334155;
+}
+
+/* Progress Bar */
+.progress-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 0.5rem;
+    background: #e2e8f0;
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.dark .progress-bar {
+    background: #334155;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0D5C46 0%, #4ade80 50%, #0D5C46 100%);
+    background-size: 200% 100%;
+    border-radius: 9999px;
+    animation: progressShine 2s ease-in-out infinite;
+    transition: width 0.5s ease-out;
+}
+
+.progress-percentage {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #0D5C46;
+    min-width: 2.5rem;
+    text-align: right;
+}
+
+/* Time Estimate */
+.progress-time {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: #617289;
+}
+
+.time-icon {
+    font-size: 0.875rem;
+    color: #0D5C46;
+    animation: tick 1s linear infinite;
+}
+
+/* ============================================================================
+   TOAST NOTIFICATIONS
+   ============================================================================ */
+
+.celebration-toast {
+    position: fixed;
+    bottom: 5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.5rem;
+    background: #ffffff;
+    border-radius: 9999px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark .celebration-toast {
+    background: #1e293b;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.toast-icon {
+    font-size: 1.5rem;
+}
+
+.toast-message {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111418;
+}
+
+.dark .toast-message {
+    color: #ffffff;
+}
+
+/* ============================================================================
+   BADGE OVERLAY
+   ============================================================================ */
+
+.badge-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+}
+
+.badge-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 3rem;
+    background: #ffffff;
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.dark .badge-container {
+    background: #1e293b;
+}
+
+.badge-icon {
+    font-size: 4rem;
+    animation: badgeFloat 1s ease-in-out infinite;
+}
+
+.badge-message {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111418;
+}
+
+.dark .badge-message {
+    color: #ffffff;
+}
+
+/* ============================================================================
+   PREFILL HIGHLIGHT
+   ============================================================================ */
+
+.prefill-field {
+    position: relative;
+}
+
+.prefill-field::before {
+    content: '\2728 Auto-rempli';
+    position: absolute;
+    top: -1.25rem;
+    left: 0;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #0D5C46;
+    animation: fadeIn 0.5s ease-out;
+}
+
+[lang="en"] .prefill-field::before {
+    content: '\2728 Auto-filled';
+}
+
+.prefill-field input,
+.prefill-field textarea,
+.prefill-field select {
+    border-color: rgba(13, 92, 70, 0.5) !important;
+    background-color: rgba(13, 92, 70, 0.05) !important;
+}
+
+/* Inline Success Indicator */
+.inline-success-indicator {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #22c55e;
+}
+
+.inline-success-indicator .material-symbols-outlined {
+    font-size: 1.25rem;
+}
+
+/* ============================================================================
+   ANIMATIONS
+   ============================================================================ */
+
+/* Keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+    to {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    70% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes stepComplete {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes stepPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(13, 92, 70, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(13, 92, 70, 0);
+    }
+}
+
+@keyframes progressShine {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes badgeFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes tick {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Animation Classes */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+}
+
+.animate-slide-in {
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-slide-out {
+    animation: slideOut 0.3s ease-in forwards;
+}
+
+.animate-bounce-in {
+    animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.animate-pop-in {
+    animation: popIn 0.3s ease-out forwards;
+}
+
+.animate-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+.animate-pulse {
+    animation: pulse 0.5s ease-in-out;
+}
+
+/* Animation Delays */
+.delay-100 {
+    animation-delay: 0.1s;
+}
+
+.delay-200 {
+    animation-delay: 0.2s;
+}
+
+.delay-300 {
+    animation-delay: 0.3s;
+}
+
+.delay-500 {
+    animation-delay: 0.5s;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================================================
+   SUGGESTIONS PANEL
+   ============================================================================ */
+
+.suggestion-card {
+    background: linear-gradient(135deg, rgba(13, 92, 70, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+    border: 1px solid rgba(13, 92, 70, 0.15);
+    border-radius: 1rem;
+    padding: 1rem;
+    margin: 0.5rem 0;
+}
+
+.dark .suggestion-card {
+    background: linear-gradient(135deg, rgba(13, 92, 70, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
+    border-color: rgba(13, 92, 70, 0.3);
+}
+
+.suggestion-card.warning {
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+    border-color: rgba(234, 179, 8, 0.3);
+}
+
+.suggestion-card.critical {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.suggestion-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.suggestion-icon {
+    font-size: 1.25rem;
+}
+
+.suggestion-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.suggestion-message {
+    font-size: 0.875rem;
+    color: #617289;
+    line-height: 1.5;
+}
+
+.suggestion-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.suggestion-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.suggestion-btn.primary {
+    background: #0D5C46;
+    color: #ffffff;
+    border: none;
+}
+
+.suggestion-btn.primary:hover {
+    background: #094536;
+}
+
+.suggestion-btn.secondary {
+    background: transparent;
+    color: #617289;
+    border: 1px solid #e2e8f0;
+}
+
+.suggestion-btn.secondary:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================================================
+   CROSS-VALIDATION INDICATOR
+   ============================================================================ */
+
+.cross-validation-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #22c55e;
+}
+
+.cross-validation-badge .material-symbols-outlined {
+    font-size: 0.875rem;
+}
+
+.cross-validation-badge.warning {
+    background: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+}
+
+.cross-validation-badge.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+/* ============================================================================
+   DOCUMENT CARD ENHANCEMENTS
+   ============================================================================ */
+
+.document-card.validated {
+    border-color: #22c55e;
+}
+
+.document-card.validated::after {
+    content: '';
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: #22c55e;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popIn 0.3s ease-out;
+}
+
+.document-card.has-prefill {
+    position: relative;
+}
+
+.document-card.has-prefill::before {
+    content: 'Pre-rempli';
+    position: absolute;
+    top: -0.5rem;
+    left: 1rem;
+    padding: 0.125rem 0.5rem;
+    background: #0D5C46;
+    color: #ffffff;
+    font-size: 0.625rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    text-transform: uppercase;
+}
+
+[lang="en"] .document-card.has-prefill::before {
+    content: 'Prefilled';
+}

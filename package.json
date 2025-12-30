@@ -1,0 +1,32 @@
+{
+    "name": "visa-chatbot",
+    "version": "4.0.0",
+    "description": "Chatbot e-Visa - Ambassade de Côte d'Ivoire",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "lint": "eslint js/modules/**/*.js",
+        "format": "prettier --write 'js/modules/**/*.js' 'css/**/*.css'",
+        "test": "open test-modules.html"
+    },
+    "devDependencies": {
+        "vite": "^5.0.0",
+        "terser": "^5.24.0",
+        "eslint": "^8.55.0",
+        "prettier": "^3.1.0"
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead",
+        "not ie 11"
+    ],
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "author": "Ambassade de Côte d'Ivoire",
+    "license": "UNLICENSED",
+    "private": true
+}

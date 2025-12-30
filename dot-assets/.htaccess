@@ -1,0 +1,16 @@
+# Configuration MIME types pour les fichiers WASM (WebAssembly)
+# Requis pour Innovatrics DOT Document Auto Capture
+
+# Ajouter le type MIME pour les fichiers .wasm
+AddType application/wasm .wasm
+
+# Autoriser CORS pour les fichiers WASM (si necessaire)
+<FilesMatch "\.(wasm)$">
+    Header set Access-Control-Allow-Origin "*"
+    Header set Content-Type "application/wasm"
+</FilesMatch>
+
+# Cache pour les fichiers WASM (optionnel mais recommande)
+<FilesMatch "\.(wasm|js)$">
+    Header set Cache-Control "public, max-age=31536000"
+</FilesMatch>

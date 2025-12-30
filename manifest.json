@@ -1,0 +1,73 @@
+{
+    "name": "Demande de Visa - Ambassade de Côte d'Ivoire",
+    "short_name": "Visa CI",
+    "description": "Assistant intelligent pour votre demande de visa pour la Côte d'Ivoire",
+    "start_url": "/hunyuanocr/visa-chatbot/",
+    "display": "standalone",
+    "background_color": "#1a1a2e",
+    "theme_color": "#F77F00",
+    "orientation": "portrait-primary",
+    "lang": "fr-FR",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%23F77F00' width='64' height='192'/%3E%3Crect fill='%23FFFFFF' x='64' width='64' height='192'/%3E%3Crect fill='%23009A44' x='128' width='64' height='192'/%3E%3C/svg%3E",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%23F77F00' width='170' height='512'/%3E%3Crect fill='%23FFFFFF' x='170' width='172' height='512'/%3E%3Crect fill='%23009A44' x='342' width='170' height='512'/%3E%3C/svg%3E",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["government", "travel"],
+    "screenshots": [],
+    "related_applications": [],
+    "prefer_related_applications": false,
+    "scope": "/hunyuanocr/visa-chatbot/",
+    "id": "visa-ci-chatbot",
+    "dir": "ltr",
+    "iarc_rating_id": "",
+    "shortcuts": [
+        {
+            "name": "Nouvelle demande",
+            "short_name": "Nouvelle",
+            "description": "Commencer une nouvelle demande de visa",
+            "url": "/hunyuanocr/visa-chatbot/?action=new",
+            "icons": [
+                {
+                    "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect fill='%23F77F00' rx='16' width='96' height='96'/%3E%3Cpath fill='white' d='M48 24v48M24 48h48' stroke='white' stroke-width='6'/%3E%3C/svg%3E",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Reprendre demande",
+            "short_name": "Reprendre",
+            "description": "Reprendre une demande en cours",
+            "url": "/hunyuanocr/visa-chatbot/?action=resume",
+            "icons": [
+                {
+                    "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect fill='%23009A44' rx='16' width='96' height='96'/%3E%3Cpath fill='white' d='M30 30l36 18-36 18z'/%3E%3C/svg%3E",
+                    "sizes": "96x96"
+                }
+            ]
+        }
+    ],
+    "share_target": {
+        "action": "/hunyuanocr/visa-chatbot/share",
+        "method": "POST",
+        "enctype": "multipart/form-data",
+        "params": {
+            "files": [
+                {
+                    "name": "passport",
+                    "accept": ["image/*", "application/pdf"]
+                }
+            ]
+        }
+    }
+}
+

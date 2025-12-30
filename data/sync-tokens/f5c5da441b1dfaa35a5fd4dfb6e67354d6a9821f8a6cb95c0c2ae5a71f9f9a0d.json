@@ -1,0 +1,10 @@
+{
+    "token": "64b1085f7312b5a3baf7340c9161d319",
+    "session_id": "chat_fe9c7a179dbcb1505dc675eb5bb66dc8",
+    "created_at": 1766267703,
+    "expires_at": 1766354103,
+    "used": false,
+    "used_at": null,
+    "user_agent": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit\/537.36 (KHTML, like Gecko) Cursor\/2.2.43 Chrome\/138.0.7204.251 Electron\/37.7.0 Safari\/537.36",
+    "ip_hash": "eff8e7ca506627fe15dda5e0e512fcaad70b6d520f37cc76597fdb4f2d83a1a3"
+}

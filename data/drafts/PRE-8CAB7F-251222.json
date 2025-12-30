@@ -1,0 +1,17 @@
+{
+    "pre_application_id": "PRE-8CAB7F-251222",
+    "session_id": "chat_f0f0a3143558e9a603e218b135ac1677",
+    "language": "fr",
+    "current_step": "residence",
+    "workflow_category": null,
+    "collected_data": {
+        "pre_application_id": "PRE-8CAB7F-251222",
+        "language": "fr"
+    },
+    "completed_steps": [
+        "welcome"
+    ],
+    "highest_step_reached": 1,
+    "saved_at": 1766410738,
+    "expires_at": 1767015538
+}

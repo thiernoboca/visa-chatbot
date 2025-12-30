@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - Visa CI Chatbot</title>
+    <style>
+        :root {
+            --primary: #FF6B00;
+            --primary-dark: #E55A00;
+            --secondary: #009E49;
+            --bg-dark: #0F1419;
+            --bg-card: #1A2028;
+            --bg-card-hover: #232B35;
+            --text-primary: #FFFFFF;
+            --text-secondary: #8B9AAB;
+            --border-color: #2C3640;
+            --success: #00C853;
+            --warning: #FFB300;
+            --error: #FF5252;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        header h1 span {
+            color: var(--primary);
+        }
+        
+        .last-updated {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .refresh-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background 0.2s;
+        }
+        
+        .refresh-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+        
+        .card:hover {
+            background: var(--bg-card-hover);
+        }
+        
+        .card-title {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-value.success {
+            color: var(--success);
+        }
+        
+        .card-value.warning {
+            color: var(--warning);
+        }
+        
+        .card-value.error {
+            color: var(--error);
+        }
+        
+        .card-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .funnel-container {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        
+        .funnel-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .funnel-step:last-child {
+            margin-bottom: 0;
+        }
+        
+        .funnel-label {
+            width: 120px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .funnel-bar-container {
+            flex: 1;
+            height: 32px;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 0 1rem;
+        }
+        
+        .funnel-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 6px;
+            transition: width 0.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.75rem;
+            min-width: 50px;
+        }
+        
+        .funnel-bar span {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .funnel-count {
+            width: 80px;
+            text-align: right;
+            font-weight: 600;
+        }
+        
+        .table-container {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover td {
+            background: var(--bg-card-hover);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-success {
+            background: rgba(0, 200, 83, 0.2);
+            color: var(--success);
+        }
+        
+        .badge-warning {
+            background: rgba(255, 179, 0, 0.2);
+            color: var(--warning);
+        }
+        
+        .badge-error {
+            background: rgba(255, 82, 82, 0.2);
+            color: var(--error);
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            color: var(--text-secondary);
+        }
+        
+        .loading::after {
+            content: '';
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 0.5rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 1rem;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .funnel-label {
+                width: 80px;
+                font-size: 0.75rem;
+            }
+            
+            .funnel-count {
+                width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <h1>📊 Analytics <span>Dashboard</span></h1>
+            <div class="header-actions">
+                <span class="last-updated" id="lastUpdated">Chargement...</span>
+                <button class="refresh-btn" onclick="loadData()">🔄 Actualiser</button>
+            </div>
+        </header>
+        
+        <!-- KPIs Overview -->
+        <div class="grid" id="kpiGrid">
+            <div class="card">
+                <div class="card-title">Sessions Totales</div>
+                <div class="card-value" id="totalSessions">-</div>
+                <div class="card-subtitle">Toutes périodes confondues</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Taux de Complétion</div>
+                <div class="card-value success" id="completionRate">-</div>
+                <div class="card-subtitle">Sessions terminées</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Taux d'Abandon</div>
+                <div class="card-value warning" id="abandonRate">-</div>
+                <div class="card-subtitle">Sessions abandonnées</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Scans Passeport</div>
+                <div class="card-value" id="scanSuccessRate">-</div>
+                <div class="card-subtitle" id="scanDetails">-</div>
+            </div>
+        </div>
+        
+        <!-- Funnel -->
+        <h2 class="section-title">📈 Funnel de Conversion</h2>
+        <div class="funnel-container" id="funnelContainer">
+            <div class="loading">Chargement des données</div>
+        </div>
+        
+        <!-- Steps Performance -->
+        <h2 class="section-title">⏱️ Performance par Étape</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Étape</th>
+                        <th>Complétions</th>
+                        <th>Abandons</th>
+                        <th>Taux de Complétion</th>
+                        <th>Durée Moyenne</th>
+                    </tr>
+                </thead>
+                <tbody id="stepsTable">
+                    <tr>
+                        <td colspan="5" class="loading">Chargement...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Validation Errors -->
+        <h2 class="section-title" style="margin-top: 2rem;">⚠️ Erreurs de Validation Fréquentes</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Champ</th>
+                        <th>Type d'Erreur</th>
+                        <th>Occurrences</th>
+                    </tr>
+                </thead>
+                <tbody id="errorsTable">
+                    <tr>
+                        <td colspan="3" class="loading">Chargement...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        const STEP_LABELS = {
+            'welcome': 'Accueil',
+            'residence': 'Résidence',
+            'passport': 'Passeport',
+            'photo': 'Photo',
+            'contact': 'Contact',
+            'trip': 'Voyage',
+            'health': 'Santé',
+            'customs': 'Douanes',
+            'confirm': 'Confirmation'
+        };
+        
+        async function loadData() {
+            try {
+                const response = await fetch('php/analytics-service.php?action=summary');
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderDashboard(result.data);
+                } else {
+                    console.error('Erreur:', result.error);
+                }
+            } catch (error) {
+                console.error('Erreur de chargement:', error);
+            }
+        }
+        
+        function renderDashboard(data) {
+            // KPIs
+            document.getElementById('totalSessions').textContent = 
+                formatNumber(data.overview.total_sessions);
+            
+            document.getElementById('completionRate').textContent = 
+                data.overview.completion_rate + '%';
+            
+            document.getElementById('abandonRate').textContent = 
+                data.overview.abandonment_rate + '%';
+            
+            document.getElementById('scanSuccessRate').textContent = 
+                data.passport_scans.success_rate + '%';
+            
+            document.getElementById('scanDetails').textContent = 
+                `${data.passport_scans.success} réussis / ${data.passport_scans.total} total`;
+            
+            // Last updated
+            document.getElementById('lastUpdated').textContent = 
+                data.updated_at ? 'Mis à jour: ' + formatDate(data.updated_at) : 'Pas de données';
+            
+            // Funnel
+            renderFunnel(data.steps_performance);
+            
+            // Steps table
+            renderStepsTable(data.steps_performance);
+            
+            // Errors table
+            renderErrorsTable(data.top_validation_errors);
+        }
+        
+        function renderFunnel(stepsData) {
+            const container = document.getElementById('funnelContainer');
+            
+            if (!stepsData || stepsData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <p>Pas encore de données de funnel</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const maxCompletions = Math.max(...stepsData.map(s => s.completions || 0), 1);
+            
+            let html = '';
+            stepsData.forEach(step => {
+                const percentage = ((step.completions || 0) / maxCompletions) * 100;
+                const label = STEP_LABELS[step.step] || step.step;
+                
+                html += `
+                    <div class="funnel-step">
+                        <div class="funnel-label">${label}</div>
+                        <div class="funnel-bar-container">
+                            <div class="funnel-bar" style="width: ${Math.max(percentage, 5)}%">
+                                <span>${step.completion_rate}%</span>
+                            </div>
+                        </div>
+                        <div class="funnel-count">${formatNumber(step.completions)}</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function renderStepsTable(stepsData) {
+            const tbody = document.getElementById('stepsTable');
+            
+            if (!stepsData || stepsData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">Pas de données</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            stepsData.forEach(step => {
+                const label = STEP_LABELS[step.step] || step.step;
+                const rate = step.completion_rate || 0;
+                let badgeClass = 'badge-success';
+                if (rate < 50) badgeClass = 'badge-error';
+                else if (rate < 75) badgeClass = 'badge-warning';
+                
+                html += `
+                    <tr>
+                        <td>${label}</td>
+                        <td>${formatNumber(step.completions)}</td>
+                        <td>${formatNumber(step.abandons)}</td>
+                        <td><span class="badge ${badgeClass}">${rate}%</span></td>
+                        <td>${step.avg_duration_seconds > 0 ? formatDuration(step.avg_duration_seconds) : '-'}</td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        function renderErrorsTable(errors) {
+            const tbody = document.getElementById('errorsTable');
+            
+            if (!errors || errors.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="empty-state">Aucune erreur enregistrée 🎉</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            errors.forEach(error => {
+                html += `
+                    <tr>
+                        <td>${error.field}</td>
+                        <td>${error.error_type}</td>
+                        <td><span class="badge badge-error">${formatNumber(error.count)}</span></td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        function formatNumber(num) {
+            return new Intl.NumberFormat('fr-FR').format(num || 0);
+        }
+        
+        function formatDate(isoString) {
+            return new Date(isoString).toLocaleString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function formatDuration(seconds) {
+            if (seconds < 60) {
+                return Math.round(seconds) + 's';
+            }
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.round(seconds % 60);
+            return `${minutes}m ${remainingSeconds}s`;
+        }
+        
+        // Load data on page load
+        loadData();
+        
+        // Auto-refresh every 60 seconds
+        setInterval(loadData, 60000);
+    </script>
+</body>
+</html>
+

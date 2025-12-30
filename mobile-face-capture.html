@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Capture Photo - e-Visa Côte d'Ivoire</title>
+
+    <!-- Content Security Policy pour WASM (Innovatrics) -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.tailwindcss.com blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' blob:; worker-src 'self' blob:; child-src 'self' blob:;">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23F77F00' width='33' height='100'/%3E%3Crect fill='%23FFFFFF' x='33' width='34' height='100'/%3E%3Crect fill='%23009A44' x='67' width='33' height='100'/%3E%3C/svg%3E">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#0D5C46',
+                        'primary-light': '#10816A',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+    
+    <!-- Innovatrics Face Scripts -->
+    <script src="assets/innovatrics/face-capture.umd.js"></script>
+    <script src="assets/innovatrics/face-ui.umd.js"></script>
+
+    <style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Rounded';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0F172A;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        #camera-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        x-dot-face-auto-capture,
+        x-dot-face-auto-capture-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            z-index: 100;
+            text-align: center;
+        }
+        
+        .instruction-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 16px;
+            border-radius: 100px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .preview-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 200;
+        }
+        
+        .preview-modal.active {
+            display: flex;
+        }
+        
+        .preview-image {
+            max-width: 250px;
+            max-height: 50vh;
+            border-radius: 16px;
+            border: 3px solid #10816A;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+        }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(16, 129, 106, 0.3);
+            border-top-color: #10816A;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .success-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.98);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 400;
+        }
+        
+        .success-modal.active {
+            display: flex;
+        }
+        
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10816A, #14B88A);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scaleIn 0.3s ease-out;
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p class="text-white mt-4 text-sm">Initialisation...</p>
+    </div>
+
+    <!-- Camera Container -->
+    <div id="camera-container">
+        <x-dot-face-auto-capture id="face-capture"></x-dot-face-auto-capture>
+        <x-dot-face-auto-capture-ui id="face-capture-ui"></x-dot-face-auto-capture-ui>
+        
+        <!-- Header -->
+        <div class="header">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined text-white text-lg">face</span>
+                </div>
+                <span class="text-white font-semibold">Photo d'identité</span>
+            </div>
+            <div class="status-dot"></div>
+        </div>
+        
+        <!-- Footer with instruction -->
+        <div class="footer">
+            <div class="instruction-badge" id="instruction-badge">
+                <span class="material-symbols-outlined text-lg">info</span>
+                <span id="instruction-text">Positionnez votre visage</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="preview-modal" class="preview-modal">
+        <h3 class="text-white text-xl font-semibold mb-4">Vérifiez votre photo</h3>
+        <img id="preview-image" class="preview-image" src="" alt="Preview">
+        <p class="text-gray-400 text-sm mt-4 mb-6">La photo sera recadrée au format identité</p>
+        
+        <div class="flex gap-3 w-full max-w-xs">
+            <button id="retry-btn" class="flex-1 py-3 px-4 rounded-xl border border-gray-600 text-white font-medium flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined">refresh</span>
+                Reprendre
+            </button>
+            <button id="confirm-btn" class="flex-1 py-3 px-4 rounded-xl bg-primary text-white font-medium flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined">check</span>
+                Confirmer
+            </button>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="success-modal">
+        <div class="checkmark">
+            <span class="material-symbols-outlined text-white text-4xl">check</span>
+        </div>
+        <h3 class="text-white text-xl font-semibold mt-6">Photo envoyée !</h3>
+        <p class="text-gray-400 text-sm mt-2">Vous pouvez fermer cette page</p>
+    </div>
+
+    <script>
+        // Récupérer le sessionId depuis l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session');
+        
+        if (!sessionId) {
+            alert('Session invalide. Veuillez rescanner le QR code.');
+            window.close();
+        }
+
+        let capturedImageBlob = null;
+
+        // Instructions mapping
+        const instructions = {
+            'face_not_present': 'Positionnez votre visage',
+            'face_centering': 'Centrez votre visage',
+            'face_too_close': 'Éloignez-vous',
+            'face_too_far': 'Rapprochez-vous',
+            'sharpness_too_low': 'Image floue',
+            'brightness_too_low': 'Plus de lumière',
+            'brightness_too_high': 'Moins de lumière',
+            'candidate_selection': 'Ne bougez plus...'
+        };
+
+        // Initialiser la capture
+        document.addEventListener('DOMContentLoaded', async () => {
+            const captureElement = document.getElementById('face-capture');
+            const captureUI = document.getElementById('face-capture-ui');
+            const container = document.getElementById('camera-container');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const instructionText = document.getElementById('instruction-text');
+            const instructionBadge = document.getElementById('instruction-badge');
+
+            // Configurer l'UI
+            if (captureUI) {
+                captureUI.props = {
+                    placeholder: 'face-circular',
+                    showCameraButtons: false,
+                    instructionPosition: 'hidden',
+                    backdropColor: 'rgba(0, 0, 0, 0.4)',
+                    styleTarget: container,
+                    theme: {
+                        colors: {
+                            placeholderColor: 'rgba(255,255,255,0.5)',
+                            placeholderColorSuccess: '#10816A'
+                        }
+                    }
+                };
+
+                // Écouter les changements d'instruction
+                captureElement.addEventListener('face-auto-capture:instruction-changed', (e) => {
+                    const code = e.detail?.instructionCode;
+                    if (code && instructions[code]) {
+                        instructionText.textContent = instructions[code];
+                        
+                        if (code === 'candidate_selection') {
+                            instructionBadge.classList.remove('bg-white/15');
+                            instructionBadge.classList.add('bg-green-500/30');
+                        } else {
+                            instructionBadge.classList.add('bg-white/15');
+                            instructionBadge.classList.remove('bg-green-500/30');
+                        }
+                    }
+                });
+            }
+
+            // Options caméra
+            captureElement.cameraOptions = {
+                // CRITIQUE: Chemin vers les assets WASM
+                assetsDirectoryPath: '/hunyuanocr/visa-chatbot',
+
+                styleTarget: container,
+                cameraFacing: 'user',
+                captureMode: 'AUTO_CAPTURE',
+                candidateSelectionDurationMillis: 1500,
+                sessionToken: sessionId,
+
+                onPhotoTaken: async (imageData) => {
+                    console.log('Photo captured!', imageData);
+                    capturedImageBlob = imageData.image;
+                    showPreview(imageData.image);
+                },
+
+                onError: (error) => {
+                    console.error('Camera error:', error);
+                    loadingOverlay.innerHTML = `
+                        <span class="material-symbols-outlined text-red-500 text-5xl">error</span>
+                        <p class="text-white mt-4">${error?.message || 'Erreur de caméra'}</p>
+                        <button onclick="location.reload()" class="mt-4 px-6 py-2 bg-primary rounded-lg text-white">
+                            Réessayer
+                        </button>
+                    `;
+                },
+
+                thresholds: {
+                    confidenceThreshold: 0.9,
+                    sharpnessThreshold: 0.5,
+                    brightnessLowThreshold: 0.2,
+                    brightnessHighThreshold: 0.95
+                }
+            };
+
+            // Cacher le loading
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+            }, 2000);
+        });
+
+        function showPreview(blob) {
+            const previewModal = document.getElementById('preview-modal');
+            const previewImage = document.getElementById('preview-image');
+            
+            previewImage.src = URL.createObjectURL(blob);
+            previewModal.classList.add('active');
+        }
+
+        // Bouton Reprendre
+        document.getElementById('retry-btn').addEventListener('click', () => {
+            document.getElementById('preview-modal').classList.remove('active');
+            capturedImageBlob = null;
+            // La caméra continuera automatiquement
+        });
+
+        // Bouton Confirmer
+        document.getElementById('confirm-btn').addEventListener('click', async () => {
+            if (!capturedImageBlob) return;
+
+            try {
+                // Recadrer au format ID
+                const croppedBlob = await cropToIDFormat(capturedImageBlob);
+                
+                // Envoyer au serveur
+                const formData = new FormData();
+                formData.append('session', sessionId);
+                formData.append('type', 'face');
+                formData.append('image', croppedBlob, 'face-capture.jpg');
+
+                const response = await fetch('php/mobile-capture-handler.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('preview-modal').classList.remove('active');
+                    document.getElementById('success-modal').classList.add('active');
+                    
+                    // Fermer automatiquement après 3 secondes
+                    setTimeout(() => {
+                        window.close();
+                    }, 3000);
+                } else {
+                    throw new Error(result.error || 'Erreur d\'envoi');
+                }
+            } catch (error) {
+                alert('Erreur lors de l\'envoi: ' + error.message);
+            }
+        });
+
+        /**
+         * Recadre l'image au format photo d'identité (35x45mm, ratio 7:9)
+         */
+        async function cropToIDFormat(imageBlob) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Dimensions standard photo d'identité (ratio 7:9)
+                    const targetWidth = 413;
+                    const targetHeight = 531;
+                    const ratio = targetWidth / targetHeight;
+
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
+
+                    // Recadrage centré avec ratio correct
+                    const imgRatio = img.width / img.height;
+                    let cropX, cropY, cropWidth, cropHeight;
+                    
+                    if (imgRatio > ratio) {
+                        cropHeight = img.height;
+                        cropWidth = cropHeight * ratio;
+                        cropX = (img.width - cropWidth) / 2;
+                        cropY = 0;
+                    } else {
+                        cropWidth = img.width;
+                        cropHeight = cropWidth / ratio;
+                        cropX = 0;
+                        cropY = (img.height - cropHeight) * 0.3; // Un peu plus haut
+                    }
+
+                    // Fond blanc
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, targetWidth, targetHeight);
+
+                    // Dessiner
+                    ctx.drawImage(
+                        img,
+                        cropX, cropY, cropWidth, cropHeight,
+                        0, 0, targetWidth, targetHeight
+                    );
+
+                    canvas.toBlob(
+                        (blob) => resolve(blob),
+                        'image/jpeg',
+                        0.92
+                    );
+                };
+                img.onerror = reject;
+                img.src = URL.createObjectURL(imageBlob);
+            });
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,17 @@
+{
+    "pre_application_id": "PRE-75FB69-251220",
+    "session_id": "chat_74fe569ceaa33b3a3601ad358dacd373",
+    "language": "fr",
+    "current_step": "welcome",
+    "workflow_category": null,
+    "collected_data": {
+        "pre_application_id": "PRE-75FB69-251220",
+        "language": "fr"
+    },
+    "completed_steps": [
+        "welcome"
+    ],
+    "highest_step_reached": 0,
+    "saved_at": 1766262533,
+    "expires_at": 1766867333
+}

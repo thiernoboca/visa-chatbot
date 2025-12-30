@@ -1,0 +1,68 @@
+{
+    "pre_application_id": "PRE-C0215B-251220",
+    "session_id": "chat_5853aa30bf2cdc16a2ca21f5c5f4a00e",
+    "language": "fr",
+    "current_step": "photo",
+    "workflow_category": "ORDINAIRE",
+    "collected_data": {
+        "pre_application_id": "PRE-C0215B-251220",
+        "language": "fr",
+        "country_code": "KEN",
+        "city": "nairobi",
+        "passport_data": {
+            "surname": {
+                "value": "ADERA",
+                "confidence": 0.95
+            },
+            "given_names": {
+                "value": "EDEN TESFAYE",
+                "confidence": 0.95
+            },
+            "date_of_birth": {
+                "value": "2000-03-18",
+                "confidence": 0.95
+            },
+            "place_of_birth": {
+                "value": "ADDIS ABABA",
+                "confidence": 0.85
+            },
+            "sex": {
+                "value": "Féminin",
+                "confidence": 0.99
+            },
+            "nationality": {
+                "value": "ETH",
+                "confidence": 0.95
+            },
+            "passport_number": {
+                "value": "EP9006473",
+                "confidence": 0.99
+            },
+            "date_of_issue": {
+                "value": "2024-07-27",
+                "confidence": 0.88
+            },
+            "date_of_expiry": {
+                "value": "2029-07-26",
+                "confidence": 0.95
+            },
+            "issuing_authority": {
+                "value": "MAIN DEPARTMENT FOR IMMIGRATION AND NATIONALITY AFFAIRS",
+                "confidence": 0.7
+            },
+            "place_of_issue": {
+                "value": "ADDIS ABABA",
+                "confidence": 0.75
+            }
+        },
+        "passport_type": "ORDINAIRE"
+    },
+    "completed_steps": [
+        "welcome",
+        "residence",
+        "passport"
+    ],
+    "highest_step_reached": 3,
+    "saved_at": 1766263862,
+    "expires_at": 1766868662
+}

@@ -1,0 +1,17 @@
+{
+    "pre_application_id": "PRE-03F900-251220",
+    "session_id": "chat_2a8dab2cf24e83dfbceac030aaff89b2",
+    "language": "fr",
+    "current_step": "residence",
+    "workflow_category": null,
+    "collected_data": {
+        "pre_application_id": "PRE-03F900-251220",
+        "language": "fr"
+    },
+    "completed_steps": [
+        "welcome"
+    ],
+    "highest_step_reached": 1,
+    "saved_at": 1766270622,
+    "expires_at": 1766875422
+}

@@ -1,0 +1,665 @@
+/**
+ * Multi-Document Upload Styles - Chatbot Visa CI
+ * Style macOS minimaliste
+ * 
+ * @version 1.0.0
+ */
+
+/* ========================================
+   MULTI-UPLOAD CONTAINER
+======================================== */
+.multi-upload-container {
+    background: var(--macos-bg-secondary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+}
+
+.multi-upload-header {
+    text-align: center;
+    margin-bottom: var(--space-6);
+}
+
+.multi-upload-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.upload-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* ========================================
+   UPLOAD GRID
+======================================== */
+.upload-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+@media (max-width: 480px) {
+    .upload-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================
+   UPLOAD ZONE
+======================================== */
+.upload-zone-wrapper {
+    position: relative;
+}
+
+.upload-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+    padding: var(--space-4);
+    background: var(--macos-bg);
+    border: 2px dashed var(--border-medium);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--duration-base) var(--ease-out);
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-zone:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+}
+
+.upload-zone.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    border-style: solid;
+    transform: scale(1.02);
+}
+
+.upload-zone.has-file {
+    border-style: solid;
+    border-color: var(--accent);
+    background: var(--accent-light);
+}
+
+.upload-zone.processing {
+    border-color: var(--warning);
+    background: rgba(255, 149, 0, 0.1);
+}
+
+.upload-zone.complete {
+    border-color: var(--success);
+    background: var(--green-light);
+}
+
+.upload-zone.error {
+    border-color: var(--error);
+    background: rgba(255, 59, 48, 0.1);
+}
+
+/* ========================================
+   UPLOAD ZONE CONTENT
+======================================== */
+.upload-zone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    text-align: center;
+}
+
+.upload-zone-icon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.upload-zone-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.upload-zone-status {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+/* ========================================
+   UPLOAD PREVIEW
+======================================== */
+.upload-zone-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+}
+
+.upload-preview-img {
+    max-width: 60px;
+    max-height: 60px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+}
+
+.upload-preview-name {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.btn-remove-file {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: var(--macos-bg-secondary);
+    border: 1px solid var(--border-medium);
+    border-radius: 50%;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--duration-fast) var(--ease-out);
+    z-index: 10;
+}
+
+.btn-remove-file:hover {
+    background: var(--error);
+    color: white;
+    border-color: var(--error);
+}
+
+/* ========================================
+   UPLOAD PROCESSING
+======================================== */
+.upload-zone-processing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.upload-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border-medium);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.upload-zone-processing span {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* ========================================
+   UPLOAD RESULT
+======================================== */
+.upload-zone-result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.upload-zone-result .result-icon {
+    font-size: 1.5rem;
+    color: var(--success);
+}
+
+.upload-zone.error .result-icon {
+    color: var(--error);
+}
+
+.result-confidence {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--success);
+}
+
+.upload-zone.error .result-confidence {
+    color: var(--error);
+}
+
+/* ========================================
+   PROGRESS BAR
+======================================== */
+.upload-progress-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+}
+
+.upload-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--macos-bg-tertiary);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.upload-progress-fill {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: var(--radius-full);
+    transition: width var(--duration-base) var(--ease-out);
+}
+
+.upload-progress-text {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+/* ========================================
+   UPLOAD ACTIONS
+======================================== */
+.upload-actions {
+    display: flex;
+    justify-content: center;
+}
+
+.btn-extract {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    background: var(--accent-gradient);
+    border: none;
+    border-radius: var(--radius-full);
+    color: white;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--duration-base) var(--ease-out);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-extract:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-extract:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-extract .btn-icon {
+    font-size: 1.25rem;
+}
+
+/* ========================================
+   VERIFICATION MODAL
+======================================== */
+.verification-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: var(--space-4);
+}
+
+.verification-modal-overlay[hidden] {
+    display: none;
+}
+
+.verification-modal {
+    background: var(--macos-bg-secondary);
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-light);
+    animation: modalSlideIn var(--duration-base) var(--ease-spring);
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.verification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5) var(--space-6);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.verification-header h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.btn-close-verification {
+    padding: var(--space-2);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.btn-close-verification:hover {
+    background: var(--macos-bg-tertiary);
+    color: var(--text-primary);
+}
+
+.verification-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-4) var(--space-6);
+}
+
+.verification-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--border-light);
+}
+
+/* ========================================
+   VALIDATION ALERTS
+======================================== */
+.validation-alerts {
+    margin-bottom: var(--space-5);
+}
+
+.alerts-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-3);
+}
+
+.validation-alert {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-2);
+    font-size: 0.875rem;
+}
+
+.validation-alert:last-child {
+    margin-bottom: 0;
+}
+
+.validation-success {
+    background: var(--green-light);
+    color: var(--success);
+}
+
+.validation-warning {
+    background: rgba(255, 149, 0, 0.12);
+    color: #CC7700;
+}
+
+.validation-error {
+    background: rgba(255, 59, 48, 0.12);
+    color: var(--error);
+}
+
+.alert-icon {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* ========================================
+   DOCUMENT SECTIONS
+======================================== */
+.document-section {
+    background: var(--macos-bg);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--border-light);
+}
+
+.document-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.section-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.confidence-badge {
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.confidence-high {
+    background: var(--green-light);
+    color: var(--success);
+}
+
+.confidence-medium {
+    background: rgba(255, 149, 0, 0.12);
+    color: #CC7700;
+}
+
+.confidence-low {
+    background: rgba(255, 59, 48, 0.12);
+    color: var(--error);
+}
+
+/* ========================================
+   FIELDS GRID
+======================================== */
+.fields-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: var(--space-3);
+    align-items: center;
+}
+
+@media (max-width: 480px) {
+    .field-row {
+        grid-template-columns: 1fr;
+        gap: var(--space-1);
+    }
+}
+
+.field-label {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.field-value-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.field-input {
+    flex: 1;
+    padding: var(--space-2) var(--space-3);
+    background: var(--macos-bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.field-input.field-modified {
+    border-color: var(--warning);
+    background: rgba(255, 149, 0, 0.05);
+}
+
+.field-input.confidence-high {
+    border-color: var(--success);
+}
+
+.field-input.confidence-medium {
+    border-color: var(--warning);
+}
+
+.field-input.confidence-low {
+    border-color: var(--error);
+}
+
+.field-confidence {
+    font-size: 0.6875rem;
+    color: var(--text-tertiary);
+    min-width: 32px;
+    text-align: right;
+}
+
+/* ========================================
+   MODAL BUTTONS
+======================================== */
+.btn-modify,
+.btn-confirm {
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-md);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.btn-modify {
+    background: var(--macos-bg);
+    border: 1px solid var(--border-medium);
+    color: var(--text-primary);
+}
+
+.btn-modify:hover {
+    background: var(--macos-bg-tertiary);
+}
+
+.btn-confirm {
+    background: var(--accent-gradient);
+    border: none;
+    color: white;
+}
+
+.btn-confirm:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ========================================
+   MULTI-UPLOAD MODAL OVERLAY
+======================================== */
+.multi-upload-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1500;
+    padding: var(--space-4);
+}
+
+.multi-upload-modal-overlay[hidden] {
+    display: none;
+}
+
+.multi-upload-modal {
+    background: var(--macos-bg-secondary);
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-light);
+    animation: modalSlideIn var(--duration-base) var(--ease-spring);
+}
+
+.multi-upload-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5) var(--space-6);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.multi-upload-modal-header h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.multi-upload-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-4);
+}
+

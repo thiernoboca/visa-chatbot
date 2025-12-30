@@ -1,0 +1,20 @@
+{
+    "pre_application_id": "PRE-FE4779-251220",
+    "session_id": "chat_4515d71c17a250d632bc971440ab702a",
+    "language": "fr",
+    "current_step": "passport",
+    "workflow_category": null,
+    "collected_data": {
+        "pre_application_id": "PRE-FE4779-251220",
+        "language": "fr",
+        "country_code": "ETH",
+        "city": "Addis-Abeba"
+    },
+    "completed_steps": [
+        "welcome",
+        "residence"
+    ],
+    "highest_step_reached": 2,
+    "saved_at": 1766262951,
+    "expires_at": 1766867751
+}

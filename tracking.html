@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Suivi de demande de Visa - Ambassade de Côte d'Ivoire">
+    <title>Suivi de demande | Visa CI</title>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#F77F00">
+    
+    <!-- Styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/chatbot.css">
+    
+    <style>
+        .tracking-app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tracking-header {
+            background: var(--bg-header);
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .tracking-header h1 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
+        }
+        
+        .tracking-header p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .tracking-content {
+            flex: 1;
+            padding: var(--space-xl);
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-xl);
+        }
+        
+        .search-form input {
+            flex: 1;
+            padding: var(--space-md);
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: var(--font-mono);
+        }
+        
+        .search-form input:focus {
+            outline: none;
+            border-color: var(--ci-orange);
+        }
+        
+        .search-form input::placeholder {
+            color: var(--text-muted);
+            font-family: var(--font-body);
+        }
+        
+        .search-form button {
+            padding: var(--space-md) var(--space-lg);
+            background: var(--ci-orange);
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        
+        .search-form button:hover {
+            background: var(--ci-green);
+        }
+        
+        .tracking-result {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+        }
+        
+        .tracking-result[hidden] {
+            display: none;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .result-id {
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            color: var(--ci-orange);
+            font-weight: 600;
+        }
+        
+        .result-status {
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .result-status.pending {
+            background: rgba(247, 127, 0, 0.2);
+            color: var(--ci-orange);
+        }
+        
+        .result-status.processing {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+        
+        .result-status.approved {
+            background: rgba(0, 154, 68, 0.2);
+            color: var(--ci-green);
+        }
+        
+        .result-status.rejected {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .timeline {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            gap: var(--space-md);
+            padding: var(--space-md) 0;
+            position: relative;
+        }
+        
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 40px;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+        
+        .timeline-item.completed::after {
+            background: var(--ci-green);
+        }
+        
+        .timeline-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        .timeline-item.completed .timeline-dot {
+            background: var(--ci-green);
+            color: white;
+        }
+        
+        .timeline-item.current .timeline-dot {
+            background: var(--ci-orange);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(247, 127, 0, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(247, 127, 0, 0); }
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .timeline-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .timeline-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        .applicant-info {
+            margin-top: var(--space-lg);
+            padding-top: var(--space-lg);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-xs) 0;
+        }
+        
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .tracking-footer {
+            text-align: center;
+            padding: var(--space-lg);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+        
+        .tracking-footer a {
+            color: var(--ci-orange);
+        }
+        
+        .error-message {
+            padding: var(--space-lg);
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-md);
+            color: #ef4444;
+            text-align: center;
+        }
+        
+        .error-message[hidden] {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: var(--space-xl);
+            color: var(--text-secondary);
+        }
+        
+        .loading[hidden] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="tracking-app">
+        <header class="tracking-header">
+            <div class="flag-stripes" style="justify-content: center; margin-bottom: var(--space-md);">
+                <span class="stripe orange"></span>
+                <span class="stripe white"></span>
+                <span class="stripe green"></span>
+            </div>
+            <h1>Suivi de Demande de Visa</h1>
+            <p>Ambassade de Côte d'Ivoire - Addis-Abeba</p>
+        </header>
+        
+        <main class="tracking-content">
+            <form class="search-form" id="searchForm">
+                <input type="text" 
+                       id="trackingId" 
+                       placeholder="Entrez votre numéro (PRE-XXXXXX)"
+                       pattern="PRE-[A-Z0-9]{6,}"
+                       required
+                       aria-label="Numéro de demande">
+                <button type="submit">Rechercher</button>
+            </form>
+            
+            <div id="loadingState" class="loading" hidden>
+                <div class="loading-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <p>Recherche en cours...</p>
+            </div>
+            
+            <div id="errorState" class="error-message" hidden>
+                Demande non trouvée. Vérifiez votre numéro et réessayez.
+            </div>
+            
+            <div id="trackingResult" class="tracking-result" hidden>
+                <div class="result-header">
+                    <span class="result-id" id="resultId">PRE-ABC123-250120</span>
+                    <span class="result-status pending" id="resultStatus">En attente</span>
+                </div>
+                
+                <ul class="timeline" id="timeline">
+                    <!-- Timeline items will be inserted here -->
+                </ul>
+                
+                <div class="applicant-info" id="applicantInfo">
+                    <!-- Applicant info will be inserted here -->
+                </div>
+            </div>
+        </main>
+        
+        <footer class="tracking-footer">
+            <p>
+                Besoin d'aide? <a href="mailto:visa@ambassadeci-addis.org">visa@ambassadeci-addis.org</a>
+            </p>
+            <p>
+                <a href="index.html">← Retour au chatbot</a>
+            </p>
+        </footer>
+    </div>
+    
+    <script>
+        // Éléments DOM
+        const searchForm = document.getElementById('searchForm');
+        const trackingIdInput = document.getElementById('trackingId');
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const trackingResult = document.getElementById('trackingResult');
+        const resultId = document.getElementById('resultId');
+        const resultStatus = document.getElementById('resultStatus');
+        const timeline = document.getElementById('timeline');
+        const applicantInfo = document.getElementById('applicantInfo');
+        
+        // Vérifier l'URL pour un ID pré-rempli
+        const urlParams = new URLSearchParams(window.location.search);
+        const prefilledId = urlParams.get('id');
+        if (prefilledId) {
+            trackingIdInput.value = prefilledId;
+            searchTracking(prefilledId);
+        }
+        
+        // Formulaire de recherche
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = trackingIdInput.value.trim().toUpperCase();
+            if (id) {
+                searchTracking(id);
+            }
+        });
+        
+        // Recherche de demande
+        async function searchTracking(trackingId) {
+            showLoading();
+            
+            try {
+                // Pour le prototype, simuler une réponse
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Simuler des données
+                const mockData = getMockData(trackingId);
+                
+                if (mockData) {
+                    displayResult(mockData);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error('Erreur recherche:', error);
+                showError();
+            }
+        }
+        
+        // Afficher l'état de chargement
+        function showLoading() {
+            loadingState.hidden = false;
+            errorState.hidden = true;
+            trackingResult.hidden = true;
+        }
+        
+        // Afficher une erreur
+        function showError() {
+            loadingState.hidden = true;
+            errorState.hidden = false;
+            trackingResult.hidden = true;
+        }
+        
+        // Afficher le résultat
+        function displayResult(data) {
+            loadingState.hidden = true;
+            errorState.hidden = true;
+            trackingResult.hidden = false;
+            
+            // ID et statut
+            resultId.textContent = data.pre_application_id;
+            resultStatus.textContent = getStatusLabel(data.status);
+            resultStatus.className = 'result-status ' + data.status;
+            
+            // Timeline
+            timeline.innerHTML = data.timeline.map((item, index) => `
+                <li class="timeline-item ${item.completed ? 'completed' : ''} ${item.current ? 'current' : ''}">
+                    <div class="timeline-dot">${item.completed ? '✓' : (item.current ? '●' : '')}</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">${item.title}</div>
+                        <div class="timeline-date">${item.date || ''}</div>
+                        ${item.description ? `<div class="timeline-description">${item.description}</div>` : ''}
+                    </div>
+                </li>
+            `).join('');
+            
+            // Infos demandeur
+            applicantInfo.innerHTML = `
+                <div class="info-row">
+                    <span class="info-label">Demandeur</span>
+                    <span class="info-value">${data.applicant_name}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Type de visa</span>
+                    <span class="info-value">${data.visa_type}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Date de soumission</span>
+                    <span class="info-value">${data.submission_date}</span>
+                </div>
+                ${data.estimated_completion ? `
+                <div class="info-row">
+                    <span class="info-label">Délai estimé</span>
+                    <span class="info-value">${data.estimated_completion}</span>
+                </div>
+                ` : ''}
+            `;
+        }
+        
+        // Libellé du statut
+        function getStatusLabel(status) {
+            const labels = {
+                'pending': 'En attente',
+                'processing': 'En traitement',
+                'approved': 'Approuvé',
+                'rejected': 'Refusé',
+                'ready': 'Prêt à retirer'
+            };
+            return labels[status] || status;
+        }
+        
+        // Données simulées pour le prototype
+        function getMockData(id) {
+            // Simuler une demande trouvée pour les IDs valides
+            if (!id.startsWith('PRE-')) return null;
+            
+            return {
+                pre_application_id: id,
+                status: 'processing',
+                applicant_name: 'John Doe',
+                visa_type: 'Tourisme - Court séjour',
+                submission_date: new Date().toLocaleDateString('fr-FR'),
+                estimated_completion: '5-7 jours ouvrables',
+                timeline: [
+                    {
+                        title: 'Demande soumise',
+                        date: new Date().toLocaleDateString('fr-FR'),
+                        description: 'Votre demande a été enregistrée',
+                        completed: true
+                    },
+                    {
+                        title: 'Documents reçus',
+                        date: new Date().toLocaleDateString('fr-FR'),
+                        description: 'Tous les documents ont été vérifiés',
+                        completed: true
+                    },
+                    {
+                        title: 'En cours de traitement',
+                        date: '',
+                        description: 'Votre demande est examinée par nos services',
+                        current: true
+                    },
+                    {
+                        title: 'Décision',
+                        date: '',
+                        description: ''
+                    },
+                    {
+                        title: 'Visa prêt',
+                        date: '',
+                        description: ''
+                    }
+                ]
+            };
+        }
+    </script>
+</body>
+</html>
+

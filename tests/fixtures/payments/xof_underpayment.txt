@@ -1,0 +1,10 @@
+PAYMENT RECEIPT
+
+Date: 10/12/2024
+Reference: PAY-2024-555
+
+Payer: HAILE SAMUEL
+Amount: 40,000 XOF
+Purpose: Visa fee
+
+Beneficiary: AMBASSADE COTE D'IVOIRE

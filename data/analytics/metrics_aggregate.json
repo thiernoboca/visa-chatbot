@@ -1,0 +1,87 @@
+{
+    "total_sessions": 151,
+    "completed_sessions": 0,
+    "abandoned_sessions": 0,
+    "steps": {
+        "welcome": {
+            "completions": 37,
+            "abandons": 0,
+            "total_duration": 591.7100000000002,
+            "count_duration": 37
+        },
+        "residence": {
+            "completions": 8,
+            "abandons": 0,
+            "total_duration": 166.61,
+            "count_duration": 8
+        },
+        "passport": {
+            "completions": 9,
+            "abandons": 0,
+            "total_duration": 1617.5300000000002,
+            "count_duration": 9
+        },
+        "contact": {
+            "completions": 2,
+            "abandons": 0,
+            "total_duration": 0,
+            "count_duration": 2
+        },
+        "trip": {
+            "completions": 1,
+            "abandons": 0,
+            "total_duration": 85.19,
+            "count_duration": 1
+        },
+        "customs": {
+            "completions": 1,
+            "abandons": 0,
+            "total_duration": 0,
+            "count_duration": 1
+        },
+        "documents": {
+            "completions": 2,
+            "abandons": 0,
+            "total_duration": 52.13,
+            "count_duration": 2
+        },
+        "eligibility": {
+            "completions": 1,
+            "abandons": 0,
+            "total_duration": 21.06,
+            "count_duration": 1
+        },
+        "ticket": {
+            "completions": 1,
+            "abandons": 0,
+            "total_duration": 372.82,
+            "count_duration": 1
+        },
+        "hotel": {
+            "completions": 1,
+            "abandons": 0,
+            "total_duration": 65.25,
+            "count_duration": 1
+        },
+        "vaccination": {
+            "completions": 1,
+            "abandons": 0,
+            "total_duration": 60.86,
+            "count_duration": 1
+        },
+        "invitation": {
+            "completions": 1,
+            "abandons": 0,
+            "total_duration": 64.98,
+            "count_duration": 1
+        }
+    },
+    "passport_scans": {
+        "success": 0,
+        "failure": 0
+    },
+    "validation_errors": {
+        "connection_error:connection_error": 1
+    },
+    "updated_at": "2025-12-30T18:06:31+00:00"
+}

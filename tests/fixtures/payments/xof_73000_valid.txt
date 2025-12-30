@@ -1,0 +1,18 @@
+TRESOR PUBLIC DE COTE D'IVOIRE
+QUITTANCE DE PAIEMENT
+
+Date: 15/12/2024
+Reference: TXN-2024-123456
+
+Payeur / Payer: BEKELE ABEBE TESHOME
+Montant / Amount: 73,000 XOF
+Objet / Purpose: Frais de visa court séjour
+
+Bénéficiaire: TRESOR PUBLIC COTE D'IVOIRE
+Méthode: Virement bancaire / Bank Transfer
+Banque: COMMERCIAL BANK OF ETHIOPIA
+
+Transaction ID: FT2024121500123456
+
+Signature Agent: [Signed]
+Cachet: [OFFICIAL STAMP]

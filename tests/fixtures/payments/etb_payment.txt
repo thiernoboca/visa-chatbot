@@ -1,0 +1,15 @@
+COMMERCIAL BANK OF ETHIOPIA
+PAYMENT CONFIRMATION
+
+Date: 18/12/2024
+Transaction Reference: CBE-TXN-2024-789012
+
+From: NAKAMYA SARAH ANN
+To: EMBASSY OF COTE D'IVOIRE
+Amount: 73,000 ETB
+Currency: Ethiopian Birr
+
+Transfer Type: Wire Transfer
+Status: COMPLETED
+
+Authorized by: Bank Manager

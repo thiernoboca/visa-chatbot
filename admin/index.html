@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Visa CI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#136dec',
+                        'primary-dark': '#0e5bc4',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .sidebar-item.active {
+            background: rgba(19, 109, 236, 0.1);
+            color: #136dec;
+            border-left: 3px solid #136dec;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-processing { background: #dbeafe; color: #1e40af; }
+        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 font-sans text-gray-900 dark:text-white">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+            <!-- Logo -->
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 via-orange-400 to-green-500 rounded-xl flex items-center justify-center text-white font-bold">
+                        CI
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg">Visa CI</h1>
+                        <p class="text-xs text-gray-500">Administration</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1">
+                <a href="#dashboard" class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+                <a href="#applications" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined">folder_open</span>
+                    Demandes
+                    <span class="ml-auto bg-primary text-white text-xs px-2 py-0.5 rounded-full" id="pending-count">0</span>
+                </a>
+                <a href="#alerts" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined">warning</span>
+                    Alertes Claude
+                    <span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full" id="alert-count">0</span>
+                </a>
+                <a href="#stats" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined">analytics</span>
+                    Statistiques
+                </a>
+                <a href="#settings" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined">settings</span>
+                    Paramètres
+                </a>
+            </nav>
+            
+            <!-- User -->
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-gray-500">person</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-sm">Admin</p>
+                        <p class="text-xs text-gray-500">Ambassade CI</p>
+                    </div>
+                    <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined text-gray-500">logout</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold" id="page-title">Dashboard</h2>
+                        <p class="text-sm text-gray-500" id="page-subtitle">Vue d'ensemble des demandes de visa</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <!-- Search -->
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                            <input type="text" id="search-input" placeholder="Rechercher..." 
+                                   class="pl-10 pr-4 py-2 w-64 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent transition-all"/>
+                        </div>
+                        <!-- Refresh -->
+                        <button onclick="refreshData()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors" title="Actualiser">
+                            <span class="material-symbols-outlined">refresh</span>
+                        </button>
+                        <!-- Theme Toggle -->
+                        <button onclick="toggleTheme()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                            <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <!-- Dashboard View -->
+                <div id="view-dashboard">
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">folder</span>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold" id="stat-total">0</p>
+                                    <p class="text-sm text-gray-500">Total demandes</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-yellow-600 dark:text-yellow-400">pending</span>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold" id="stat-pending">0</p>
+                                    <p class="text-sm text-gray-500">En attente</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-green-600 dark:text-green-400">check_circle</span>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold" id="stat-approved">0</p>
+                                    <p class="text-sm text-gray-500">Approuvées</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-orange-600 dark:text-orange-400">bolt</span>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold" id="stat-priority">0</p>
+                                    <p class="text-sm text-gray-500">PRIORITY</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Applications -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                            <h3 class="font-bold text-lg">Demandes récentes</h3>
+                            <div class="flex gap-2">
+                                <select id="filter-status" class="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm">
+                                    <option value="">Tous les statuts</option>
+                                    <option value="pending">En attente</option>
+                                    <option value="processing">En cours</option>
+                                    <option value="approved">Approuvé</option>
+                                    <option value="rejected">Rejeté</option>
+                                </select>
+                                <select id="filter-workflow" class="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm">
+                                    <option value="">Tous les workflows</option>
+                                    <option value="STANDARD">STANDARD</option>
+                                    <option value="PRIORITY">PRIORITY</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50 dark:bg-gray-700/50">
+                                    <tr>
+                                        <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Référence</th>
+                                        <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Demandeur</th>
+                                        <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nationalité</th>
+                                        <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                                        <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Statut</th>
+                                        <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="applications-table" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                    <!-- Data loaded dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                            <p class="text-sm text-gray-500">Affichage de <span id="showing-start">0</span>-<span id="showing-end">0</span> sur <span id="total-count">0</span></p>
+                            <div class="flex gap-2">
+                                <button onclick="prevPage()" class="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors" id="btn-prev" disabled>
+                                    Précédent
+                                </button>
+                                <button onclick="nextPage()" class="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors" id="btn-next">
+                                    Suivant
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alerts View -->
+                <div id="view-alerts" class="hidden">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="font-bold text-lg flex items-center gap-2">
+                                <span class="material-symbols-outlined text-red-500">warning</span>
+                                Alertes Claude (Anomalies détectées)
+                            </h3>
+                            <p class="text-sm text-gray-500 mt-1">Demandes signalées par le superviseur IA pour vérification manuelle</p>
+                        </div>
+                        <div id="alerts-container" class="p-6 space-y-4">
+                            <!-- Alerts loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Application Detail Modal -->
+    <div id="detail-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <h3 class="font-bold text-xl">Détails de la demande</h3>
+                <button onclick="closeDetailModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="detail-content" class="p-6">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="sticky bottom-0 bg-gray-50 dark:bg-gray-800/50 px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3 justify-end">
+                <button onclick="rejectApplication()" class="px-6 py-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg font-medium hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
+                    Rejeter
+                </button>
+                <button onclick="approveApplication()" class="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                    Approuver
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin.js"></script>
+</body>
+</html>
+

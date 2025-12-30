@@ -1,0 +1,307 @@
+/**
+ * Accessibility Styles - Chatbot Visa CI
+ * Standards WCAG 2.1 AA
+ */
+
+/* ========================================
+   SCREEN READER ONLY
+======================================== */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.sr-only-focusable:focus,
+.sr-only-focusable:active {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+
+/* ========================================
+   SKIP LINK
+======================================== */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--ci-orange);
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    z-index: 9999;
+    transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+    top: var(--space-md);
+    outline: 3px solid var(--ci-green);
+    outline-offset: 2px;
+}
+
+/* ========================================
+   FOCUS STYLES
+======================================== */
+/* Enhanced focus indicators for keyboard users */
+*:focus {
+    outline: none;
+}
+
+*:focus-visible {
+    outline: 3px solid var(--ci-orange);
+    outline-offset: 2px;
+}
+
+button:focus-visible,
+.quick-action:focus-visible,
+.step-dot:focus-visible {
+    outline: 3px solid var(--ci-orange);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(247, 127, 0, 0.25);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 3px solid var(--ci-orange);
+    outline-offset: 0;
+    border-color: var(--ci-orange);
+}
+
+/* Remove outline for mouse users */
+*:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+
+/* ========================================
+   REDUCED MOTION
+======================================== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+}
+
+/* ========================================
+   HIGH CONTRAST MODE
+======================================== */
+.high-contrast {
+    --bg-primary: #000000;
+    --bg-secondary: #1a1a1a;
+    --bg-elevated: #262626;
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0;
+    --text-muted: #b0b0b0;
+    --border-color: #666666;
+    --ci-orange: #ff9500;
+    --ci-green: #00d45a;
+}
+
+.high-contrast .message.bot .message-content {
+    border: 2px solid var(--text-primary);
+}
+
+.high-contrast .message.user .message-content {
+    border: 2px solid var(--ci-green);
+}
+
+.high-contrast .quick-action {
+    border: 2px solid var(--text-primary);
+}
+
+.high-contrast .step-dot {
+    border: 2px solid var(--text-primary);
+}
+
+.high-contrast .step-dot.active {
+    border-color: var(--ci-orange);
+}
+
+.high-contrast .step-dot.completed {
+    border-color: var(--ci-green);
+}
+
+/* ========================================
+   FONT SIZE ADJUSTMENTS
+======================================== */
+.font-large {
+    font-size: 18px;
+}
+
+.font-large .message-content {
+    font-size: 1.1rem;
+}
+
+.font-large .quick-action {
+    font-size: 1rem;
+    padding: var(--space-md) var(--space-lg);
+}
+
+.font-larger {
+    font-size: 20px;
+}
+
+.font-larger .message-content {
+    font-size: 1.2rem;
+}
+
+.font-larger .quick-action {
+    font-size: 1.1rem;
+    padding: var(--space-md) var(--space-lg);
+}
+
+/* ========================================
+   TOUCH TARGET SIZE
+======================================== */
+/* Minimum 44x44px touch targets (WCAG 2.5.5) */
+button,
+[role="button"],
+.quick-action,
+.step-dot {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.step-dot {
+    /* Exception for step dots - use 12px visual but 44px touch */
+    position: relative;
+}
+
+.step-dot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+}
+
+/* ========================================
+   LINK STYLES
+======================================== */
+a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+a:hover,
+a:focus {
+    text-decoration-thickness: 2px;
+}
+
+/* ========================================
+   FORM ACCESSIBILITY
+======================================== */
+/* Error states */
+[aria-invalid="true"] {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+/* Required indicator */
+label[required]::after,
+.required-indicator::after {
+    content: " *";
+    color: #ef4444;
+}
+
+/* Error messages */
+[role="alert"] {
+    font-weight: 500;
+}
+
+/* ========================================
+   LOADING STATES
+======================================== */
+[aria-busy="true"] {
+    cursor: wait;
+}
+
+.loading-dots[aria-label] {
+    position: relative;
+}
+
+/* ========================================
+   MEDIA QUERIES FOR ACCESSIBILITY
+======================================== */
+/* High contrast mode detection */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #888888;
+    }
+    
+    .message-content {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Forced colors mode (Windows High Contrast) */
+@media (forced-colors: active) {
+    .quick-action,
+    .step-dot,
+    button {
+        border: 2px solid currentColor;
+    }
+    
+    .step-dot.active,
+    .step-dot.completed {
+        background: Highlight;
+    }
+}
+
+/* ========================================
+   PRINT STYLES
+======================================== */
+@media print {
+    .chat-input-area,
+    .step-nav,
+    .quick-actions,
+    .document-checklist-panel,
+    #notificationContainer {
+        display: none;
+    }
+    
+    .chat-app {
+        display: block;
+    }
+    
+    .chat-messages {
+        overflow: visible;
+        height: auto;
+    }
+    
+    .message-content {
+        border: 1px solid #ccc;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+

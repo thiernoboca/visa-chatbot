@@ -1,0 +1,79 @@
+{
+    "pre_application_id": "PRE-1243B3-251220",
+    "session_id": "chat_f6446aae5374580dfa43db2e191b366e",
+    "language": "fr",
+    "current_step": "trip",
+    "workflow_category": "ORDINAIRE",
+    "collected_data": {
+        "pre_application_id": "PRE-1243B3-251220",
+        "language": "fr",
+        "country_code": "KEN",
+        "city": "addis abeba",
+        "passport_data": {
+            "surname": {
+                "value": "HAILE",
+                "confidence": 0.95
+            },
+            "given_names": {
+                "value": "WUDIE TIBEBU",
+                "confidence": 0.95
+            },
+            "date_of_birth": {
+                "value": "1983-04-15",
+                "confidence": 0.95
+            },
+            "place_of_birth": {
+                "value": "ADDIS ABABA",
+                "confidence": 0.85
+            },
+            "sex": {
+                "value": "Féminin",
+                "confidence": 0.99
+            },
+            "nationality": {
+                "value": "ETH",
+                "confidence": 0.95
+            },
+            "passport_number": {
+                "value": "EP8787660",
+                "confidence": 0.99
+            },
+            "date_of_issue": {
+                "value": "2029-04-01",
+                "confidence": 0.88
+            },
+            "date_of_expiry": {
+                "value": "2024-04-02",
+                "confidence": 0.95
+            },
+            "issuing_authority": {
+                "value": "MAIN DEPARTMENT FOR IMMIGRATION AND NATIONALITY AFFAIRS",
+                "confidence": 0.7
+            },
+            "place_of_issue": {
+                "value": "ADDIS ABABA",
+                "confidence": 0.75
+            }
+        },
+        "passport_type": "ORDINAIRE",
+        "workflow_type": "STANDARD",
+        "photo_path": "IMG_1002 copy.jpg",
+        "email": "th@gma.com",
+        "contact_substep": null,
+        "phone": "+352691381611",
+        "whatsapp": true,
+        "arrival_date": "34 decembre",
+        "trip_substep": "departure"
+    },
+    "completed_steps": [
+        "welcome",
+        "residence",
+        "documents",
+        "passport",
+        "photo",
+        "contact"
+    ],
+    "highest_step_reached": 6,
+    "saved_at": 1766271293,
+    "expires_at": 1766876093
+}

@@ -1,0 +1,17 @@
+{
+    "pre_application_id": "PRE-471FFC-251225",
+    "session_id": "chat_b024763aa211de9ca3be607db68b6808",
+    "language": "fr",
+    "current_step": "passport",
+    "workflow_category": null,
+    "collected_data": {
+        "pre_application_id": "PRE-471FFC-251225",
+        "language": "fr"
+    },
+    "completed_steps": [
+        "welcome"
+    ],
+    "highest_step_reached": 1,
+    "saved_at": 1766706226,
+    "expires_at": 1767311026
+}
