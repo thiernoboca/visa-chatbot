@@ -27,9 +27,9 @@ export { default as stateManager } from './state.js';
 export * from './messages.js';
 export { default as messagesManager } from './messages.js';
 
-// UI (v6.0.1 - quick action label fix)
-export * from './ui.js?v=6.0.1';
-export { default as uiManager } from './ui.js?v=6.0.1';
+// UI
+export * from './ui.js';
+export { default as uiManager } from './ui.js';
 
 // Upload
 export * from './upload.js';
@@ -43,9 +43,9 @@ export { default as analyticsManager } from './analytics.js';
 export * from './api.js';
 export { default as apiManager } from './api.js';
 
-// Main Chatbot (v6.0.1 - quick action label fix)
-export * from './chatbot.js?v=6.0.1';
-export { default as VisaChatbot } from './chatbot.js?v=6.0.1';
+// Main Chatbot
+export * from './chatbot.js';
+export { default as VisaChatbot } from './chatbot.js';
 
 // ============================================================================
 // PHASE 1: Requirements & Document Flow
