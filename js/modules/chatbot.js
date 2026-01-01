@@ -43,6 +43,9 @@ import { ProgressTracker } from './progress-tracker.js';
 import { CelebrationManager } from './celebrations.js';
 import { TimeEstimator } from './time-estimator.js';
 
+// Phase 7.0 - Redesign Integration
+import { InlineEditingManager } from './inline-editing.js';
+
 /**
  * Main VisaChatbot class
  */
@@ -92,6 +95,10 @@ export class VisaChatbot {
         this.progressTracker = null;
         this.celebrations = null;
         this.timeEstimator = null;
+
+        // Phase 7.0 - Redesign integration
+        this.inlineEditor = null;
+        this.currentExtractedData = null; // Stores data during inline confirmation flow
 
         // Initialize
         this.init();
@@ -255,6 +262,60 @@ export class VisaChatbot {
         this.documentFlow.on('flowUpdated', (flowState) => {
             this.updateProgressFromFlow(flowState);
         });
+    }
+
+    /**
+     * Initialize Coherence UI module
+     */
+    initCoherenceUI() {
+        try {
+            // Check if CoherenceUI is available globally
+            if (window.CoherenceUI) {
+                this._coherenceUI = new window.CoherenceUI();
+                this.log('CoherenceUI initialized');
+            }
+        } catch (error) {
+            this.log('CoherenceUI initialization failed (non-blocking):', error.message);
+        }
+    }
+
+    /**
+     * Initialize Gamification modules (v6.0)
+     * - ProgressTracker: Visual progress visualization
+     * - CelebrationManager: Confetti and milestone celebrations
+     * - TimeEstimator: Dynamic completion time estimation
+     */
+    initGamification() {
+        try {
+            // Initialize ProgressTracker
+            const progressContainer = document.getElementById('step-timeline');
+            if (progressContainer && ProgressTracker) {
+                this.progressTracker = new ProgressTracker({
+                    container: progressContainer,
+                    language: this.config.language || 'fr'
+                });
+                this.log('ProgressTracker initialized');
+            }
+
+            // Initialize CelebrationManager
+            if (CelebrationManager) {
+                this.celebrations = new CelebrationManager({
+                    language: this.config.language || 'fr'
+                });
+                this.log('CelebrationManager initialized');
+            }
+
+            // Initialize TimeEstimator
+            if (TimeEstimator) {
+                this.timeEstimator = new TimeEstimator({
+                    language: this.config.language || 'fr'
+                });
+                this.log('TimeEstimator initialized');
+            }
+
+        } catch (error) {
+            this.log('Gamification initialization error (non-blocking):', error.message);
+        }
     }
 
     /**
@@ -598,9 +659,9 @@ export class VisaChatbot {
      * Setup module callbacks
      */
     setupModuleCallbacks() {
-        // Quick action handler
-        this.ui.setQuickActionHandler((value) => {
-            this.sendMessage(value);
+        // Quick action handler - receives both value and label for proper display
+        this.ui.setQuickActionHandler((value, label) => {
+            this.sendMessage(value, label);
         });
 
         // Document extracted handler
@@ -840,6 +901,18 @@ export class VisaChatbot {
             this.timeEstimator.startAutoUpdate();
             this.log('TimeEstimator initialized');
 
+            // Phase 7.0 - Inline Editing Manager
+            if (InlineEditingManager && CONFIG.features.inlineEditing.enabled) {
+                this.inlineEditor = new InlineEditingManager({
+                    messagesManager: this.messages,
+                    uiManager: this.ui,
+                    apiManager: this.api,
+                    onConfirm: this.handleInlineDataConfirmed.bind(this),
+                    onEdit: this.handleInlineDataEdit.bind(this)
+                });
+                this.log('InlineEditingManager initialized');
+            }
+
             // Bind gamification events
             this.bindGamificationEvents();
 
@@ -946,14 +1019,15 @@ export class VisaChatbot {
 
     /**
      * Send message
-     * @param {string} text
+     * @param {string} text - The value to send to the API
+     * @param {string} displayText - Optional text to show in the user message bubble (e.g., label with emoji)
      */
-    async sendMessage(text = null) {
+    async sendMessage(text = null, displayText = null) {
         const message = text || this.elements.chatInput?.value.trim();
         if (!message) return;
 
-        // Display user message
-        this.messages.addUserMessage(message);
+        // Display user message - use displayText if provided (e.g., "🇫🇷 Français"), otherwise use message
+        this.messages.addUserMessage(displayText || message);
 
         // Clear input
         if (this.elements.chatInput) {
@@ -1349,10 +1423,25 @@ export class VisaChatbot {
             this.messages.hideTyping();
 
             if (data.success) {
-                await this.handleSuccessResponse(data.data);
+                // Phase 7.0 - Inline editing flow
+                if (CONFIG.features.inlineEditing.enabled && this.inlineEditor) {
+                    // Store extracted data for later use
+                    this.currentExtractedData = {
+                        docType,
+                        extractedData,
+                        fileName,
+                        serverResponse: data.data
+                    };
 
-                // Display coherence report if available
-                await this.displayCoherenceReport();
+                    // Show inline confirmation instead of immediate success response
+                    this.inlineEditor.showInlineConfirmation(extractedData, docType);
+                } else {
+                    // Traditional flow: immediate success response
+                    await this.handleSuccessResponse(data.data);
+
+                    // Display coherence report if available
+                    await this.displayCoherenceReport();
+                }
             } else {
                 await this.messages.addBotMessage(data.error || 'Une erreur est survenue.');
             }
@@ -1360,6 +1449,66 @@ export class VisaChatbot {
             this.messages.hideTyping();
             this.log('Document handling error:', error);
             await this.messages.addBotMessage('Erreur de communication avec le serveur.');
+        }
+    }
+
+    /**
+     * Handle inline data confirmed (Phase 7.0)
+     * Called when user clicks "Oui, c'est correct"
+     * @param {Object} confirmedData - Data confirmed by user
+     * @param {string} docType - Document type
+     */
+    async handleInlineDataConfirmed(confirmedData, docType) {
+        this.log('Inline data confirmed', { docType, confirmedData });
+
+        try {
+            // Resume normal flow: show success response and continue
+            if (this.currentExtractedData?.serverResponse) {
+                await this.handleSuccessResponse(this.currentExtractedData.serverResponse);
+
+                // Display coherence report if available
+                await this.displayCoherenceReport();
+            }
+
+            // Clear stored data
+            this.currentExtractedData = null;
+        } catch (error) {
+            this.log('Inline confirmation error:', error);
+            await this.messages.addBotMessage('Erreur lors de la confirmation. Veuillez réessayer.');
+        }
+    }
+
+    /**
+     * Handle inline data edit (Phase 7.0)
+     * Called when user clicks "Non, modifier"
+     * @param {Object} dataToEdit - Data to be edited
+     * @param {string} docType - Document type
+     * @param {Object} callbacks - Callbacks for modal (onConfirm, onCancel)
+     */
+    async handleInlineDataEdit(dataToEdit, docType, callbacks) {
+        this.log('Inline data edit requested', { docType, dataToEdit });
+
+        try {
+            // Initialize verification modal if not already done
+            if (!this._verificationModal && window.VerificationModal) {
+                this._verificationModal = new VerificationModal({
+                    debug: this.config.debug
+                });
+            }
+
+            // Open modal with callbacks
+            if (this._verificationModal) {
+                this._verificationModal.open(dataToEdit, {
+                    onConfirm: callbacks?.onConfirm || (() => {}),
+                    onCancel: callbacks?.onCancel || (() => {})
+                });
+            } else {
+                this.log('Error: VerificationModal not available');
+                await this.messages.addBotMessage('Erreur : impossible d\'ouvrir le formulaire de modification.');
+            }
+        } catch (error) {
+            this.log('Error opening edit modal:', error);
+            await this.messages.addBotMessage('Erreur lors de l\'ouverture du formulaire.');
         }
     }
 

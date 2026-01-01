@@ -2,7 +2,7 @@
  * Module Index
  * Exports all chatbot modules
  *
- * @version 6.0.0
+ * @version 6.0.2
  * @description Aya Intelligence+ - Smart prefill cascade, gamification features,
  *              proactive suggestions, and enhanced user experience
  */
@@ -27,9 +27,9 @@ export { default as stateManager } from './state.js';
 export * from './messages.js';
 export { default as messagesManager } from './messages.js';
 
-// UI
-export * from './ui.js';
-export { default as uiManager } from './ui.js';
+// UI (v6.0.1 - quick action label fix)
+export * from './ui.js?v=6.0.1';
+export { default as uiManager } from './ui.js?v=6.0.1';
 
 // Upload
 export * from './upload.js';
@@ -43,9 +43,9 @@ export { default as analyticsManager } from './analytics.js';
 export * from './api.js';
 export { default as apiManager } from './api.js';
 
-// Main Chatbot
-export * from './chatbot.js';
-export { default as VisaChatbot } from './chatbot.js';
+// Main Chatbot (v6.0.1 - quick action label fix)
+export * from './chatbot.js?v=6.0.1';
+export { default as VisaChatbot } from './chatbot.js?v=6.0.1';
 
 // ============================================================================
 // PHASE 1: Requirements & Document Flow
@@ -155,7 +155,7 @@ export { default as TimeEstimator } from './time-estimator.js';
  * Module version and metadata
  */
 export const MODULE_VERSION = {
-    version: '6.0.0',
+    version: '6.0.2',
     modules: {
         core: ['config', 'i18n', 'state', 'messages', 'ui', 'upload', 'analytics', 'api', 'chatbot'],
         phase1: ['requirements-matrix', 'document-flow', 'validation-ui'],

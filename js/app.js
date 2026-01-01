@@ -5,7 +5,7 @@
  * For ES6 Module environments, import from './modules/index.js'
  * For legacy environments, use the bundled version or this script
  *
- * @version 6.0.0
+ * @version 6.0.2
  */
 
 // Check if running in module mode
@@ -38,7 +38,7 @@ async function initApp() {
     // Initialize chatbot
     if (isModuleMode) {
         // ES6 Module mode - cache buster for module updates
-        const cacheBuster = '?v=6.0.0';
+        const cacheBuster = '?v=6.0.2';
         const { VisaChatbot } = await import('./modules/index.js' + cacheBuster);
         window.chatbot = new VisaChatbot(config);
     } else if (window.VisaChatbot) {

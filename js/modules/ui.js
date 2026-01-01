@@ -17,6 +17,12 @@ export class UIManager {
     constructor() {
         this.elements = {};
         this.microInteractions = null;
+
+        // Bind methods that need to be accessible externally via window.chatbot.ui
+        // This ensures they appear as own properties for external access
+        this.toggleTheme = this.toggleTheme.bind(this);
+        this.setDarkMode = this.setDarkMode.bind(this);
+        this.loadSavedTheme = this.loadSavedTheme.bind(this);
     }
 
     /**
@@ -147,7 +153,8 @@ export class UIManager {
                 if (this.microInteractions) {
                     this.microInteractions.hapticFeedback?.('light');
                 }
-                this.onQuickActionClick?.(action.value);
+                // Pass both value and label for proper display
+                this.onQuickActionClick?.(action.value, action.label);
             });
 
             this.elements.quickActions.appendChild(btn);
@@ -379,21 +386,56 @@ export class UIManager {
      * @param {boolean} enabled
      */
     setDarkMode(enabled) {
+        const theme = enabled ? 'dark' : 'light';
+
         // Remove both classes first, then add the correct one
         document.documentElement.classList.remove('light', 'dark');
-        document.documentElement.classList.add(enabled ? 'dark' : 'light');
+        document.documentElement.classList.add(theme);
         stateManager.set('darkMode', enabled);
-        localStorage.setItem('theme', enabled ? 'dark' : 'light');
+
+        // Save to localStorage
+        localStorage.setItem('theme', theme);
+
+        // Save to cookie for PHP (expires in 1 year)
+        const expiryDate = new Date();
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        document.cookie = `theme=${theme}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
+
+        // Update icon if it exists
+        const icon = document.getElementById('theme-icon');
+        if (icon) {
+            icon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+        }
+    }
+
+    /**
+     * Get cookie value by name
+     */
+    getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
     }
 
     /**
      * Load saved theme
      */
     loadSavedTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            this.setDarkMode(true);
-        }
+        // Check localStorage first, then cookie, then system preference
+        const savedTheme = localStorage.getItem('theme') ||
+                          this.getCookie('theme') ||
+                          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+        this.setDarkMode(savedTheme === 'dark');
+    }
+
+    /**
+     * Toggle theme (for button click)
+     */
+    toggleTheme() {
+        const isDark = document.documentElement.classList.contains('dark');
+        this.setDarkMode(!isDark);
     }
 }
 
