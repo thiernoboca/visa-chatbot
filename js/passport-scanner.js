@@ -12,7 +12,7 @@ class PassportScanner {
      */
     constructor(options = {}) {
         this.config = {
-            ocrEndpoint: options.ocrEndpoint || '../passport-ocr-module/php/api-handler.php',
+            ocrEndpoint: options.ocrEndpoint || 'php/document-upload-handler-v2.php',
             maxFileSize: options.maxFileSize || 50 * 1024 * 1024, // 50MB
             allowedTypes: options.allowedTypes || ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'],
             onScanComplete: options.onScanComplete || null,

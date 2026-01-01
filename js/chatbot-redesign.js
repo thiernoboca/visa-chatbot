@@ -11,7 +11,7 @@
     // Configuration
     const CONFIG = {
         apiEndpoint: 'php/chat-handler.php',
-        ocrEndpoint: '../passport-ocr-module/php/api-handler.php',
+        ocrEndpoint: 'php/document-upload-handler-v2.php',
         debug: true
     };
 
@@ -48,7 +48,7 @@
      */
     function init() {
         log('Initializing chatbot redesign...');
-        
+
         // Générer/récupérer session ID
         state.sessionId = sessionStorage.getItem('visa_session_id') || generateSessionId();
         sessionStorage.setItem('visa_session_id', state.sessionId);
@@ -58,6 +58,9 @@
 
         // Attacher les événements
         bindEvents();
+
+        // Load saved theme
+        loadTheme();
 
         // Afficher le message de bienvenue
         showWelcomeMessage();
@@ -812,12 +815,52 @@
     }
 
     /**
+     * Load saved theme on page load
+     */
+    function loadTheme() {
+        // Check localStorage first, then cookie, then system preference
+        const savedTheme = localStorage.getItem('theme') ||
+                          getCookie('theme') ||
+                          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+        const html = document.documentElement;
+        html.classList.remove('dark', 'light');
+        html.classList.add(savedTheme);
+
+        // Update icon
+        const icon = document.getElementById('theme-icon');
+        if (icon) {
+            icon.textContent = savedTheme === 'dark' ? 'light_mode' : 'dark_mode';
+        }
+
+        // Sync to both storage types
+        localStorage.setItem('theme', savedTheme);
+        const expiryDate = new Date();
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        document.cookie = `theme=${savedTheme}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
+
+        log('Theme loaded:', savedTheme);
+    }
+
+    /**
+     * Get cookie value by name
+     */
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    /**
      * Toggle theme
      */
     function toggleTheme() {
         const html = document.documentElement;
         const isDark = html.classList.contains('dark');
-        
+        const newTheme = isDark ? 'light' : 'dark';
+
+        // Toggle classes
         if (isDark) {
             html.classList.remove('dark');
             html.classList.add('light');
@@ -826,10 +869,21 @@
             html.classList.add('dark');
         }
 
+        // Save to localStorage
+        localStorage.setItem('theme', newTheme);
+
+        // Save to cookie for PHP (expires in 1 year)
+        const expiryDate = new Date();
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        document.cookie = `theme=${newTheme}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
+
+        // Update icon (show opposite mode icon)
         const icon = document.getElementById('theme-icon');
         if (icon) {
-            icon.textContent = isDark ? 'dark_mode' : 'light_mode';
+            icon.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
         }
+
+        log('Theme toggled to:', newTheme);
     }
 
     /**

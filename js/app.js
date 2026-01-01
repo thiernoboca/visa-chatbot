@@ -25,7 +25,7 @@ async function initApp() {
         debug: window.CHATBOT_DEBUG || false,
         language: document.documentElement.lang || 'fr',
         apiEndpoint: 'php/chat-handler.php',
-        ocrEndpoint: '../passport-ocr-module/php/api-handler.php'
+        ocrEndpoint: 'php/document-upload-handler-v2.php'
     };
 
     // Check for existing session ID in URL

@@ -379,37 +379,60 @@ class PassportExtractor extends AbstractExtractor {
         // Patterns pour chaque champ VIZ
         $patterns = [
             'surname' => [
-                '/(?:SURNAME|NOM|FAMILY\s*NAME)[:\s]*([A-Z\-\'\s]+)/i',
-                '/(?:NOM DE FAMILLE)[:\s]*([A-Z\-\'\s]+)/i'
+                '/(?:SURNAME|NOM|FAMILY\s*NAME)[:\.\s]*([A-Z\-\'\s]+)/i',
+                '/(?:NOM DE FAMILLE)[:\.\s]*([A-Z\-\'\s]+)/i',
+                // Ethiopian format: /Surname followed by name
+                '/\/Surname[:\.\s]*([A-Z\-\'\s]+)/i'
             ],
             'given_names' => [
-                '/(?:GIVEN\s*NAMES?|PRENOM|PRENOMS?|FIRST\s*NAME)[:\s]*([A-Z\-\'\s]+)/i'
+                '/(?:GIVEN\s*NAMES?|PRENOM|PRENOMS?|FIRST\s*NAME)[:\.\s]*([A-Z\-\'\s]+)/i',
+                // Ethiopian format: /Given Name
+                '/\/Given\s*Name[:\.\s]*([A-Z\-\'\s]+)/i'
             ],
             'date_of_birth' => [
-                '/(?:DATE\s*OF\s*BIRTH|DATE\s*DE\s*NAISSANCE|DOB|BIRTH\s*DATE|NE\(E\)\s*LE)[:\s]*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i',
-                '/(\d{2}[\/\-\.]\d{2}[\/\-\.]\d{4})\s*(?:DATE OF BIRTH|NAISSANCE)/i'
+                '/(?:DATE\s*OF\s*BIRTH|DATE\s*DE\s*NAISSANCE|DOB|BIRTH\s*DATE|NE\(E\)\s*LE)[:\.\s]*(\d{1,2}[\/\-\.\s]+(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*[\/\-\.\s]+\d{2,4})/i',
+                '/(?:DATE\s*OF\s*BIRTH|DATE\s*DE\s*NAISSANCE|DOB|BIRTH\s*DATE|NE\(E\)\s*LE)[:\.\s]*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i',
+                '/(\d{2}[\/\-\.]\d{2}[\/\-\.]\d{4})\s*(?:DATE OF BIRTH|NAISSANCE)/i',
+                // Ethiopian format: DD MMM YY (e.g., 22 AUG 95)
+                '/\/Date\s*of\s*Birth[:\.\s]*(\d{1,2}\s+[A-Z]{3}\s+\d{2,4})/i'
             ],
             'place_of_birth' => [
-                '/(?:PLACE\s*OF\s*BIRTH|LIEU\s*DE\s*NAISSANCE)[:\s]*([A-Z\-\'\s,]+)/i'
+                '/(?:PLACE\s*OF\s*BIRTH|LIEU\s*DE\s*NAISSANCE)[:\.\s]*([A-Z\-\'\s,]+)/i',
+                '/\/Place\s*of\s*Birth[:\.\s]*([A-Z\-\'\s,]+)/i'
             ],
             'nationality' => [
-                '/(?:NATIONALITY|NATIONALITE)[:\s]*([A-Z]+)/i'
+                '/(?:NATIONALITY|NATIONALITE)[:\.\s]*([A-Z]+)/i'
             ],
             'passport_number' => [
-                '/(?:PASSPORT\s*(?:NO|NUMBER|N°)|PASSEPORT\s*(?:NO|N°)?)[:\s]*([A-Z0-9]+)/i',
-                '/\b([A-Z]{1,2}\d{7,9})\b/'
+                // Standard patterns with period/colon/space tolerance
+                '/(?:PASSPORT\s*(?:NO|NUMBER|N[°o]?))[:\.\s]+([A-Z]{1,2}\d{6,9})/i',
+                '/(?:PASSEPORT\s*(?:NO|N[°o]?))[:\.\s]+([A-Z]{1,2}\d{6,9})/i',
+                // Ethiopian format: /Passport No. followed by number
+                '/\/Passport\s*No\.?\s*([A-Z]{1,2}\d{6,9})/i',
+                // Direct pattern for passport numbers (2 letters + 6-9 digits)
+                '/\b([A-Z]{2}\d{7})\b/',
+                // More flexible: 1-2 letters + 6-9 digits
+                '/\b([A-Z]{1,2}\d{6,9})\b/',
+                // Ethiopian specific: EQ followed by 7 digits
+                '/\b(E[A-Z]\d{7})\b/i'
             ],
             'issue_date' => [
-                '/(?:DATE\s*OF\s*ISSUE|DATE\s*(?:DE\s*)?DELIVRANCE|ISSUE\s*DATE)[:\s]*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i'
+                '/(?:DATE\s*OF\s*ISSUE|DATE\s*(?:DE\s*)?DELIVRANCE|ISSUE\s*DATE)[:\.\s]*(\d{1,2}[\/\-\.\s]+(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*[\/\-\.\s]+\d{2,4})/i',
+                '/(?:DATE\s*OF\s*ISSUE|DATE\s*(?:DE\s*)?DELIVRANCE|ISSUE\s*DATE)[:\.\s]*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i',
+                '/\/Date\s*of\s*Issue[:\.\s]*(\d{1,2}\s+[A-Z]{3}\s+\d{2,4})/i'
             ],
             'expiry_date' => [
-                '/(?:DATE\s*OF\s*EXPIRY|EXPIRY\s*DATE|EXPIRES?|VALID\s*UNTIL|EXPIRATION)[:\s]*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i'
+                '/(?:DATE\s*OF\s*EXPIRY|EXPIRY\s*DATE|EXPIRES?|VALID\s*UNTIL|EXPIRATION)[:\.\s]*(\d{1,2}[\/\-\.\s]+(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*[\/\-\.\s]+\d{2,4})/i',
+                '/(?:DATE\s*OF\s*EXPIRY|EXPIRY\s*DATE|EXPIRES?|VALID\s*UNTIL|EXPIRATION)[:\.\s]*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i',
+                '/\/Date\s*of\s*Expiry[:\.\s]*(\d{1,2}\s+[A-Z]{3}\s+\d{2,4})/i'
             ],
             'issuing_authority' => [
-                '/(?:AUTHORITY|AUTORITE)[:\s]*([A-Z\s\-\.]+)/i'
+                '/(?:AUTHORITY|AUTORITE|ISSUING\s*AUTHORITY)[:\.\s]*([A-Z\s\-\.]+)/i',
+                '/\/\s*Issuing\s*Authority[:\.\s]*([A-Z\s\-\.]+)/i'
             ],
             'sex' => [
-                '/(?:SEX|SEXE)[:\s]*(M|F|MALE|FEMALE|MASCULIN|FEMININ)/i'
+                '/(?:SEX|SEXE)[:\.\s]*(M|F|MALE|FEMALE|MASCULIN|FEMININ)/i',
+                '/\/Sex[:\.\s]*(M|F)/i'
             ]
         ];
 

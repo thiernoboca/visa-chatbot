@@ -12,7 +12,8 @@ export const CONFIG = {
         api: 'php/chat-handler.php',
         upload: 'php/document-upload-handler-v2.php',
         session: 'php/session-manager.php',
-        ocr: '../passport-ocr-module/php/api-handler.php',
+        // Use new OCR Integration Service with fixed extractors
+        ocr: 'php/document-upload-handler-v2.php',
         coherence: 'php/coherence-validator-api.php'
     },
 
@@ -24,6 +25,24 @@ export const CONFIG = {
         enableTypewriter: true,
         typewriterSpeed: 15,
         enableMicroInteractions: true
+    },
+
+    // Feature flags for redesign integration
+    features: {
+        inlineEditing: {
+            enabled: true,  // Activé pour tests
+            abTestVariant: 'inline', // 'control' ou 'inline'
+            rolloutPercentage: 100  // 0% → 10% → 25% → 50% → 100%
+        },
+        glassmorphismUI: {
+            enabled: false,
+            modernStyling: true
+        },
+        innovatricsCamera: {
+            enabled: false,
+            desktopCapture: true,
+            mobileQRCapture: true
+        }
     },
 
     // File upload limits

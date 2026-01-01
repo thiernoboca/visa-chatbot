@@ -24,7 +24,7 @@ class VisaChatbot {
     constructor(options = {}) {
         this.config = {
             apiEndpoint: options.apiEndpoint || 'php/chat-handler.php',
-            ocrEndpoint: options.ocrEndpoint || '../passport-ocr-module/php/api-handler.php',
+            ocrEndpoint: options.ocrEndpoint || 'php/document-upload-handler-v2.php',
             debug: options.debug || false,
             initialSessionId: options.initialSessionId || null,
             enableMicroInteractions: options.enableMicroInteractions ?? true,

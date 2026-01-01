@@ -97,10 +97,19 @@ abstract class AbstractExtractor {
 
     /**
      * Parse une date depuis un texte (formats multiples)
+     * Supporte les formats internationaux et éthiopiens
      */
     protected function parseDate(string $text): ?string {
+        $months = [
+            'JAN'=>'01','FEB'=>'02','MAR'=>'03','APR'=>'04','MAY'=>'05','JUN'=>'06',
+            'JUL'=>'07','AUG'=>'08','SEP'=>'09','OCT'=>'10','NOV'=>'11','DEC'=>'12',
+            'JANUARY'=>'01','FEBRUARY'=>'02','MARCH'=>'03','APRIL'=>'04',
+            'JUNE'=>'06','JULY'=>'07','AUGUST'=>'08','SEPTEMBER'=>'09',
+            'OCTOBER'=>'10','NOVEMBER'=>'11','DECEMBER'=>'12'
+        ];
+
         $patterns = [
-            // DD/MM/YYYY ou DD-MM-YYYY
+            // DD/MM/YYYY ou DD-MM-YYYY ou DD.MM.YYYY
             '/(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{4})/' => function($m) {
                 return sprintf('%s-%s-%s', $m[3], $m[2], $m[1]);
             },
@@ -113,17 +122,31 @@ abstract class AbstractExtractor {
                 $year = (int)$m[1] > 30 ? '19' . $m[1] : '20' . $m[1];
                 return sprintf('%s-%s-%s', $year, $m[2], $m[3]);
             },
-            // DD MMM YYYY (ex: 15 JAN 2024)
-            '/(\d{1,2})\s+(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\s+(\d{4})/i' => function($m) {
-                $months = ['JAN'=>'01','FEB'=>'02','MAR'=>'03','APR'=>'04','MAY'=>'05','JUN'=>'06',
-                           'JUL'=>'07','AUG'=>'08','SEP'=>'09','OCT'=>'10','NOV'=>'11','DEC'=>'12'];
+            // DD MMM YYYY (ex: 15 JAN 2024, 22 AUG 2025)
+            '/(\d{1,2})\s+(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\s+(\d{4})/i' => function($m) use ($months) {
                 $month = $months[strtoupper(substr($m[2], 0, 3))] ?? '01';
                 return sprintf('%s-%s-%02d', $m[3], $month, (int)$m[1]);
+            },
+            // DD MMM YY (Ethiopian format: 22 AUG 95, 16 SEP 30)
+            '/(\d{1,2})\s+(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\s+(\d{2})\b/i' => function($m) use ($months) {
+                $month = $months[strtoupper(substr($m[2], 0, 3))] ?? '01';
+                $yearShort = (int)$m[3];
+                $currentYear = (int)date('y');
+                // Pour les dates de naissance: si > année courante, c'est 19XX
+                // Pour les dates d'expiration: si <= année courante + 15, c'est 20XX
+                // Heuristique: années 00-40 = 2000-2040, 41-99 = 1941-1999
+                $fullYear = ($yearShort <= 40) ? 2000 + $yearShort : 1900 + $yearShort;
+                return sprintf('%04d-%s-%02d', $fullYear, $month, (int)$m[1]);
+            },
+            // MMM DD, YYYY (US format: JAN 15, 2024)
+            '/(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\s+(\d{1,2}),?\s+(\d{4})/i' => function($m) use ($months) {
+                $month = $months[strtoupper(substr($m[1], 0, 3))] ?? '01';
+                return sprintf('%s-%s-%02d', $m[3], $month, (int)$m[2]);
             }
         ];
 
         foreach ($patterns as $pattern => $formatter) {
-            if (preg_match($pattern, $text, $matches)) {
+            if (preg_match($pattern, trim($text), $matches)) {
                 return $formatter($matches);
             }
         }
@@ -312,36 +335,112 @@ abstract class AbstractExtractor {
 
     /**
      * Extrait les lignes MRZ du texte
+     * Amélioré pour gérer les erreurs OCR courantes
      */
     protected function extractMrzLines(string $text): ?array {
-        // Pattern pour lignes MRZ (44 caractères avec < et alphanumériques)
-        $mrzPattern = '/([A-Z0-9<]{44})/';
+        // Normaliser le texte: supprimer espaces, convertir en majuscules
+        $cleanText = strtoupper($text);
+        $cleanText = preg_replace('/\s+/', '', $cleanText);
 
-        preg_match_all($mrzPattern, str_replace(' ', '', $text), $matches);
+        // Corriger les confusions OCR courantes dans le contexte MRZ
+        $mrzCorrections = [
+            'O' => '0',  // O -> 0 dans les zones numériques (sera corrigé contextuellement)
+            '|' => '<',
+            '/' => '<',
+            '\\' => '<',
+            '[' => '<',
+            ']' => '<',
+            '{' => '<',
+            '}' => '<',
+        ];
+
+        // Pattern pour lignes MRZ TD3 (44 caractères avec < et alphanumériques)
+        // Plus flexible: permet 42-46 caractères pour gérer les erreurs OCR
+        $mrzPattern = '/([A-Z0-9<]{42,46})/';
+
+        preg_match_all($mrzPattern, $cleanText, $matches);
 
         if (count($matches[0]) >= 2) {
-            // TD3 (passeport standard) - 2 lignes de 44 caractères
+            $line1 = $this->normalizeMrzLine($matches[0][0], 44);
+            $line2 = $this->normalizeMrzLine($matches[0][1], 44);
+
+            // Vérifier que ligne 1 commence par P (passeport)
+            if (preg_match('/^P[A-Z<]/', $line1)) {
+                return [
+                    'type' => 'TD3',
+                    'line1' => $line1,
+                    'line2' => $line2
+                ];
+            }
+        }
+
+        // Essayer de trouver les lignes MRZ par pattern plus spécifique
+        // Ligne 1 TD3: P<XXXNOM<<PRENOM<<<... (commence par P + type + pays)
+        $line1Pattern = '/P[A-Z<][A-Z]{3}[A-Z<]{38,42}/';
+        // Ligne 2 TD3: commence par numéro de passeport, contient dates et sexe
+        $line2Pattern = '/[A-Z0-9]{9}[0-9<][A-Z]{3}[0-9]{6}[0-9<][MFX<][0-9]{6}[0-9<][A-Z0-9<]{14,16}[0-9<]/';
+
+        preg_match($line1Pattern, $cleanText, $line1Match);
+        preg_match($line2Pattern, $cleanText, $line2Match);
+
+        if (!empty($line1Match) && !empty($line2Match)) {
             return [
                 'type' => 'TD3',
-                'line1' => $matches[0][0],
-                'line2' => $matches[0][1]
+                'line1' => $this->normalizeMrzLine($line1Match[0], 44),
+                'line2' => $this->normalizeMrzLine($line2Match[0], 44)
+            ];
+        }
+
+        // Fallback: chercher par pattern de passeport éthiopien spécifique
+        // Format: PQETH ou P<ETH au début (Q peut être < mal lu)
+        $ethiopianPattern = '/P[Q<O]ETH[A-Z<]{36,40}/';
+        preg_match($ethiopianPattern, $cleanText, $ethiopianLine1);
+
+        // Ligne 2 éthiopienne: EQ suivi de 7 chiffres (numéro de passeport)
+        $ethiopianLine2Pattern = '/E[A-Z][0-9]{7}[0-9][A-Z]{3}[0-9]{6}[0-9][MFX][0-9]{6}[0-9<]{15,17}/';
+        preg_match($ethiopianLine2Pattern, $cleanText, $ethiopianLine2);
+
+        if (!empty($ethiopianLine1) && !empty($ethiopianLine2)) {
+            return [
+                'type' => 'TD3',
+                'line1' => $this->normalizeMrzLine($ethiopianLine1[0], 44),
+                'line2' => $this->normalizeMrzLine($ethiopianLine2[0], 44)
             ];
         }
 
         // Essayer TD1/TD2 (3 lignes de 30 caractères)
-        $td1Pattern = '/([A-Z0-9<]{30})/';
-        preg_match_all($td1Pattern, str_replace(' ', '', $text), $td1Matches);
+        $td1Pattern = '/([A-Z0-9<]{28,32})/';
+        preg_match_all($td1Pattern, $cleanText, $td1Matches);
 
         if (count($td1Matches[0]) >= 3) {
             return [
                 'type' => 'TD1',
-                'line1' => $td1Matches[0][0],
-                'line2' => $td1Matches[0][1],
-                'line3' => $td1Matches[0][2]
+                'line1' => $this->normalizeMrzLine($td1Matches[0][0], 30),
+                'line2' => $this->normalizeMrzLine($td1Matches[0][1], 30),
+                'line3' => $this->normalizeMrzLine($td1Matches[0][2], 30)
             ];
         }
 
         return null;
+    }
+
+    /**
+     * Normalise une ligne MRZ à la longueur attendue
+     */
+    protected function normalizeMrzLine(string $line, int $expectedLength): string {
+        // Supprimer les caractères non-MRZ
+        $line = preg_replace('/[^A-Z0-9<]/', '', strtoupper($line));
+
+        // Ajuster la longueur
+        if (strlen($line) > $expectedLength) {
+            // Tronquer à la longueur attendue
+            $line = substr($line, 0, $expectedLength);
+        } elseif (strlen($line) < $expectedLength) {
+            // Compléter avec des <
+            $line = str_pad($line, $expectedLength, '<');
+        }
+
+        return $line;
     }
 
     /**

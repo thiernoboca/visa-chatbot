@@ -126,12 +126,14 @@ class FlightTicketExtractor extends AbstractExtractor {
      */
     private function extractPassengerName(string $text): ?string {
         $patterns = [
+            // Ethiopian Airlines format: PASSENGER NAME followed by NAME/SURNAME MR
+            '#PASSENGER\s+NAME\s+([A-Z][A-Z\-\']+/[A-Z][A-Z\s\-\']+?)(?:\s+(?:MR|MRS|MS|MLLE|MME))?(?=\s+(?:ISSUE|DATE|FLIGHT|TICKET))#i',
             // Format: PASSENGER NAME / NOM DU PASSAGER: BEKELE/ABEBE TESHOME MR (use lookahead for next field)
-            '#(?:PASSENGER\s*NAME\s*/\s*NOM\s*DU\s*PASSAGER|PASSENGER\s*NAME|NOM\s*DU\s*PASSAGER)\s*:\s*([A-Z][A-Z\-\'\s/]+?)(?:\s+(?:MR|MRS|MS|MLLE|MME))?(?=\s+(?:FLIGHT|VOL|BOOKING|DATE|FROM|TO|TICKET|DETAILS|STATUS|CLASS|SEAT|\d))#i',
+            '#(?:PASSENGER\s*NAME\s*/\s*NOM\s*DU\s*PASSAGER|PASSENGER\s*NAME|NOM\s*DU\s*PASSAGER)\s*:?\s*([A-Z][A-Z\-\'\s/]+?)(?:\s+(?:MR|MRS|MS|MLLE|MME))?(?=\s+(?:ISSUE|FLIGHT|VOL|BOOKING|DATE|FROM|TO|TICKET|DETAILS|STATUS|CLASS|SEAT|\d))#i',
             // Format: Passenger: NAME/SURNAME
-            '#(?:Passenger|PASSENGER)\s*:\s*([A-Z][A-Z\-\'\s/]+?)(?:\s+(?:MR|MRS|MS))?(?=\s+(?:FLIGHT|VOL|BOOKING|DATE|FROM|OUTBOUND|RETURN))#i',
+            '#(?:Passenger|PASSENGER)\s*:\s*([A-Z][A-Z\-\'\s/]+?)(?:\s+(?:MR|MRS|MS))?(?=\s+(?:ISSUE|FLIGHT|VOL|BOOKING|DATE|FROM|OUTBOUND|RETURN))#i',
             // Format: NOM/PRENOM directly (no label)
-            '#\b([A-Z]{2,})/([A-Z][A-Z\s]+?)\s*(?:MR|MRS|MS)?(?=\s+(?:FLIGHT|VOL|BOOKING|DATE|FROM|E-TICKET|TICKET))#i',
+            '#\b([A-Z]{2,})/([A-Z][A-Z\s]+?)\s*(?:MR|MRS|MS)?(?=\s+(?:ISSUE|FLIGHT|VOL|BOOKING|DATE|FROM|E-TICKET|TICKET))#i',
         ];
 
         foreach ($patterns as $pattern) {
@@ -140,8 +142,8 @@ class FlightTicketExtractor extends AbstractExtractor {
                 if (isset($match[2]) && !empty($match[2])) {
                     $name = trim($match[1]) . '/' . trim($match[2]);
                 }
-                // Nettoyer les titres à la fin
-                $name = preg_replace('/\s+(MR|MRS|MS|MLLE|MME)\s*$/i', '', $name);
+                // Nettoyer les titres à la fin et mots parasites
+                $name = preg_replace('/\s+(MR|MRS|MS|MLLE|MME|ISSUE|DATE)\s*$/i', '', $name);
                 $name = trim($name);
                 if (!empty($name) && strlen($name) > 3) {
                     return $name;
@@ -158,21 +160,74 @@ class FlightTicketExtractor extends AbstractExtractor {
     private function extractFlights(string $text): array {
         $flights = [];
 
+        // Pattern 0: Ethiopian Airlines e-ticket - extract flight segments
+        // Split text into flight segments (each starts with "ET XXX")
+        $flightSegments = preg_split('/(?=\bET\s+\d{3,4}\b)/i', $text);
+
+        foreach ($flightSegments as $segment) {
+            // Extract flight number: "ET 935" or "ET935"
+            if (!preg_match('/\b(ET)\s*(\d{3,4})\b/i', $segment, $flightMatch)) {
+                continue;
+            }
+
+            $flight = [
+                'airline_code' => 'ET',
+                'airline_name' => 'Ethiopian Airlines',
+                'flight_number' => 'ET' . $flightMatch[2]
+            ];
+
+            // Extract airport codes (3 uppercase letters in parentheses)
+            preg_match_all('/\(([A-Z]{3})\)/i', $segment, $airportMatches);
+            $airports = $airportMatches[1] ?? [];
+
+            if (count($airports) >= 2) {
+                $flight['departure_airport'] = strtoupper($airports[0]);
+                $flight['arrival_airport'] = strtoupper($airports[1]);
+            } elseif (count($airports) === 1) {
+                // Check context for departure vs arrival
+                $beforeAirport = strpos($segment, 'DEPART') !== false ||
+                                 strpos($segment, 'FROM') !== false;
+                if ($beforeAirport) {
+                    $flight['departure_airport'] = strtoupper($airports[0]);
+                } else {
+                    $flight['arrival_airport'] = strtoupper($airports[0]);
+                }
+            }
+
+            // Extract date: DD/Mon/YYYY format (28/Dec/2025)
+            if (preg_match('/(\d{1,2})[\/\-]([A-Z]{3})[\/\-](\d{4})/i', $segment, $dateMatch)) {
+                $flight['departure_date'] = $this->parseDateText($dateMatch[0]);
+            }
+
+            // Only add if we have essential info
+            if (isset($flight['flight_number']) &&
+                (isset($flight['departure_airport']) || isset($flight['arrival_airport']))) {
+                $flights[] = $flight;
+            }
+        }
+
+        // If Ethiopian pattern found flights, return them
+        if (!empty($flights)) {
+            return $flights;
+        }
+
         // Pattern 1: Format standard après nettoyage OCR (tout sur une ligne)
         // ET508 FROM: ADDIS ABABA (ADD) ... TO: ABIDJAN (ABJ) ... DATE: 15 JAN 2025
-        $pattern1 = '/([A-Z]{2})\s*(\d{3,4})\s+FROM:?\s*[^(]*\(([A-Z]{3})\)[^T]*TO:?\s*[^(]*\(([A-Z]{3})\).*?DATE:?\s*(\d{1,2}\s+[A-Z]+\s+\d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/i';
+        if (empty($flights)) {
+            $pattern1 = '/([A-Z]{2})\s*(\d{3,4})\s+FROM:?\s*[^(]*\(([A-Z]{3})\)[^T]*TO:?\s*[^(]*\(([A-Z]{3})\).*?DATE:?\s*(\d{1,2}\s+[A-Z]+\s+\d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/i';
 
-        if (preg_match_all($pattern1, $text, $matches, PREG_SET_ORDER)) {
-            foreach ($matches as $match) {
-                $flight = [
-                    'airline_code' => strtoupper($match[1]),
-                    'airline_name' => self::AIRLINES[strtoupper($match[1])] ?? $match[1],
-                    'flight_number' => strtoupper($match[1]) . $match[2],
-                    'departure_airport' => strtoupper($match[3]),
-                    'arrival_airport' => strtoupper($match[4]),
-                    'departure_date' => $this->parseDateText($match[5])
-                ];
-                $flights[] = $flight;
+            if (preg_match_all($pattern1, $text, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $match) {
+                    $flight = [
+                        'airline_code' => strtoupper($match[1]),
+                        'airline_name' => self::AIRLINES[strtoupper($match[1])] ?? $match[1],
+                        'flight_number' => strtoupper($match[1]) . $match[2],
+                        'departure_airport' => strtoupper($match[3]),
+                        'arrival_airport' => strtoupper($match[4]),
+                        'departure_date' => $this->parseDateText($match[5])
+                    ];
+                    $flights[] = $flight;
+                }
             }
         }
 
@@ -224,7 +279,7 @@ class FlightTicketExtractor extends AbstractExtractor {
     }
 
     /**
-     * Parse une date au format texte (15 JAN 2025)
+     * Parse une date au format texte (15 JAN 2025, 28/Dec/2025)
      */
     private function parseDateText(string $dateStr): ?string {
         $monthMap = [
@@ -242,6 +297,16 @@ class FlightTicketExtractor extends AbstractExtractor {
             'DEC' => '12', 'DECEMBER' => '12'
         ];
 
+        // Format: DD/Mon/YYYY (28/Dec/2025) - Ethiopian Airlines format
+        if (preg_match('/(\d{1,2})[\/\-]([A-Z]{3})[\/\-](\d{4})/i', $dateStr, $match)) {
+            $month = $monthMap[strtoupper($match[2])] ?? null;
+            if ($month) {
+                $day = str_pad($match[1], 2, '0', STR_PAD_LEFT);
+                return "{$match[3]}-{$month}-{$day}";
+            }
+        }
+
+        // Format: DD MMM YYYY (15 JAN 2025)
         if (preg_match('/(\d{1,2})\s+([A-Z]+)\s+(\d{4})/i', $dateStr, $match)) {
             $month = $monthMap[strtoupper($match[2])] ?? null;
             if ($month) {
@@ -279,52 +344,87 @@ class FlightTicketExtractor extends AbstractExtractor {
             $flight['arrival_airport'] = $validAirports[1];
         }
 
-        // Chercher numéro de vol
-        if (preg_match('/([A-Z]{2})\s*(\d{3,4})/i', $text, $flightMatch)) {
-            $flight['airline_code'] = $flightMatch[1];
-            $flight['flight_number'] = $flightMatch[1] . $flightMatch[2];
-            $flight['airline_name'] = self::AIRLINES[$flightMatch[1]] ?? $flightMatch[1];
+        // Chercher numéro de vol (excluding "Ok to fly" status text)
+        if (preg_match('/\b([A-Z]{2})\s*(\d{3,4})\b(?!\s*Ok)/i', $text, $flightMatch)) {
+            $flight['airline_code'] = strtoupper($flightMatch[1]);
+            $flight['flight_number'] = strtoupper($flightMatch[1]) . $flightMatch[2];
+            $flight['airline_name'] = self::AIRLINES[strtoupper($flightMatch[1])] ?? $flightMatch[1];
         }
 
-        // Chercher dates - plusieurs formats
-        $dates = [];
+        // Chercher dates - plusieurs formats, excluding issue dates
+        $departureDates = [];
+        $issueDates = [];
 
-        // Format numérique: 15/01/2025, 15-01-2025
-        preg_match_all('/(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i', $text, $dateMatches);
-        foreach ($dateMatches[1] as $dateStr) {
-            $parsed = $this->parseDate($dateStr);
-            if ($parsed) {
-                $dates[] = $parsed;
+        $monthMap = [
+            'JAN' => '01', 'JANUARY' => '01',
+            'FEB' => '02', 'FEBRUARY' => '02',
+            'MAR' => '03', 'MARCH' => '03',
+            'APR' => '04', 'APRIL' => '04',
+            'MAY' => '05',
+            'JUN' => '06', 'JUNE' => '06',
+            'JUL' => '07', 'JULY' => '07',
+            'AUG' => '08', 'AUGUST' => '08',
+            'SEP' => '09', 'SEPTEMBER' => '09',
+            'OCT' => '10', 'OCTOBER' => '10',
+            'NOV' => '11', 'NOVEMBER' => '11',
+            'DEC' => '12', 'DECEMBER' => '12'
+        ];
+
+        // First, find Issue Date to exclude it
+        if (preg_match('/ISSUE\s*DATE[:\s]*(\d{1,2})\s+([A-Z]+)\s+(\d{4})/i', $text, $issueMatch)) {
+            $month = $monthMap[strtoupper($issueMatch[2])] ?? '01';
+            $day = str_pad($issueMatch[1], 2, '0', STR_PAD_LEFT);
+            $issueDates[] = "{$issueMatch[3]}-{$month}-{$day}";
+        }
+
+        // Format DD/Mon/YYYY (Ethiopian Airlines: 28/Dec/2025)
+        preg_match_all('/(\d{1,2})[\/\-]([A-Z]{3})[\/\-](\d{4})/i', $text, $slashDateMatches, PREG_SET_ORDER);
+        foreach ($slashDateMatches as $match) {
+            $month = $monthMap[strtoupper($match[2])] ?? null;
+            if ($month) {
+                $day = str_pad($match[1], 2, '0', STR_PAD_LEFT);
+                $date = "{$match[3]}-{$month}-{$day}";
+                if (!in_array($date, $issueDates)) {
+                    $departureDates[] = $date;
+                }
             }
         }
 
-        // Format texte: 15 JAN 2025, 15 JANUARY 2025
-        preg_match_all('/(\d{1,2})\s+(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s+(\d{4})/i', $text, $textDateMatches, PREG_SET_ORDER);
-        foreach ($textDateMatches as $match) {
-            $monthMap = [
-                'JAN' => '01', 'JANUARY' => '01',
-                'FEB' => '02', 'FEBRUARY' => '02',
-                'MAR' => '03', 'MARCH' => '03',
-                'APR' => '04', 'APRIL' => '04',
-                'MAY' => '05',
-                'JUN' => '06', 'JUNE' => '06',
-                'JUL' => '07', 'JULY' => '07',
-                'AUG' => '08', 'AUGUST' => '08',
-                'SEP' => '09', 'SEPTEMBER' => '09',
-                'OCT' => '10', 'OCTOBER' => '10',
-                'NOV' => '11', 'NOVEMBER' => '11',
-                'DEC' => '12', 'DECEMBER' => '12'
-            ];
-            $month = $monthMap[strtoupper($match[2])] ?? '01';
-            $day = str_pad($match[1], 2, '0', STR_PAD_LEFT);
-            $dates[] = "{$match[3]}-{$month}-{$day}";
+        // Format numérique: 15/01/2025, 15-01-2025 (excluding issue dates context)
+        preg_match_all('/(?<!ISSUE\s)(?<!ISSUE\s*DATE\s)(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/i', $text, $dateMatches, PREG_SET_ORDER);
+        foreach ($dateMatches as $match) {
+            $parsed = $this->parseDate($match[0]);
+            if ($parsed && !in_array($parsed, $issueDates)) {
+                $departureDates[] = $parsed;
+            }
         }
 
-        if (!empty($dates)) {
-            sort($dates);
-            $flight['departure_date'] = $dates[0];
-            if (count($dates) > 1) {
-                $flight['arrival_date'] = $dates[count($dates) - 1];
+        // Format texte: 15 JAN 2025 (excluding issue dates)
+        preg_match_all('/(\d{1,2})\s+(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|JANUARY|FEBRUARY|MARCH|APRIL|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s+(\d{4})/i', $text, $textDateMatches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+
+        foreach ($textDateMatches as $match) {
+            $month = $monthMap[strtoupper($match[2][0])] ?? '01';
+            $day = str_pad($match[1][0], 2, '0', STR_PAD_LEFT);
+            $date = "{$match[3][0]}-{$month}-{$day}";
+
+            // Check if this date is preceded by "Issue Date" (within 50 chars before)
+            $offset = $match[0][1];
+            $precedingText = substr($text, max(0, $offset - 50), 50);
+            $isIssueDate = preg_match('/ISSUE\s*DATE/i', $precedingText);
+
+            if (!$isIssueDate && !in_array($date, $issueDates)) {
+                $departureDates[] = $date;
+            }
+        }
+
+        // Use departure dates, filtering out issue dates
+        $departureDates = array_unique($departureDates);
+        if (!empty($departureDates)) {
+            sort($departureDates);
+            // Take the earliest date that is NOT an issue date
+            $flight['departure_date'] = $departureDates[0];
+            if (count($departureDates) > 1) {
+                $flight['arrival_date'] = $departureDates[count($departureDates) - 1];
             }
         }
 
