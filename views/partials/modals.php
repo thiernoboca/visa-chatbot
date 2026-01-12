@@ -4,8 +4,8 @@
 <div id="upload-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300" style="display: none;">
     <div class="glass-panel w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl relative animate-enter">
 
-        <button id="close-upload-modal" class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100/50 dark:hover:bg-white/10 transition-colors text-gray-500">
-            <span class="material-symbols-outlined">close</span>
+        <button id="close-upload-modal" class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100/50 dark:hover:bg-white/10 transition-colors text-gray-500" aria-label="Fermer / Close" data-i18n-aria="close_upload_modal" data-i18n-aria-fr="Fermer la fenêtre d'import" data-i18n-aria-en="Close upload window">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
         </button>
 
         <div class="text-center mb-8">
@@ -34,8 +34,8 @@
         <!-- Preview & Processing Handled by JS appending here -->
         <div id="upload-preview" class="hidden mb-6 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 relative group">
             <img id="preview-image" src="" alt="Aperçu" class="w-full h-48 object-contain bg-gray-50 dark:bg-gray-800" />
-            <button id="clear-preview" class="absolute top-2 right-2 size-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-all opacity-0 group-hover:opacity-100">
-                <span class="material-symbols-outlined text-sm">close</span>
+            <button id="clear-preview" class="absolute top-2 right-2 size-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-all opacity-0 group-hover:opacity-100" aria-label="Supprimer / Clear" data-i18n-aria="clear_preview" data-i18n-aria-fr="Supprimer l'aperçu" data-i18n-aria-en="Clear preview">
+                <span class="material-symbols-outlined text-sm" aria-hidden="true">close</span>
             </button>
         </div>
 
@@ -67,8 +67,8 @@
                 <span class="material-symbols-outlined text-primary">badge</span>
                 Détails du Passeport
             </h2>
-            <button id="close-passport-modal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors">
-                <span class="material-symbols-outlined">close</span>
+            <button id="close-passport-modal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors" aria-label="Fermer / Close" data-i18n-aria="close_passport_modal" data-i18n-aria-fr="Fermer les détails du passeport" data-i18n-aria-en="Close passport details">
+                <span class="material-symbols-outlined" aria-hidden="true">close</span>
             </button>
         </div>
 
