@@ -338,7 +338,43 @@ abstract class AbstractExtractor {
      * Amélioré pour gérer les erreurs OCR courantes
      */
     protected function extractMrzLines(string $text): ?array {
-        // Normaliser le texte: supprimer espaces, convertir en majuscules
+        // FIRST APPROACH: Try to find MRZ by processing lines individually
+        // This preserves line structure and avoids mixing content
+        $lines = preg_split('/[\r\n]+/', $text);
+        $mrzCandidates = [];
+
+        foreach ($lines as $line) {
+            // Clean each line individually
+            $cleanLine = strtoupper(trim($line));
+            $cleanLine = preg_replace('/\s+/', '', $cleanLine);
+
+            // Check if this line looks like MRZ (40-46 chars, contains < or valid MRZ structure)
+            if (strlen($cleanLine) >= 40 && strlen($cleanLine) <= 48) {
+                // Must contain < for name separator OR be line 2 format (numbers with country code)
+                if (strpos($cleanLine, '<') !== false ||
+                    preg_match('/^[A-Z]{1,2}\d{7,9}[0-9<][A-Z]{3}/', $cleanLine)) {
+                    $mrzCandidates[] = $cleanLine;
+                }
+            }
+        }
+
+        // Check if we found 2 valid MRZ lines
+        if (count($mrzCandidates) >= 2) {
+            $line1 = $this->normalizeMrzLine($mrzCandidates[0], 44);
+            $line2 = $this->normalizeMrzLine($mrzCandidates[1], 44);
+
+            // Vérifier que ligne 1 commence par un code de document valide:
+            // P = Passport (ordinaire), D = Diplomatic, S = Service, V = Travel document
+            if (preg_match('/^[PDSV][A-Z<]/', $line1)) {
+                return [
+                    'type' => 'TD3',
+                    'line1' => $line1,
+                    'line2' => $line2
+                ];
+            }
+        }
+
+        // FALLBACK: Original approach with concatenated text (for OCR output without newlines)
         $cleanText = strtoupper($text);
         $cleanText = preg_replace('/\s+/', '', $cleanText);
 
@@ -355,17 +391,23 @@ abstract class AbstractExtractor {
         ];
 
         // Pattern pour lignes MRZ TD3 (44 caractères avec < et alphanumériques)
-        // Plus flexible: permet 42-46 caractères pour gérer les erreurs OCR
+        // IMPORTANT: Must contain at least one < character to be a valid MRZ line
         $mrzPattern = '/([A-Z0-9<]{42,46})/';
 
         preg_match_all($mrzPattern, $cleanText, $matches);
 
-        if (count($matches[0]) >= 2) {
-            $line1 = $this->normalizeMrzLine($matches[0][0], 44);
-            $line2 = $this->normalizeMrzLine($matches[0][1], 44);
+        // Filter matches to only include lines with < characters (actual MRZ)
+        $validMrzLines = array_filter($matches[0], function($line) {
+            return strpos($line, '<') !== false;
+        });
+        $validMrzLines = array_values($validMrzLines); // Re-index
 
-            // Vérifier que ligne 1 commence par P (passeport)
-            if (preg_match('/^P[A-Z<]/', $line1)) {
+        if (count($validMrzLines) >= 2) {
+            $line1 = $this->normalizeMrzLine($validMrzLines[0], 44);
+            $line2 = $this->normalizeMrzLine($validMrzLines[1], 44);
+
+            // Vérifier que ligne 1 commence par un code de document valide
+            if (preg_match('/^[PDSV][A-Z<]/', $line1)) {
                 return [
                     'type' => 'TD3',
                     'line1' => $line1,
@@ -375,8 +417,8 @@ abstract class AbstractExtractor {
         }
 
         // Essayer de trouver les lignes MRZ par pattern plus spécifique
-        // Ligne 1 TD3: P<XXXNOM<<PRENOM<<<... (commence par P + type + pays)
-        $line1Pattern = '/P[A-Z<][A-Z]{3}[A-Z<]{38,42}/';
+        // Ligne 1 TD3: X<XXXNOM<<PRENOM<<<... (X = P/D/S/V + type + pays)
+        $line1Pattern = '/[PDSV][A-Z<][A-Z]{3}[A-Z<]{38,42}/';
         // Ligne 2 TD3: commence par numéro de passeport, contient dates et sexe
         $line2Pattern = '/[A-Z0-9]{9}[0-9<][A-Z]{3}[0-9]{6}[0-9<][MFX<][0-9]{6}[0-9<][A-Z0-9<]{14,16}[0-9<]/';
 
