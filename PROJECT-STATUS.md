@@ -120,6 +120,7 @@ The Visa Chatbot project is in good health with all core functionality implement
 | 24 | Frontend Designer | Accessibility, responsiveness, i18n review | ✅ No issues found - WCAG 2.1 compliance verified |
 | 25 | QA Engineer | PHP deprecations, Vite build, ESLint config | Fixed setAccessible(), Vite CSS input, added eslint.config.js |
 | 26 | Project Manager | Documentation accuracy review | ✅ Updated PROJECT-STATUS.md - cleaned up completed items |
+| 27 | Business Analyst | UX review from user perspective | Fixed hardcoded English in hero section (i18n) |
 
 ---
 
@@ -170,4 +171,4 @@ The Visa Chatbot project is in good health with all core functionality implement
 
 ---
 
-*Report updated by Project Manager persona during Ralph Loop Cycle 5, iteration 26*
+*Report updated by Business Analyst persona during Ralph Loop Cycle 5, iteration 27*
