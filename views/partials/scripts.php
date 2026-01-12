@@ -9,14 +9,22 @@
         qr.addData(typeof options === 'string' ? options : options.text);
         qr.make();
         const size = options.width || 128;
-        element.innerHTML = qr.createSvgTag({ scalable: true, margin: 2 });
+        element.innerHTML = qr.createSvgTag({
+            scalable: true,
+            margin: 2
+        });
         const svg = element.querySelector('svg');
         if (svg) {
             svg.setAttribute('width', size);
             svg.setAttribute('height', size);
         }
     };
-    QRCode.CorrectLevel = { L: 'L', M: 'M', Q: 'Q', H: 'H' };
+    QRCode.CorrectLevel = {
+        L: 'L',
+        M: 'M',
+        Q: 'Q',
+        H: 'H'
+    };
 </script>
 
 <!-- Innovatrics DOT Document Capture -->
@@ -84,12 +92,65 @@
     }
 </script>
 
-<!-- Main Chatbot Application (ES6 Modules) -->
-<script type="module" src="<?= url('js/app.js') ?>?v=<?= filemtime(CHATBOT_ROOT . '/js/app.js') ?>"></script>
+<!-- Main Chatbot Application (Full Module) -->
+<script type="module">
+    import {
+        VisaChatbot
+    } from '<?= url('js/modules/chatbot.js') ?>?v=<?= filemtime(CHATBOT_ROOT . '/js/modules/chatbot.js') ?>';
+
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.chatbot = new VisaChatbot({
+                language: window.APP_CONFIG?.language || 'fr',
+                debug: window.APP_CONFIG?.debug || false
+            });
+        });
+    } else {
+        window.chatbot = new VisaChatbot({
+            language: window.APP_CONFIG?.language || 'fr',
+            debug: window.APP_CONFIG?.debug || false
+        });
+    }
+</script>
+
+<!-- Theme Toggle Handler -->
+<script type="module">
+    // Attach theme toggle immediately when DOM is ready
+    function attachThemeToggle() {
+        const themeToggle = document.getElementById('theme-toggle');
+        if (!themeToggle) {
+            console.warn('[Theme] Toggle button not found');
+            return;
+        }
+
+        // Wait for chatbot to be initialized
+        const checkChatbot = setInterval(() => {
+            if (window.chatbot && window.chatbot.ui && window.chatbot.ui.toggleTheme) {
+                themeToggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.chatbot.ui.toggleTheme();
+                    console.log('[Theme] Toggled via button');
+                });
+                console.log('[Theme] Toggle handler attached');
+                clearInterval(checkChatbot);
+            }
+        }, 100);
+
+        // Timeout after 5 seconds
+        setTimeout(() => clearInterval(checkChatbot), 5000);
+    }
+
+    // Try immediately if DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachThemeToggle);
+    } else {
+        attachThemeToggle();
+    }
+</script>
 
 <!-- Fallback for browsers without ES6 module support -->
 <script nomodule>
     console.warn('Your browser does not support ES6 modules. Loading legacy version...');
     document.write('<script src="<?= url('js/legacy/chatbot.legacy.js') ?>"><\/script>');
 </script>
-

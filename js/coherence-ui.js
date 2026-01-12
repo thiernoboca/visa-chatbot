@@ -30,8 +30,8 @@ class CoherenceUI {
     constructor(options = {}) {
         this.config = {
             container: options.container || document.getElementById('chatMessages'),
-            apiEndpoint: options.apiEndpoint || 'php/coherence-validator-api.php',
-            onAction: options.onAction || (() => {}),
+            apiEndpoint: options.apiEndpoint || 'index.php?action=validate',
+            onAction: options.onAction || (() => { }),
             debug: options.debug || false
         };
     }
@@ -100,10 +100,10 @@ class CoherenceUI {
         const stayInfo = data.stay_info || {};
 
         const statusClass = data.is_coherent ? 'status-success' :
-                           (data.is_blocked ? 'status-error' : 'status-warning');
+            (data.is_blocked ? 'status-error' : 'status-warning');
         const statusIcon = data.is_coherent ? '✅' : (data.is_blocked ? '❌' : '⚠️');
         const statusText = data.is_coherent ? 'Dossier complet' :
-                          (data.is_blocked ? 'Action requise' : 'Vérifications recommandées');
+            (data.is_blocked ? 'Action requise' : 'Vérifications recommandées');
 
         const el = document.createElement('div');
         el.className = 'dossier-summary';
@@ -275,8 +275,8 @@ class CoherenceUI {
 
         // Ajuster les positions pour éviter les chevauchements
         for (let i = 1; i < events.length; i++) {
-            if (events[i].position - events[i-1].position < 10) {
-                events[i].position = events[i-1].position + 10;
+            if (events[i].position - events[i - 1].position < 10) {
+                events[i].position = events[i - 1].position + 10;
             }
         }
 
@@ -298,9 +298,9 @@ class CoherenceUI {
             </div>
             <div class="checklist-items">
                 ${allDocs.map(doc => {
-                    const config = CoherenceUI.DOC_CONFIG[doc];
-                    const isPresent = documentsValidated.includes(doc);
-                    return `
+            const config = CoherenceUI.DOC_CONFIG[doc];
+            const isPresent = documentsValidated.includes(doc);
+            return `
                         <div class="checklist-item ${isPresent ? 'present' : 'missing'}">
                             <span class="item-check">${isPresent ? '☑️' : '☐'}</span>
                             <span class="item-icon">${config.icon}</span>
@@ -308,7 +308,7 @@ class CoherenceUI {
                             <span class="item-status">${isPresent ? 'Vérifié' : 'Manquant'}</span>
                         </div>
                     `;
-                }).join('')}
+        }).join('')}
             </div>
         `;
         return el;

@@ -73,13 +73,14 @@ if (!defined('QR_SECRET_KEY')) {
 // CONSTANTES SPECIFIQUES AU CHATBOT
 // ===========================================
 
-// Étapes du workflow (13 étapes - avec upload documents conversationnel)
-// Ordre: welcome -> passport -> residence -> ticket -> hotel -> vaccination -> invitation -> eligibility -> photo -> contact -> trip -> customs -> confirm
+// Étapes du workflow (14 étapes - avec geolocation et upload documents conversationnel)
+// Ordre: welcome -> geolocation -> passport -> residence -> ticket -> hotel -> vaccination -> invitation -> eligibility -> photo -> contact -> trip -> customs -> confirm
 if (!defined('WORKFLOW_STEPS')) {
     define('WORKFLOW_STEPS', [
         'welcome',      // 0 - Accueil & langue
-        'passport',     // 1 - Scan passeport (nationalité extraite ici)
-        'residence',    // 2 - Pays de résidence (après passeport)
+        'geolocation',  // 1 - Vérification pays de résidence via IP (juridiction ambassade)
+        'passport',     // 2 - Scan passeport (nationalité extraite ici)
+        'residence',    // 3 - Confirmation pays de résidence (si geolocation incertaine)
         'ticket',       // 3 - *** NOUVEAU: Billet d'avion + extraction OCR ***
         'hotel',        // 4 - *** NOUVEAU: Réservation hôtel + extraction OCR ***
         'vaccination',  // 5 - *** NOUVEAU: Carnet vaccination + extraction OCR ***

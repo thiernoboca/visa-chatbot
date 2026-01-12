@@ -12,7 +12,7 @@ ini_set('display_errors', 1);
 // Load required files
 require_once __DIR__ . '/services/DocumentCoherenceValidator.php';
 require_once __DIR__ . '/services/CrossDocumentSync.php';
-require_once __DIR__ . '/services/ProactiveSuggestions.php';
+require_once __DIR__ . '/services/DocumentAnalysisSuggestions.php';
 require_once __DIR__ . '/extractors/InvitationLetterExtractor.php';
 
 // Classes WITH namespace
@@ -280,7 +280,7 @@ runTest("Accommodation coverage detection", function() use ($testData) {
 echo BOLD . "\n--- ProactiveSuggestions Tests ---" . RESET;
 
 runTest("Detect invitation-ticket mismatch", function() use ($testData) {
-    $suggestions = new ProactiveSuggestions();
+    $suggestions = new DocumentAnalysisSuggestions();
 
     $session = [
         'extracted_data' => $testData
@@ -301,7 +301,7 @@ runTest("Detect invitation-ticket mismatch", function() use ($testData) {
 });
 
 runTest("Detect accommodation gap", function() use ($testData) {
-    $suggestions = new ProactiveSuggestions();
+    $suggestions = new DocumentAnalysisSuggestions();
 
     $session = [
         'extracted_data' => $testData

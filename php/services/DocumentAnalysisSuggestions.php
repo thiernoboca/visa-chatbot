@@ -1,6 +1,6 @@
 <?php
 /**
- * ProactiveSuggestions - Contextual Suggestions for Aya Persona
+ * DocumentAnalysisSuggestions - Document Analysis Suggestions for Aya Persona
  *
  * Analyzes session data to generate proactive, helpful suggestions:
  * - Date mismatches between documents
@@ -10,11 +10,14 @@
  * - Diplomat workflow detection
  * - Embassy closure warnings
  *
- * @version 6.0.0
+ * NOTE: Renamed from ProactiveSuggestions to avoid naming collision with
+ * php/proactive-suggestions.php which has different interface (setContext/getSuggestions).
+ *
+ * @version 6.1.0
  * @author Visa Chatbot Team
  */
 
-class ProactiveSuggestions {
+class DocumentAnalysisSuggestions {
 
     /**
      * Embassy non-working days (day of week: 0=Sunday, 6=Saturday)

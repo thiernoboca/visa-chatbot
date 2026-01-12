@@ -81,9 +81,19 @@ export class UIManager {
             this.elements.stepCount.textContent = `${stepInfo.index + 1}/${stepInfo.total}`;
         }
 
-        // Update progress bar
+        // Update progress bar (main)
         if (this.elements.progressFill) {
             this.elements.progressFill.style.width = `${stepInfo.progress}%`;
+        }
+
+        // Update mobile progress bar
+        if (this.elements.mobileProgressFill) {
+            this.elements.mobileProgressFill.style.width = `${stepInfo.progress}%`;
+        }
+
+        // Update progress percentage text
+        if (this.elements.progressPercent) {
+            this.elements.progressPercent.textContent = `${stepInfo.progress}%`;
         }
 
         // Update step dots
@@ -134,6 +144,12 @@ export class UIManager {
      */
     showQuickActions(actions) {
         if (!this.elements.quickActions || !actions?.length) return;
+
+        // Skip if inline editing is active (to prevent overwriting inline confirmation buttons)
+        if (stateManager.get('inlineEditingActive')) {
+            console.log('[UI] Skipping quick actions - inline editing active');
+            return;
+        }
 
         this.elements.quickActions.innerHTML = '';
 

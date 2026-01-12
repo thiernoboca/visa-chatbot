@@ -7,11 +7,10 @@
  * @version 1.0.0
  */
 
-// Éviter conflit avec services/ProactiveSuggestions.php
-if (class_exists('ProactiveSuggestions')) {
-    return;
-}
-
+/**
+ * NOTE: This is the root ProactiveSuggestions class with setContext/getSuggestions interface.
+ * For document analysis suggestions, see services/DocumentAnalysisSuggestions.php
+ */
 class ProactiveSuggestions {
     
     /**

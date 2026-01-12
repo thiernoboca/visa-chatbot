@@ -1,53 +1,53 @@
 {
     "welcome_message": {
         "control": {
-            "exposures": 71,
+            "exposures": 84,
             "conversions": 4
         },
         "friendly": {
-            "exposures": 53,
+            "exposures": 78,
             "conversions": 2
         }
     },
     "passport_scan_ui": {
         "upload_first": {
-            "exposures": 64,
+            "exposures": 89,
             "conversions": 0
         },
         "camera_first": {
-            "exposures": 54,
+            "exposures": 67,
             "conversions": 0
         }
     },
     "quick_actions_style": {
         "text_only": {
-            "exposures": 47,
+            "exposures": 66,
             "conversions": 0
         },
         "with_icons": {
-            "exposures": 36,
+            "exposures": 46,
             "conversions": 0
         },
         "with_emoji": {
-            "exposures": 35,
+            "exposures": 44,
             "conversions": 0
         }
     },
     "cta_text": {
         "finish": {
-            "exposures": 23,
+            "exposures": 31,
             "conversions": 0
         },
         "confirm": {
-            "exposures": 33,
+            "exposures": 43,
             "conversions": 0
         },
         "submit_application": {
-            "exposures": 35,
+            "exposures": 42,
             "conversions": 0
         },
         "validate_continue": {
-            "exposures": 27,
+            "exposures": 40,
             "conversions": 0
         }
     }

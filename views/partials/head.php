@@ -69,6 +69,9 @@
         .dark ::-webkit-scrollbar-thumb { background: #334155; }
     </style>
 
+    <!-- Design System (standardized design tokens) -->
+    <link rel="stylesheet" href="<?= url('css/design-system.css') ?>?v=<?= filemtime(CHATBOT_ROOT . '/css/design-system.css') ?>">
+
     <!-- Main Styles (unified entry point) -->
     <link rel="stylesheet" href="<?= url('css/main.css') ?>?v=<?= filemtime(CHATBOT_ROOT . '/css/main.css') ?>">
 
@@ -77,5 +80,8 @@
 
     <!-- Gamification v6.0 (progress tracker, celebrations, animations) -->
     <link rel="stylesheet" href="<?= url('css/gamification.css') ?>?v=<?= @filemtime(CHATBOT_ROOT . '/css/gamification.css') ?: time() ?>">
+
+    <!-- Phase 7.0 - Inline Editing (redesign integration) -->
+    <link rel="stylesheet" href="<?= url('css/inline-editing.css') ?>?v=<?= @filemtime(CHATBOT_ROOT . '/css/inline-editing.css') ?: time() ?>">
 </head>
 

@@ -191,20 +191,81 @@ export class MessagesManager {
     }
 
     /**
-     * Parse message content (basic markdown)
+     * Parse message content (enhanced markdown)
+     * Supports: bold, italic, lists, emojis, line breaks
      * @param {string} content
      * @returns {string}
      */
     parseContent(content) {
         if (!content) return '';
 
-        return content
-            // Bold
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            // Lists
-            .replace(/^[•✓✗] (.+)$/gm, '<span class="list-item">$&</span>')
-            // Lines
-            .split('\n').map(line => `<p>${line}</p>`).join('');
+        // Split into lines for processing
+        const lines = content.split('\n');
+        const result = [];
+        let inList = false;
+
+        for (const line of lines) {
+            const trimmed = line.trim();
+
+            // Empty line - close list if open, add spacing
+            if (!trimmed) {
+                if (inList) {
+                    result.push('</ul>');
+                    inList = false;
+                }
+                result.push('<br/>');
+                continue;
+            }
+
+            // Check if line is a list item (• ✓ ✗ - * or numbered)
+            const listMatch = trimmed.match(/^([•✓✗\-\*]|\d+\.)\s+(.+)$/);
+            if (listMatch) {
+                if (!inList) {
+                    result.push('<ul class="message-list">');
+                    inList = true;
+                }
+                const itemContent = this.parseInline(listMatch[2]);
+                const icon = listMatch[1];
+                let iconClass = '';
+                if (icon === '✓') iconClass = 'check';
+                else if (icon === '✗') iconClass = 'cross';
+                result.push(`<li class="${iconClass}">${itemContent}</li>`);
+                continue;
+            }
+
+            // Regular paragraph - close list if open
+            if (inList) {
+                result.push('</ul>');
+                inList = false;
+            }
+
+            // Parse inline formatting and wrap in paragraph
+            const parsedLine = this.parseInline(trimmed);
+            result.push(`<p>${parsedLine}</p>`);
+        }
+
+        // Close any open list
+        if (inList) {
+            result.push('</ul>');
+        }
+
+        return result.join('');
+    }
+
+    /**
+     * Parse inline markdown formatting
+     * @param {string} text
+     * @returns {string}
+     */
+    parseInline(text) {
+        return text
+            // Bold: **text** or __text__
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            .replace(/__([^_]+)__/g, '<strong>$1</strong>')
+            // Italic: *text* or _text_ (not at start of line)
+            .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>')
+            // Code: `text`
+            .replace(/`([^`]+)`/g, '<code>$1</code>');
     }
 
     /**
@@ -318,6 +379,36 @@ export class MessagesManager {
     clear() {
         if (this.container) {
             this.container.innerHTML = '';
+        }
+    }
+
+    /**
+     * Add action buttons to chat (for inline editing)
+     * @param {string} html - HTML string for buttons
+     * @returns {HTMLElement}
+     */
+    addActionButtons(html) {
+        // Remove existing action buttons first
+        this.clearActionButtons();
+
+        const actionArea = document.createElement('div');
+        actionArea.className = 'message-action-area';
+        actionArea.id = 'message-action-area';
+        actionArea.innerHTML = html;
+
+        this.container?.appendChild(actionArea);
+        this.scrollToBottom();
+
+        return actionArea;
+    }
+
+    /**
+     * Clear action buttons from chat
+     */
+    clearActionButtons() {
+        const existing = document.getElementById('message-action-area');
+        if (existing) {
+            existing.remove();
         }
     }
 

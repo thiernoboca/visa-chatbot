@@ -1,0 +1,27 @@
+{
+    "type": "nlu_low_confidence",
+    "data": {
+        "user_message": "test",
+        "nlu_result": {
+            "intent": "other",
+            "extracted_data": [],
+            "sentiment": "neutre",
+            "needs_clarification": true,
+            "confidence": 0.95,
+            "source": "gemini"
+        },
+        "step": "welcome"
+    },
+    "session_id": "chat_7904d80e968de213240c09cb92c5b163",
+    "timestamp": "2026-01-02T20:36:59+00:00",
+    "validation_mode": "audit_only",
+    "sync_validation_performed": false,
+    "sync_validation_result": null,
+    "priority": "sync_authoritative",
+    "processing_instructions": {
+        "can_block_session": false,
+        "sync_is_authoritative": true,
+        "on_conflict": "log_and_alert_admin",
+        "created_by": "chat-handler-v6.1"
+    }
+}

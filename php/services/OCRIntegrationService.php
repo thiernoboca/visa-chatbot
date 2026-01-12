@@ -102,12 +102,16 @@ class OCRIntegrationService {
 
             // 2. Conversion PDF si nécessaire
             if ($mimeType === 'application/pdf') {
-                $converted = $this->convertPdfToImage($fileContent);
+                $converted = $this->convertPdfToImage($fileContent, $docType);
                 if (!$converted['success']) {
                     throw new Exception("PDF conversion failed: " . $converted['error']);
                 }
                 $fileContent = $converted['image'];
                 $mimeType = $converted['mime_type'];
+
+                // Ajouter info page utilisée aux options pour les métadonnées
+                $options['pdf_page_used'] = $converted['page_used'] ?? 1;
+                $options['pdf_pages_scanned'] = $converted['pages_scanned'] ?? 1;
             }
 
             // 3. Extraction OCR Triple Layer
@@ -556,19 +560,183 @@ class OCRIntegrationService {
 
     /**
      * Convertit un PDF en image
+     *
+     * @param string $pdfContent Contenu PDF en base64
+     * @param string $docType Type de document (pour stratégie multi-pages)
+     * @return array Résultat avec 'success', 'image', 'mime_type', 'page_used'
      */
-    private function convertPdfToImage(string $pdfContent): array {
+    private function convertPdfToImage(string $pdfContent, string $docType = 'default'): array {
         // Utiliser le convertisseur existant
         require_once dirname(__DIR__) . '/../../passport-ocr-module/php/pdf-converter.php';
 
         try {
             $converter = new \PdfConverter(['debug' => $this->config['debug']]);
-            return $converter->convertToImage($pdfContent, 1);
+
+            // Support multi-pages pour TOUS les types de documents
+            // La recherche intelligente trouve automatiquement la meilleure page
+            return $this->convertPdfWithPageSearch($converter, $pdfContent, $docType);
+
         } catch (Exception $e) {
             return [
                 'success' => false,
                 'error' => $e->getMessage()
             ];
+        }
+    }
+
+    /**
+     * Convertit un PDF en cherchant la meilleure page pour le type de document
+     *
+     * @param \PdfConverter $converter Instance du convertisseur
+     * @param string $pdfContent Contenu PDF en base64
+     * @param string $docType Type de document
+     * @return array Résultat avec la meilleure page trouvée
+     */
+    private function convertPdfWithPageSearch(\PdfConverter $converter, string $pdfContent, string $docType): array {
+        // Obtenir le nombre de pages
+        $pageCount = $converter->getPageCount($pdfContent);
+        if ($pageCount < 1) {
+            $pageCount = 2; // Essayer au moins 2 pages si le comptage échoue
+        }
+
+        // Limiter à max 5 pages pour performance
+        $maxPages = min($pageCount, 5);
+
+        // Mots-clés indicateurs de contenu pertinent selon le type de document
+        $relevantKeywords = [
+            'passport' => [
+                'strong' => ['PASSPORT', 'PASSEPORT', 'P<', 'MRZ', 'SURNAME', 'GIVEN NAME', 'NOM', 'PRENOM', 'DATE OF BIRTH', 'NATIONALITY'],
+                'avoid' => ['APPLICATION FORM', 'INSTRUCTIONS', 'HOW TO APPLY']
+            ],
+            'ticket' => [
+                'strong' => ['BOARDING', 'FLIGHT', 'PASSENGER', 'AIRLINE', 'DEPARTURE', 'ARRIVAL', 'BOOKING', 'E-TICKET', 'ITINERARY'],
+                'avoid' => ['TERMS AND CONDITIONS', 'BAGGAGE POLICY']
+            ],
+            'hotel' => [
+                'strong' => ['RESERVATION', 'BOOKING', 'CHECK-IN', 'CHECK-OUT', 'HOTEL', 'GUEST', 'CONFIRMATION', 'ROOM'],
+                'avoid' => ['CANCELLATION POLICY', 'TERMS OF SERVICE']
+            ],
+            'vaccination' => [
+                'strong' => ['YELLOW FEVER', 'FIEVRE JAUNE', 'AMARIL', 'VACCINE', 'VACCIN', 'STAMARIL', 'YF-VAX', 'IMMUNIZATION'],
+                'avoid' => ['Information for physicians', 'Information pour les medecins', 'Please be sure always']
+            ],
+            'invitation' => [
+                'strong' => ['LETTRE D\'INVITATION', 'INVITATION LETTER', 'au nom de', 'visa', 'passeport', 'INVITE', 'HEREBY INVITE'],
+                'avoid' => []
+            ],
+            'verbal_note' => [
+                'strong' => ['NOTE VERBALE', 'VERBAL NOTE', 'MINISTRY', 'MINISTERE', 'EMBASSY', 'AMBASSADE', 'DIPLOMATIC'],
+                'avoid' => []
+            ],
+            'residence_card' => [
+                'strong' => ['RESIDENCE', 'PERMIT', 'CARD', 'CARTE DE SEJOUR', 'TITRE DE SEJOUR', 'VALID UNTIL', 'HOLDER'],
+                'avoid' => ['APPLICATION', 'HOW TO APPLY']
+            ],
+            'payment' => [
+                'strong' => ['PAYMENT', 'RECEIPT', 'TRANSFER', 'AMOUNT', 'MONTANT', 'RECU', 'TRANSACTION', 'XOF', 'FCFA', 'ETB'],
+                'avoid' => ['TERMS', 'CONDITIONS']
+            ],
+            'default' => [
+                'strong' => [],
+                'avoid' => ['TABLE OF CONTENTS', 'INDEX', 'BLANK PAGE']
+            ]
+        ];
+
+        $keywords = $relevantKeywords[$docType] ?? ['strong' => [], 'avoid' => []];
+        $bestPage = 1;
+        $bestScore = -1;
+        $bestResult = null;
+
+        // Parcourir les pages et scorer chacune
+        for ($page = 1; $page <= $maxPages; $page++) {
+            $result = $converter->convertToImage($pdfContent, $page);
+
+            if (!$result['success']) {
+                continue;
+            }
+
+            // Si c'est la seule page, la retourner
+            if ($maxPages === 1) {
+                $result['page_used'] = 1;
+                return $result;
+            }
+
+            // Faire un OCR rapide pour scorer la page
+            $ocrText = $this->quickOcr($result['image'], $result['mime_type']);
+
+            if (empty($ocrText)) {
+                continue;
+            }
+
+            // Calculer le score
+            $score = 0;
+            $textUpper = strtoupper($ocrText);
+
+            // Points positifs pour les mots-clés pertinents
+            foreach ($keywords['strong'] as $keyword) {
+                if (stripos($textUpper, strtoupper($keyword)) !== false) {
+                    $score += 10;
+                }
+            }
+
+            // Points négatifs pour les mots-clés à éviter
+            foreach ($keywords['avoid'] as $avoid) {
+                if (stripos($ocrText, $avoid) !== false) {
+                    $score -= 20;
+                }
+            }
+
+            // Préférer les pages avec des dates (indique des données réelles)
+            if (preg_match('/\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}/', $ocrText)) {
+                $score += 5;
+            }
+
+            // Préférer les pages avec des noms (NAME: ou NOM:)
+            if (preg_match('/(?:NAME|NOM)\s*[:\s]/i', $ocrText)) {
+                $score += 5;
+            }
+
+            if ($this->config['debug']) {
+                error_log("[OCR] Page {$page} score: {$score}");
+            }
+
+            if ($score > $bestScore) {
+                $bestScore = $score;
+                $bestPage = $page;
+                $bestResult = $result;
+            }
+        }
+
+        // Retourner la meilleure page trouvée
+        if ($bestResult) {
+            $bestResult['page_used'] = $bestPage;
+            $bestResult['pages_scanned'] = $maxPages;
+            return $bestResult;
+        }
+
+        // Fallback: page 1 si rien de mieux
+        $result = $converter->convertToImage($pdfContent, 1);
+        $result['page_used'] = 1;
+        return $result;
+    }
+
+    /**
+     * OCR rapide pour scorer une page (utilise Google Vision si disponible)
+     */
+    private function quickOcr(string $imageBase64, string $mimeType): string {
+        if (!$this->ocrService) {
+            return '';
+        }
+
+        try {
+            // Utiliser le Layer 1 (Google Vision) pour un OCR rapide
+            $result = $this->ocrService->extractWithVision($imageBase64);
+            return $result['raw_text'] ?? $result['text'] ?? '';
+        } catch (Exception $e) {
+            if ($this->config['debug']) {
+                error_log("[quickOcr] Error: " . $e->getMessage());
+            }
+            return '';
         }
     }
 

@@ -1,0 +1,431 @@
+/**
+ * Inline Editing Styles (Phase 7.0)
+ * Styles for extracted data display and confirmation buttons in chat
+ *
+ * @version 1.0.0
+ */
+
+/* ═══════════════════════════════════════════
+   Extracted Data Message Display
+   ═══════════════════════════════════════════ */
+
+.extracted-data-message {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    background: rgba(13, 92, 70, 0.05);
+    border-radius: 12px;
+    padding: 16px;
+    border-left: 4px solid var(--primary-color, #0D5C46);
+}
+
+.dark .extracted-data-message {
+    background: rgba(13, 92, 70, 0.15);
+    border-left-color: var(--primary-light, #10816A);
+}
+
+/* ═══════════════════════════════════════════
+   Extracted Field Rows
+   ═══════════════════════════════════════════ */
+
+.extracted-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    transition: background-color 0.2s ease;
+}
+
+.dark .extracted-field {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.extracted-field:last-child {
+    border-bottom: none;
+}
+
+.extracted-field:hover {
+    background-color: rgba(13, 92, 70, 0.03);
+}
+
+.dark .extracted-field:hover {
+    background-color: rgba(13, 92, 70, 0.1);
+}
+
+/* ═══════════════════════════════════════════
+   Field Labels & Values
+   ═══════════════════════════════════════════ */
+
+.extracted-field-label {
+    font-weight: 500;
+    color: var(--text-secondary, #666);
+    font-size: 0.9rem;
+    flex: 0 0 40%;
+    text-align: left;
+}
+
+.dark .extracted-field-label {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.extracted-field-value {
+    font-weight: 600;
+    color: var(--text-primary, #1a1a1a);
+    font-size: 0.95rem;
+    flex: 1;
+    text-align: right;
+    word-break: break-word;
+}
+
+.dark .extracted-field-value {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* ═══════════════════════════════════════════
+   Low Confidence Fields
+   ═══════════════════════════════════════════ */
+
+.extracted-field.low-confidence {
+    background-color: rgba(255, 193, 7, 0.08);
+    border-left: 3px solid #FFC107;
+    padding-left: 12px;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-right: 16px;
+}
+
+.dark .extracted-field.low-confidence {
+    background-color: rgba(255, 193, 7, 0.12);
+}
+
+.extracted-field.low-confidence::before {
+    content: '⚠️';
+    margin-right: 8px;
+    font-size: 0.9rem;
+}
+
+.extracted-field.low-confidence .extracted-field-value {
+    color: #F57C00;
+}
+
+.dark .extracted-field.low-confidence .extracted-field-value {
+    color: #FFB74D;
+}
+
+/* ═══════════════════════════════════════════
+   Action Buttons Container
+   ═══════════════════════════════════════════ */
+
+.message-action-area {
+    margin: 16px 0;
+    padding: 12px 0;
+    animation: slideUpFade 0.3s ease-out;
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.inline-confirmation-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+/* ═══════════════════════════════════════════
+   Confirmation Buttons
+   ═══════════════════════════════════════════ */
+
+.btn-confirm-data,
+.btn-edit-data {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-confirm-data .material-symbols-outlined,
+.btn-edit-data .material-symbols-outlined {
+    font-size: 20px;
+    font-variation-settings: 'FILL' 1, 'wght' 600;
+}
+
+/* ═══════════════════════════════════════════
+   Premium Confirm Button
+   ═══════════════════════════════════════════ */
+
+.btn-premium,
+.btn-confirm-data {
+    background: linear-gradient(135deg, #0D5C46 0%, #10816A 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(13, 92, 70, 0.25);
+}
+
+.btn-premium:hover,
+.btn-confirm-data:hover {
+    background: linear-gradient(135deg, #0A4A38 0%, #0D6955 100%);
+    box-shadow: 0 6px 20px rgba(13, 92, 70, 0.35);
+    transform: translateY(-2px);
+}
+
+.btn-premium:active,
+.btn-confirm-data:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(13, 92, 70, 0.3);
+}
+
+/* ═══════════════════════════════════════════
+   Secondary Edit Button
+   ═══════════════════════════════════════════ */
+
+.btn-secondary,
+.btn-edit-data {
+    background: white;
+    color: var(--primary-color, #0D5C46);
+    border: 2px solid var(--primary-color, #0D5C46);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.dark .btn-secondary,
+.dark .btn-edit-data {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--primary-light, #10816A);
+    border-color: var(--primary-light, #10816A);
+}
+
+.btn-secondary:hover,
+.btn-edit-data:hover {
+    background: var(--primary-color, #0D5C46);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 92, 70, 0.25);
+}
+
+.dark .btn-secondary:hover,
+.dark .btn-edit-data:hover {
+    background: var(--primary-light, #10816A);
+    border-color: var(--primary-light, #10816A);
+}
+
+.btn-secondary:active,
+.btn-edit-data:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ═══════════════════════════════════════════
+   Disabled State
+   ═══════════════════════════════════════════ */
+
+.btn-confirm-data:disabled,
+.btn-edit-data:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════
+   Responsive Design
+   ═══════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+    .inline-confirmation-buttons {
+        flex-direction: column;
+    }
+
+    .btn-confirm-data,
+    .btn-edit-data {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .extracted-field {
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-start;
+    }
+
+    .extracted-field-label,
+    .extracted-field-value {
+        text-align: left;
+        flex: none;
+    }
+
+    .extracted-data-message {
+        padding: 12px;
+        margin-left: -4px;
+        margin-right: -4px;
+    }
+}
+
+/* ═══════════════════════════════════════════
+   Loading State (for future use)
+   ═══════════════════════════════════════════ */
+
+.btn-confirm-data.loading,
+.btn-edit-data.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn-confirm-data.loading::after,
+.btn-edit-data.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════
+   Inline Edit Form (Phase 7.1 - Redesign Migration)
+   ═══════════════════════════════════════════ */
+
+.inline-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(13, 92, 70, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(13, 92, 70, 0.1);
+}
+
+.dark .inline-edit-form {
+    background: rgba(13, 92, 70, 0.08);
+    border-color: rgba(13, 92, 70, 0.2);
+}
+
+.inline-edit-form .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.inline-edit-form .form-field label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary, #666);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dark .inline-edit-form .form-field label {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.inline-edit-input,
+.inline-edit-form input {
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary, #1a1a1a);
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.dark .inline-edit-input,
+.dark .inline-edit-form input {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+.inline-edit-input:focus,
+.inline-edit-form input:focus {
+    outline: none;
+    border-color: var(--primary-color, #0D5C46);
+    box-shadow: 0 0 0 3px rgba(13, 92, 70, 0.1);
+}
+
+.dark .inline-edit-input:focus,
+.dark .inline-edit-form input:focus {
+    border-color: var(--primary-light, #10816A);
+    box-shadow: 0 0 0 3px rgba(16, 129, 106, 0.2);
+}
+
+.inline-edit-input::placeholder,
+.inline-edit-form input::placeholder {
+    color: #9ca3af;
+}
+
+/* ═══════════════════════════════════════════
+   Inline Edit Buttons
+   ═══════════════════════════════════════════ */
+
+.inline-edit-buttons {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dark .inline-edit-buttons {
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Shadow glow effect for premium buttons */
+.shadow-glow {
+    box-shadow: 0 4px 14px rgba(13, 92, 70, 0.4);
+}
+
+.shadow-glow:hover {
+    box-shadow: 0 6px 20px rgba(13, 92, 70, 0.5);
+}
+
+.dark .shadow-glow {
+    box-shadow: 0 4px 14px rgba(16, 129, 106, 0.4);
+}
+
+.dark .shadow-glow:hover {
+    box-shadow: 0 6px 20px rgba(16, 129, 106, 0.5);
+}
+
+/* ═══════════════════════════════════════════
+   Responsive for Inline Edit Form
+   ═══════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+    .inline-edit-form {
+        padding: 12px;
+    }
+
+    .inline-edit-buttons {
+        flex-direction: column;
+        padding: 12px;
+    }
+
+    .inline-edit-buttons button {
+        width: 100%;
+    }
+}

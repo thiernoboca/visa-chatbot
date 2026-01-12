@@ -2,9 +2,9 @@
  * Module Index
  * Exports all chatbot modules
  *
- * @version 6.0.2
+ * @version 7.0.0
  * @description Aya Intelligence+ - Smart prefill cascade, gamification features,
- *              proactive suggestions, and enhanced user experience
+ *              proactive suggestions, inline editing, and enhanced user experience
  */
 
 // ============================================================================
@@ -148,6 +148,14 @@ export * from './time-estimator.js';
 export { default as TimeEstimator } from './time-estimator.js';
 
 // ============================================================================
+// PHASE 7.0: REDESIGN INTEGRATION
+// ============================================================================
+
+// Inline Editing - Data confirmation and editing in chat
+export * from './inline-editing.js';
+export { default as InlineEditingManager } from './inline-editing.js';
+
+// ============================================================================
 // MODULE METADATA
 // ============================================================================
 
@@ -155,7 +163,7 @@ export { default as TimeEstimator } from './time-estimator.js';
  * Module version and metadata
  */
 export const MODULE_VERSION = {
-    version: '6.0.2',
+    version: '7.0.0',
     modules: {
         core: ['config', 'i18n', 'state', 'messages', 'ui', 'upload', 'analytics', 'api', 'chatbot'],
         phase1: ['requirements-matrix', 'document-flow', 'validation-ui'],
@@ -164,12 +172,14 @@ export const MODULE_VERSION = {
         phase4: ['health-declaration', 'payment-flow'],
         phase5: ['signature', 'pdf-generator'],
         phase6: ['flow-integration'],
+        phase7: ['inline-editing'],
         gamification: ['progress-tracker', 'celebrations', 'time-estimator'],
         ux: ['ux-enhancements'],
         validation: ['cross-document-validation']
     },
-    lastUpdated: '2025-12-27',
+    lastUpdated: '2026-01-01',
     changelog: {
+        '7.0.0': 'Redesign Integration - Inline editing, Innovatrics camera modal, percentage-based progress, action area buttons',
         '6.0.0': 'Aya Intelligence+ - Smart prefill cascade (8 documents), gamification (progress tracker, celebrations, time estimator), proactive suggestions, cross-document validation',
         '5.3.0': 'Added persona Aya enhancements: IP geolocation (ipinfo.io), vaccination warnings, travel dates prefill',
         '5.2.0': 'Integrated flow-integration, document-flow, requirements-matrix into chatbot.js for client-side flow management'

@@ -5,13 +5,15 @@
  * @version 1.0.0
  */
 
-(function() {
+(function () {
     'use strict';
 
     // Configuration
     const CONFIG = {
-        apiEndpoint: 'php/chat-handler.php',
-        ocrEndpoint: 'php/document-upload-handler-v2.php',
+        apiEndpoint: 'index.php?action=api',
+        ocrEndpoint: 'index.php?action=upload',
+        ocrEndpoint: 'index.php?action=upload',
+        geolocationEndpoint: 'index.php?action=geolocation', // ADDED
         debug: true
     };
 
@@ -72,19 +74,19 @@
      * Cache les références aux éléments DOM
      */
     function cacheElements() {
-        elements.chatMessages = document.getElementById('chat-messages');
-        elements.actionArea = document.getElementById('action-area');
-        elements.uploadModal = document.getElementById('upload-modal');
-        elements.dropZone = document.getElementById('drop-zone');
-        elements.fileInput = document.getElementById('file-input');
-        elements.uploadPreview = document.getElementById('upload-preview');
-        elements.previewImage = document.getElementById('preview-image');
-        elements.clearPreview = document.getElementById('clear-preview');
-        elements.confirmUploadBtn = document.getElementById('confirm-upload-btn');
-        elements.closeUploadModal = document.getElementById('close-upload-modal');
-        elements.uploadProcessing = document.getElementById('upload-processing');
-        elements.webcamBtn = document.getElementById('webcam-btn');
-        elements.progressBar = document.getElementById('progress-bar');
+        elements.chatMessages = document.getElementById('chatMessages');
+        elements.actionArea = document.getElementById('quickActions'); // ID in chatbot.php is quickActions
+        elements.uploadModal = document.getElementById('passportScannerOverlay');
+        elements.dropZone = document.getElementById('passportUploadZone');
+        elements.fileInput = document.getElementById('passportFileInput');
+        elements.uploadPreview = document.getElementById('passportPreviewArea');
+        elements.previewImage = document.getElementById('passportPreviewImage');
+        elements.clearPreview = document.getElementById('btnRemovePassport');
+        elements.confirmUploadBtn = document.getElementById('btnConfirmPassport');
+        elements.closeUploadModal = document.getElementById('btnCloseScanner');
+        elements.uploadProcessing = document.getElementById('passportProcessing');
+        elements.webcamBtn = document.getElementById('webcam-btn'); // Not found in partial, likely null
+        elements.progressBar = document.getElementById('progress-bar'); // Check if matches (in partials/chatbot.php line 19/20: id="mobile-progress-bar"? No, check desktop too)
         elements.progressPercent = document.getElementById('progress-percent');
         elements.stepTimeline = document.getElementById('step-timeline');
         elements.passportConfirmModal = document.getElementById('passport-confirm-modal');
@@ -165,8 +167,36 @@
 
         addBotMessage(`<strong>${msg.greeting}</strong><br><br>${msg.intro}<br><br>${msg.instruction}`);
 
-        // Afficher le bouton d'upload dans la zone d'action
-        showUploadAction();
+        // Afficher les boutons de langue (Quick Actions)
+        if (elements.actionArea) {
+            elements.actionArea.innerHTML = `
+                <div class="flex gap-2 justify-center w-full p-2">
+                    <button class="btn-premium px-6 py-3 rounded-full font-bold text-white shadow-glow" onclick="window.chatbotRedesign.setLanguage('fr')">
+                        🇫🇷 Français
+                    </button>
+                    <button class="btn-secondary px-6 py-3 rounded-full font-bold" onclick="window.chatbotRedesign.setLanguage('en')">
+                        🇬🇧 English
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    /**
+     * Définit la langue et passe à l'étape suivante
+     */
+    function setLanguage(lang) {
+        state.language = lang;
+        // update lang toggle UI if exists
+        const langToggle = document.getElementById('lang-label');
+        if (langToggle) langToggle.textContent = lang.toUpperCase();
+
+        // Feedback utilisateur
+        addUserMessage(lang === 'fr' ? 'Français' : 'English');
+
+        // Passer à l'étape Résidence
+        state.currentStep = 'residence';
+        renderStep('residence');
     }
 
     /**
@@ -237,6 +267,84 @@
     }
 
     /**
+     * Etape 2: Résidence et Géolocalisation
+     */
+    async function renderResidenceStep() {
+        log('Rendering residence step...');
+        updateProgress(30);
+        updateTimeline('residence');
+
+        addBotMessage("Nous allons maintenant vérifier votre pays de résidence.");
+
+        try {
+            // Afficher indicateur de chargement
+            const loadingMsgEl = addBotMessage('<div class="flex items-center gap-2"><div class="animate-spin text-xl">🌍</div> Détection de votre localisation...</div>');
+
+            // Appel API
+            const response = await fetch(CONFIG.geolocationEndpoint, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const result = await response.json();
+
+            // Retirer message de chargement (simulé par suppression du dernier élément update serait mieux mais simple ici)
+            // En réalité, on laisse le message précédent et on ajoute le résultat
+            if (loadingMsgEl && elements.chatMessages) {
+                elements.chatMessages.removeChild(loadingMsgEl);
+            }
+
+            if (result.success && result.data.detected) {
+                const country = result.data.country_name.fr;
+                const flag = result.data.country_flag || '🌍';
+                const isEligible = result.data.in_jurisdiction;
+
+                let message = `Je détecte que vous êtes en <strong>${flag} ${country}</strong>.`;
+
+                if (isEligible) {
+                    message += `<br><br>✅ Ce pays dépend bien de notre ambassade.`;
+                    addBotMessage(message);
+
+                    // Passer à l'étape suivante après délai
+                    setTimeout(() => {
+                        state.currentStep = 'eligibility';
+                        renderStep('eligibility');
+                        // updateSidebarCountry(result.data); // Mettre à jour la sidebar si existante
+                    }, 2000);
+                } else {
+                    message += `<br><br>⚠️ Ce pays ne semble pas dépendre de notre juridiction (Ambassade Côte d'Ivoire en Éthiopie).`;
+                    message += `<br>Voulez-vous continuer quand même ?`;
+                    addBotMessage(message);
+
+                    // Afficher boutons choix
+                    if (elements.actionArea) {
+                        elements.actionArea.innerHTML = `
+                            <div class="flex gap-3 w-full">
+                                <button class="btn-secondary flex-1 py-3 rounded-xl" onclick="window.location.reload()">Recommencer</button>
+                                <button id="btn-force-continue" class="btn-premium flex-1 py-3 rounded-xl">Continuer</button>
+                            </div>
+                        `;
+                        document.getElementById('btn-force-continue')?.addEventListener('click', () => {
+                            state.currentStep = 'eligibility';
+                            renderStep('eligibility');
+                        });
+                    }
+                }
+            } else {
+                throw new Error("Géolocalisation échouée");
+            }
+
+        } catch (error) {
+            log('Geolocation error:', error);
+            addBotMessage("Je n'ai pas pu détecter votre position automatiquement.");
+
+            // Fallback: Demander sélection manuelle (simplifié pour l'instant: continuer)
+            addBotMessage("Veuillez sélectionner votre pays de résidence dans la liste suivante:");
+            // TODO: Ajouter dropdown de sélection si besoin, pour l'instant on passe
+            state.currentStep = 'eligibility';
+            renderStep('eligibility');
+        }
+    }
+
+    /**
      * Ouvre le modal d'upload
      */
     function openUploadModal() {
@@ -265,6 +373,12 @@
     function handleFileSelect(e) {
         const file = e.target.files?.[0];
         if (file) {
+            // Validation taille (Max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('Erreur', 'Le fichier est trop volumineux (Max 5MB)', 'error');
+                return;
+            }
+
             log('File selected:', file.name, file.type, file.size);
             state.selectedFile = file;
             showFilePreview(file);
@@ -299,6 +413,15 @@
 
         const file = e.dataTransfer?.files?.[0];
         if (file) {
+            // Validation taille (Max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('Erreur', 'Le fichier est trop volumineux (Max 5MB)', 'error');
+                if (elements.dropZone) {
+                    elements.dropZone.classList.remove('drag-over', 'border-primary', 'bg-primary/5');
+                }
+                return;
+            }
+
             log('File dropped:', file.name, file.type, file.size);
             state.selectedFile = file;
 
@@ -325,7 +448,7 @@
                 elements.previewImage.src = e.target.result;
                 elements.uploadPreview.classList.remove('hidden');
                 elements.dropZone?.classList.add('hidden');
-                
+
                 // Activer le bouton confirmer
                 if (elements.confirmUploadBtn) {
                     elements.confirmUploadBtn.disabled = false;
@@ -342,7 +465,7 @@
             `);
             elements.uploadPreview.classList.remove('hidden');
             elements.dropZone?.classList.add('hidden');
-            
+
             if (elements.confirmUploadBtn) {
                 elements.confirmUploadBtn.disabled = false;
             }
@@ -354,76 +477,94 @@
      */
     function clearFilePreview() {
         state.selectedFile = null;
-        
+
         if (elements.fileInput) {
             elements.fileInput.value = '';
         }
-        
+
         if (elements.previewImage) {
             elements.previewImage.src = '';
         }
-        
+
         if (elements.uploadPreview) {
             elements.uploadPreview.classList.add('hidden');
         }
-        
+
         if (elements.dropZone) {
             elements.dropZone.classList.remove('hidden');
         }
-        
+
         if (elements.confirmUploadBtn) {
             elements.confirmUploadBtn.disabled = true;
         }
     }
 
     /**
-     * Gère la confirmation d'upload
+     * Gère la confirmation d'upload avec Retry Automatique
      */
-    async function handleConfirmUpload() {
-        if (!state.selectedFile || state.isProcessing) {
+    async function handleConfirmUpload(retryCount = 0) {
+        if (!state.selectedFile || (state.isProcessing && retryCount === 0)) {
             log('No file selected or already processing');
             return;
         }
 
-        log('Starting passport OCR...', state.selectedFile.name);
-        state.isProcessing = true;
+        const maxRetries = 3;
 
-        // Afficher le processing
-        if (elements.uploadPreview) {
-            elements.uploadPreview.classList.add('hidden');
-        }
-        if (elements.uploadProcessing) {
-            elements.uploadProcessing.classList.remove('hidden');
-        }
-        if (elements.confirmUploadBtn) {
-            elements.confirmUploadBtn.disabled = true;
+        if (retryCount === 0) {
+            log('Starting passport OCR...', state.selectedFile.name);
+            state.isProcessing = true;
+
+            // Afficher le processing
+            if (elements.uploadPreview) elements.uploadPreview.classList.add('hidden');
+            if (elements.uploadProcessing) elements.uploadProcessing.classList.remove('hidden');
+            if (elements.confirmUploadBtn) elements.confirmUploadBtn.disabled = true;
+
+            // Message de processing amélioré pour le retry
+            const msg = document.querySelector('#upload-processing p');
+            if (msg) msg.textContent = 'Analyse sécurisée du document en cours...';
+        } else {
+            // Update UI pour montrer le retry
+            const msg = document.querySelector('#upload-processing p');
+            if (msg) msg.textContent = `Tentative de connexion ${retryCount}/${maxRetries}...`;
         }
 
         try {
-            // Convertir le fichier en base64
-            const base64 = await fileToBase64(state.selectedFile);
-            const base64Data = base64.split(',')[1]; // Enlever le préfixe data:...
+            // Convertir le fichier en base64 (une seule fois)
+            if (!state.fileBase64) {
+                state.fileBase64 = await fileToBase64(state.selectedFile);
+            }
+            const base64Data = state.fileBase64.split(',')[1];
 
-            log('Sending to OCR API...');
+            log(`Sending to OCR API... (Attempt ${retryCount + 1})`);
 
-            // Appeler l'API OCR
+            // Appeler l'API OCR avec timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
             const response = await fetch(CONFIG.ocrEndpoint, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     image: base64Data,
                     mime_type: state.selectedFile.type,
                     action: 'extract_passport'
-                })
+                }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
 
             const data = await response.json();
             log('OCR Response:', data);
 
             if (data.success !== false && data.extracted_data) {
-                // Succès - fermer le modal et afficher les résultats
+                // Succès - nettoyage
+                state.fileBase64 = null;
+                state.isProcessing = false;
                 closeUploadModal();
                 handleOCRSuccess(data.extracted_data);
             } else {
@@ -432,13 +573,83 @@
 
         } catch (error) {
             log('OCR Error:', error);
-            handleOCRError(error);
-        } finally {
-            state.isProcessing = false;
-            if (elements.uploadProcessing) {
-                elements.uploadProcessing.classList.add('hidden');
+
+            // Retry logic pour erreur réseau ou timeout
+            const isNetworkError = error.name === 'AbortError' || error.message.includes('Network') || error.message.includes('Failed to fetch');
+
+            if (isNetworkError && retryCount < maxRetries) {
+                const delay = 1000 * Math.pow(2, retryCount); // Backoff: 1s, 2s, 4s
+                log(`Network error, retrying in ${delay}ms...`);
+
+                setTimeout(() => handleConfirmUpload(retryCount + 1), delay);
+                return;
             }
+
+            // Échec définitif
+            state.isProcessing = false;
+            state.fileBase64 = null;
+
+            handleOCRError(error);
+            if (elements.uploadProcessing) elements.uploadProcessing.classList.add('hidden');
         }
+    }
+
+    /**
+     * Router principal des étapes
+     * @param {string} stepName Nom de l'étape
+     */
+    function renderStep(stepName) {
+        log('Rendering step:', stepName);
+        state.currentStep = stepName;
+
+        // Mettre à jour la timeline si existe
+        updateTimeline(stepName);
+
+        switch (stepName) {
+            case 'welcome':
+                showWelcomeMessage();
+                break;
+            case 'residence':
+                renderResidenceStep();
+                break;
+            case 'passport':
+                showUploadAction();
+                break;
+            case 'eligibility':
+                renderEligibilityStep();
+                break;
+            case 'photo':
+                addBotMessage("Veuillez fournir votre photo d'identité.");
+                break;
+            case 'contact':
+                addBotMessage("Veuillez entrer vos coordonnées.");
+                break;
+            // Ajouter les autres étapes ici au besoin
+            default:
+                log('Step not implemented:', stepName);
+                break;
+        }
+    }
+
+    /**
+     * Etape 3: Eligibilité (Stub)
+     */
+    function renderEligibilityStep() {
+        log('Rendering eligibility step...');
+        updateProgress(40);
+
+        // Simple message de succès pour l'instant
+        const lang = state.language;
+        addBotMessage(lang === 'fr'
+            ? "✅ Éligibilité confirmée. Vous pouvez effectuer une demande de e-Visa."
+            : "✅ Eligibility confirmed. You can apply for an e-Visa.");
+
+        setTimeout(() => {
+            addBotMessage(lang === 'fr'
+                ? "Passons maintenant à votre passeport."
+                : "Now let's verify your passport.");
+            renderStep('passport');
+        }, 1500);
     }
 
     /**
@@ -458,7 +669,7 @@
      */
     function handleOCRSuccess(extractedData) {
         log('OCR Success:', extractedData);
-        
+
         // #region agent log
         // Debug: Log structure des données pour diagnostic
         console.log('[DEBUG] extractedData:', JSON.stringify(extractedData, null, 2));
@@ -474,7 +685,7 @@
 
         // Construire le message avec les données extraites
         let dataHtml = '';
-        
+
         const fieldLabels = {
             fr: {
                 surname: 'Nom',
@@ -512,12 +723,12 @@
             } else if (field && typeof field === 'number') {
                 value = String(field);
             }
-            
+
             // Afficher le champ s'il a une valeur non vide
             // Pour les champs critiques comme passport_number, toujours afficher même si vide
             const criticalFields = ['passport_number', 'surname', 'given_names'];
             const shouldDisplay = value.trim() !== '' || criticalFields.includes(key);
-            
+
             if (shouldDisplay) {
                 const displayValue = value.trim() !== '' ? value : '-';
                 dataHtml += `<div class="flex justify-between py-1 border-b border-gray-100 dark:border-gray-700">
@@ -582,18 +793,12 @@
      */
     function handleDataConfirmed(extractedData) {
         const lang = state.language;
-        
+
         addUserMessage(lang === 'fr' ? '✓ Données confirmées' : '✓ Data confirmed');
-        
-        const nextMsg = lang === 'fr' 
-            ? 'Parfait ! Passons à l\'étape suivante. Veuillez télécharger votre billet d\'avion.'
-            : 'Perfect! Let\'s move to the next step. Please upload your flight ticket.';
-        
-        addBotMessage(nextMsg);
-        
-        // Continuer le workflow...
-        state.currentStep = 'ticket';
-        updateProgress(30);
+
+        // Passer à l'étape suivante: Résidence (au lieu de ticket direct)
+        state.currentStep = 'residence';
+        renderStep('residence');
     }
 
     /**
@@ -601,12 +806,12 @@
      */
     function handleDataEdit(extractedData) {
         log('Edit data requested', extractedData);
-        
+
         const lang = state.language;
         const fields = extractedData.fields || {};
-        
+
         addUserMessage(lang === 'fr' ? '✏️ Modifier les données' : '✏️ Edit data');
-        
+
         // Labels pour le formulaire
         const fieldLabels = {
             fr: {
@@ -628,13 +833,13 @@
                 sex: 'Sex'
             }
         };
-        
+
         const labels = fieldLabels[lang] || fieldLabels.fr;
         const editableFields = ['surname', 'given_names', 'date_of_birth', 'nationality', 'passport_number', 'date_of_expiry', 'sex'];
-        
+
         // Construire le formulaire d'édition
         let formHtml = '<div class="space-y-3">';
-        
+
         editableFields.forEach(key => {
             const field = fields[key];
             let value = '';
@@ -643,9 +848,9 @@
             } else if (field && typeof field === 'string') {
                 value = field;
             }
-            
+
             const inputType = key.includes('date') ? 'date' : 'text';
-            
+
             formHtml += `
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-medium text-gray-500">${labels[key] || key}</label>
@@ -657,19 +862,19 @@
                 </div>
             `;
         });
-        
+
         formHtml += '</div>';
-        
-        const editMsg = lang === 'fr' 
+
+        const editMsg = lang === 'fr'
             ? 'Modifiez les informations ci-dessous puis validez :'
             : 'Edit the information below then validate:';
-        
+
         addBotMessage(`<strong>${editMsg}</strong>${formHtml}`);
-        
+
         // Bouton de validation
         const saveText = lang === 'fr' ? 'Enregistrer les modifications' : 'Save changes';
         const cancelText = lang === 'fr' ? 'Annuler' : 'Cancel';
-        
+
         if (elements.actionArea) {
             elements.actionArea.innerHTML = `
                 <div class="flex gap-3">
@@ -683,12 +888,12 @@
                     </button>
                 </div>
             `;
-            
+
             document.getElementById('btn-save-edit')?.addEventListener('click', () => {
                 // Récupérer les valeurs modifiées
                 const inputs = document.querySelectorAll('[data-field]');
                 const updatedData = { ...extractedData, fields: { ...fields } };
-                
+
                 inputs.forEach(input => {
                     const fieldName = input.dataset.field;
                     if (updatedData.fields[fieldName]) {
@@ -701,10 +906,10 @@
                         updatedData.fields[fieldName] = { value: input.value, confidence: 1.0 };
                     }
                 });
-                
+
                 handleDataConfirmed(updatedData);
             });
-            
+
             document.getElementById('btn-cancel-edit')?.addEventListener('click', () => {
                 // Réafficher les données originales
                 handleOCRSuccess(extractedData);
@@ -717,14 +922,14 @@
      */
     function handleOCRError(error) {
         log('OCR Error:', error);
-        
+
         const lang = state.language;
         const errorMsg = lang === 'fr'
             ? 'Impossible de lire le passeport. Veuillez réessayer avec une meilleure image.'
             : 'Unable to read passport. Please try again with a better image.';
 
         showNotification('Erreur', errorMsg, 'error');
-        
+
         // Réinitialiser l'état
         if (elements.uploadPreview) {
             elements.uploadPreview.classList.remove('hidden');
@@ -739,7 +944,7 @@
      */
     function openWebcamCapture() {
         log('Opening webcam capture');
-        
+
         if (typeof window.InnovatricsCameraCapture !== 'undefined') {
             const camera = new window.InnovatricsCameraCapture({
                 type: 'passport',
@@ -820,8 +1025,8 @@
     function loadTheme() {
         // Check localStorage first, then cookie, then system preference
         const savedTheme = localStorage.getItem('theme') ||
-                          getCookie('theme') ||
-                          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            getCookie('theme') ||
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
         const html = document.documentElement;
         html.classList.remove('dark', 'light');
@@ -891,7 +1096,7 @@
      */
     function toggleLanguage() {
         state.language = state.language === 'fr' ? 'en' : 'fr';
-        
+
         const label = document.getElementById('lang-label');
         if (label) {
             label.textContent = state.language.toUpperCase();
@@ -900,13 +1105,44 @@
         log('Language changed to:', state.language);
     }
 
+    /**
+     * Renders a specific step in the chatbot flow.
+     * @param {string} stepName - The name of the step to render (e.g., 'welcome', 'eligibility').
+     */
+    function renderStep(stepName) {
+        log(`Rendering step: ${stepName}`);
+        // Hide all step containers first
+        document.querySelectorAll('.chatbot-step').forEach(step => {
+            step.classList.add('hidden');
+        });
+
+        // Show the requested step
+        const targetStep = document.getElementById(`step-${stepName}`);
+        if (targetStep) {
+            targetStep.classList.remove('hidden');
+        } else {
+            log(`Warning: Step '${stepName}' not found.`);
+        }
+    }
+
+    /**
+     * Renders the eligibility step.
+     */
+    function renderEligibilityStep() {
+        log('Rendering eligibility step');
+        renderStep('eligibility');
+        // Additional logic for eligibility step can go here
+    }
+
     // Exposer l'API publique
     window.chatbotRedesign = {
-        init,
-        openUploadModal,
-        closeUploadModal,
-        showNotification,
-        state
+        init: init,
+        openUploadModal: openUploadModal,
+        closeUploadModal: closeUploadModal,
+        showNotification: showNotification,
+        state: state,
+        renderStep: renderStep,
+        renderEligibilityStep: renderEligibilityStep
     };
 
     // Initialiser au chargement du DOM

@@ -8,12 +8,7 @@
 
 require_once __DIR__ . '/../php/services/GeolocationService.php';
 require_once __DIR__ . '/../php/session-manager.php';
-// CRITICAL: Load proactive-suggestions.php BEFORE workflow-engine.php
-// because both files have a ProactiveSuggestions class with different interfaces.
-// The root proactive-suggestions.php has setContext/getSuggestions methods needed by chat-handler.php.
-if (!class_exists('ProactiveSuggestions')) {
-    require_once __DIR__ . '/../php/proactive-suggestions.php';
-}
+require_once __DIR__ . '/../php/proactive-suggestions.php';
 require_once __DIR__ . '/../php/workflow-engine.php';
 require_once __DIR__ . '/../php/chat-handler.php';
 require_once __DIR__ . '/../php/services/OCRIntegrationService.php';

@@ -21,9 +21,7 @@ require_once __DIR__ . '/services/GeolocationService.php';
 require_once __DIR__ . '/services/VaccinationRequirements.php';
 require_once __DIR__ . '/services/SmartPrefillService.php';
 require_once __DIR__ . '/services/CrossDocumentSync.php';
-if (!class_exists('ProactiveSuggestions')) {
-    require_once __DIR__ . '/services/ProactiveSuggestions.php';
-}
+require_once __DIR__ . '/services/DocumentAnalysisSuggestions.php';
 require_once __DIR__ . '/services/DocumentCoherenceValidator.php';
 
 class WorkflowEngine {
@@ -253,10 +251,13 @@ class WorkflowEngine {
         switch ($currentStep) {
             case 'welcome':
                 return $this->handleWelcome($input);
-                
+
+            case 'geolocation':
+                return $this->handleGeolocation($input, $metadata);
+
             case 'passport':
                 return $this->handlePassport($input, $metadata);
-                
+
             case 'residence':
                 return $this->handleResidence($input, $metadata);
 
@@ -286,11 +287,8 @@ class WorkflowEngine {
             case 'trip':
                 return $this->handleTrip($input, $metadata);
                 
-            case 'health':
-                return $this->handleHealth($input, $metadata);
-                
-            case 'customs':
-                return $this->handleCustoms($input, $metadata);
+            case 'payment':
+                return $this->handlePayment($input, $metadata);
                 
             case 'confirm':
                 return $this->handleConfirmation($input, $metadata);
@@ -311,11 +309,16 @@ class WorkflowEngine {
         
         switch ($currentStep) {
             case 'welcome':
+                // Message bilingue FR/EN avant sélection de langue
                 return $this->createResponse(
-                    getMessage('welcome', $this->lang),
+                    getMessage('welcome_bilingual', $this->lang),
                     getLanguageQuickActions()
                 );
-                
+
+            case 'geolocation':
+                // Trigger geolocation detection via IP
+                return $this->handleGeolocation('', []);
+
             case 'passport':
                 return $this->createResponse(
                     getMessage('passport_scan_request', $this->lang),
@@ -367,17 +370,8 @@ class WorkflowEngine {
                     ['input_type' => 'date']
                 );
                 
-            case 'health':
-                return $this->createResponse(
-                    getMessage('health_vaccination_question', $this->lang),
-                    getYesNoQuickActions($this->lang)
-                );
-                
-            case 'customs':
-                return $this->createResponse(
-                    getMessage('customs_declaration', $this->lang),
-                    getYesNoQuickActions($this->lang)
-                );
+            case 'payment':
+                return $this->handlePayment(null, []);
                 
             case 'confirm':
                 return $this->getConfirmationRecap();
@@ -407,23 +401,164 @@ class WorkflowEngine {
         $this->session->setLanguage($lang);
         $this->lang = $lang;
         $this->session->setCollectedField('language', $lang);
-        
+
         // Dispatch webhook: session created
         $this->dispatchWebhook(WebhookDispatcher::EVENT_SESSION_CREATED, [
             'language_selected' => $lang
         ]);
-        
+
         $this->advanceToNextStep();
 
-        // FIX: After welcome, the next step is 'passport' (step 1)
-        // Return passport_scan_request message, NOT residence_question
+        // After welcome, advance to geolocation step (IP country detection)
+        return $this->getStepInitialMessage();
+    }
+
+    /**
+     * Gère l'étape Géolocalisation
+     * Détecte le pays via IP et vérifie la juridiction de l'ambassade
+     */
+    private function handleGeolocation(string $input, array $metadata): array {
+        // Mapping ISO alpha-2 (ipinfo) -> alpha-3 (our system)
+        $alpha2to3 = [
+            'ET' => 'ETH', 'KE' => 'KEN', 'DJ' => 'DJI',
+            'TZ' => 'TZA', 'UG' => 'UGA', 'SS' => 'SSD', 'SO' => 'SOM'
+        ];
+
+        $geoData = $this->session->getCollectedField('geolocation_data');
+        $geoConfirmed = $this->session->getCollectedField('geolocation_confirmed');
+
+        // =========================================================================
+        // FIRST VISIT: Detect IP and ask for confirmation
+        // =========================================================================
+        if ($geoData === null) {
+            $geoService = new GeolocationService();
+            $geoData = $geoService->detectCountry();
+            $this->session->setCollectedField('geolocation_data', $geoData);
+
+            // Handle local IP (localhost/development)
+            if (!empty($geoData['is_local'])) {
+                // In development: show manual country selection
+                return $this->createResponse(
+                    $this->lang === 'fr'
+                        ? "🌍 Dans quel pays résidez-vous actuellement ?\n\nNotre service couvre les 7 pays suivants :"
+                        : "🌍 Which country do you currently reside in?\n\nOur service covers the following 7 countries:",
+                    getCountryQuickActions($this->lang),
+                    ['geolocation_manual' => true, 'step' => 'geolocation']
+                );
+            }
+
+            // IP detection successful
+            if ($geoData['success'] && $geoData['country_code']) {
+                $countryName = $geoData['country_name'][$this->lang] ?? $geoData['country_name']['en'];
+                $flag = $geoData['country_flag'] ?? '';
+
+                if ($geoData['in_jurisdiction']) {
+                    // Country is in jurisdiction - ask for confirmation
+                    $alpha3 = $alpha2to3[$geoData['country_code']] ?? $geoData['country_code'];
+                    return $this->createResponse(
+                        $this->lang === 'fr'
+                            ? "🌍 Je vois que vous êtes actuellement en **{$flag} {$countryName}**.\n\nEst-ce votre pays de résidence ?"
+                            : "🌍 I see you're currently in **{$flag} {$countryName}**.\n\nIs this your country of residence?",
+                        [
+                            ['label' => $this->lang === 'fr' ? '✅ Oui, c\'est correct' : '✅ Yes, that\'s correct', 'value' => 'geo_confirm_' . $alpha3],
+                            ['label' => $this->lang === 'fr' ? '🔄 Non, j\'habite ailleurs' : '🔄 No, I live elsewhere', 'value' => 'geo_other']
+                        ],
+                        ['geolocation_detected' => true, 'detected_country' => $geoData['country_code'], 'step' => 'geolocation']
+                    );
+                } else {
+                    // Country is OUT of jurisdiction - show available countries
+                    $jurisdictionList = $geoService->formatJurisdictionList($this->lang);
+                    return $this->createResponse(
+                        $this->lang === 'fr'
+                            ? "🌍 Je détecte que vous êtes en **{$countryName}**.\n\n⚠️ Notre ambassade à Addis-Abeba couvre uniquement les pays suivants :\n\n{$jurisdictionList}\n\n📍 Si vous résidez dans l'un de ces pays, sélectionnez-le ci-dessous :"
+                            : "🌍 I detect you're in **{$countryName}**.\n\n⚠️ Our embassy in Addis Ababa only covers the following countries:\n\n{$jurisdictionList}\n\n📍 If you reside in one of these countries, select it below:",
+                        getCountryQuickActions($this->lang),
+                        ['geolocation_detected' => true, 'out_of_jurisdiction' => true, 'step' => 'geolocation']
+                    );
+                }
+            }
+
+            // IP detection failed - show manual selection
+            return $this->createResponse(
+                $this->lang === 'fr'
+                    ? "🌍 Dans quel pays résidez-vous actuellement ?"
+                    : "🌍 Which country do you currently reside in?",
+                getCountryQuickActions($this->lang),
+                ['geolocation_failed' => true, 'step' => 'geolocation']
+            );
+        }
+
+        // =========================================================================
+        // HANDLE USER RESPONSE
+        // =========================================================================
+
+        // User confirmed detected country
+        if (strpos($input, 'geo_confirm_') === 0) {
+            $confirmedCode = str_replace('geo_confirm_', '', $input);
+            $this->session->setCollectedField('geolocation_confirmed', true);
+            $this->session->setCollectedField('residence_country', $confirmedCode);
+
+            // Get country info for message
+            $countryInfo = getCountryInfo($confirmedCode, $this->lang);
+            $countryName = $countryInfo ? $countryInfo['name'] : $confirmedCode;
+
+            // Advance to passport step
+            $this->advanceToNextStep();
+
+            return $this->createResponse(
+                $this->lang === 'fr'
+                    ? "✅ Parfait ! Votre résidence en **{$countryName}** est confirmée.\n\nPassons maintenant à votre passeport ! 📸\n\nNotre IA va lire automatiquement vos informations - fini la saisie manuelle !\n\n**Conseils pour un scan parfait** :\n• Page d'identité bien éclairée\n• Évitez les reflets\n• Zone MRZ (les 2 lignes en bas) bien visible\n\nC'est parti ! ✨"
+                    : "✅ Perfect! Your residence in **{$countryName}** is confirmed.\n\nNow let's scan your passport! 📸\n\nOur AI will automatically read your information - no manual entry!\n\n**Tips for a perfect scan**:\n• ID page well lit\n• Avoid reflections\n• MRZ zone (2 lines at bottom) clearly visible\n\nLet's go! ✨",
+                [],
+                ['input_type' => 'file', 'file_type' => 'passport', 'step' => 'passport']
+            );
+        }
+
+        // User wants to select different country
+        if ($input === 'geo_other') {
+            $this->session->setCollectedField('geolocation_confirmed', false);
+            return $this->createResponse(
+                $this->lang === 'fr'
+                    ? "📍 Dans quel pays résidez-vous actuellement ?"
+                    : "📍 Which country do you currently reside in?",
+                getCountryQuickActions($this->lang),
+                ['step' => 'geolocation']
+            );
+        }
+
+        // User selected a country from the list (ETH, KEN, DJI, TZA, UGA, SSD, SOM)
+        if (isInJurisdiction($input)) {
+            $this->session->setCollectedField('residence_country', $input);
+            $this->session->setCollectedField('geolocation_confirmed', true);
+
+            $countryInfo = getCountryInfo($input, $this->lang);
+            $countryName = $countryInfo ? $countryInfo['name'] : $input;
+
+            // Advance to passport step
+            $this->advanceToNextStep();
+
+            return $this->createResponse(
+                $this->lang === 'fr'
+                    ? "✅ Parfait ! Votre résidence en **{$countryName}** est confirmée.\n\nPassons maintenant à votre passeport ! 📸\n\nNotre IA va lire automatiquement vos informations - fini la saisie manuelle !\n\n**Conseils pour un scan parfait** :\n• Page d'identité bien éclairée\n• Évitez les reflets\n• Zone MRZ (les 2 lignes en bas) bien visible\n\nC'est parti ! ✨"
+                    : "✅ Perfect! Your residence in **{$countryName}** is confirmed.\n\nNow let's scan your passport! 📸\n\nOur AI will automatically read your information - no manual entry!\n\n**Tips for a perfect scan**:\n• ID page well lit\n• Avoid reflections\n• MRZ zone (2 lines at bottom) clearly visible\n\nLet's go! ✨",
+                [],
+                ['input_type' => 'file', 'file_type' => 'passport', 'step' => 'passport']
+            );
+        }
+
+        // Invalid/unrecognized country - show error with jurisdiction list
+        $geoService = new GeolocationService();
+        $jurisdictionList = $geoService->formatJurisdictionList($this->lang);
+
         return $this->createResponse(
-            getMessage('passport_scan_request', $lang),
-            [],
-            ['input_type' => 'file', 'file_type' => 'passport']
+            $this->lang === 'fr'
+                ? "❌ Désolé, nous ne pouvons traiter que les demandes des résidents des pays suivants :\n\n{$jurisdictionList}\n\nSi vous résidez dans l'un de ces pays, veuillez le sélectionner. Sinon, nous vous invitons à contacter l'ambassade de Côte d'Ivoire compétente pour votre pays de résidence."
+                : "❌ Sorry, we can only process applications from residents of the following countries:\n\n{$jurisdictionList}\n\nIf you reside in one of these countries, please select it. Otherwise, please contact the Ivory Coast embassy responsible for your country of residence.",
+            getCountryQuickActions($this->lang),
+            ['error' => 'out_of_jurisdiction', 'step' => 'geolocation']
         );
     }
-    
+
     /**
      * Gère l'étape Résidence
      * Note: la nationalité est déjà extraite du passeport à cette étape
@@ -1079,6 +1214,12 @@ class WorkflowEngine {
      * Gère l'étape Passeport
      */
     private function handlePassport(string $input, array $metadata): array {
+        // Support nouveau format: document_uploaded + extracted_data (cohérent avec autres handlers)
+        if (!empty($metadata['document_uploaded']) && !empty($metadata['extracted_data'])) {
+            return $this->processPassportData($metadata['extracted_data']);
+        }
+
+        // Support ancien format: ocr_data (legacy)
         if (isset($metadata['ocr_data']) && is_array($metadata['ocr_data'])) {
             return $this->processPassportData($metadata['ocr_data']);
         }
@@ -2045,6 +2186,37 @@ class WorkflowEngine {
     }
     
     /**
+     * Gère l'étape Paiement
+     */
+    private function handlePayment(?string $input, array $metadata): array {
+        // Si confirmation de paiement
+        if ($input !== null && in_array(strtolower($input), ['pay', 'payer', 'pay_now', 'effectuer le paiement'])) {
+            $this->advanceToNextStep();
+            return $this->getStepInitialMessage();
+        }
+
+        $passportType = $this->session->getCollectedField('passport_type') ?? 'ORDINAIRE';
+        $visaType = $this->session->getCollectedField('visa_type') ?? 'COURT_SEJOUR';
+        $entries = $this->session->getCollectedField('visa_entries') ?? 'Unique';
+        $isExpress = $this->session->getCollectedField('is_express') ?? false;
+
+        $fees = calculateFees($passportType, $visaType, $entries, $isExpress);
+        $amount = number_format($fees['total'], 0, ',', ' ');
+
+        $message = $this->lang === 'fr'
+            ? "💰 **Paiement des frais de visa**\n\nLe montant total à payer est de **{$amount} XOF**.\n\nCe montant inclut les frais de dossier et, le cas échéant, les frais d'option express.\n\nVeuillez procéder au paiement pour finaliser votre demande."
+            : "💰 **Visa Fee Payment**\n\nThe total amount to pay is **{$amount} XOF**.\n\nThis amount includes processing fees and any express option fees.\n\nPlease proceed with payment to finalize your application.";
+
+        return $this->createResponse(
+            $message,
+            [
+                ['label' => $this->lang === 'fr' ? '💳 Payer maintenant' : '💳 Pay now', 'value' => 'pay_now']
+            ],
+            ['payment_amount' => $fees['total'], 'step' => 'payment']
+        );
+    }
+    
+    /**
      * Gère l'étape Confirmation
      */
     private function handleConfirmation(string $input, array $metadata): array {
@@ -2205,7 +2377,7 @@ class WorkflowEngine {
      * @return array List of suggestions sorted by priority
      */
     public function getProactiveSuggestions(): array {
-        $suggestionsService = new ProactiveSuggestions();
+        $suggestionsService = new DocumentAnalysisSuggestions();
         $sessionData = $this->session->getAllData();
 
         return $suggestionsService->analyzeAndSuggest($sessionData);
@@ -2217,7 +2389,7 @@ class WorkflowEngine {
      * @return array|null Top suggestion or null
      */
     public function getTopSuggestion(): ?array {
-        $suggestionsService = new ProactiveSuggestions();
+        $suggestionsService = new DocumentAnalysisSuggestions();
         $sessionData = $this->session->getAllData();
 
         return $suggestionsService->getTopSuggestion($sessionData);

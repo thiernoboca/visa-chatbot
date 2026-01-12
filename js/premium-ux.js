@@ -9,7 +9,6 @@
 class PremiumUX {
     constructor(options = {}) {
         this.options = {
-            enableOnboarding: true,
             enableSounds: false,
             enableHaptics: true,
             celebrationColors: ['#FF6B00', '#009639', '#FFFFFF', '#D4AF37', '#3B82F6'],
@@ -17,7 +16,6 @@ class PremiumUX {
         };
 
         this.state = {
-            onboardingShown: false,
             currentOCRStep: 0
         };
 
@@ -25,11 +23,6 @@ class PremiumUX {
     }
 
     init() {
-        // Check if onboarding should be shown
-        if (this.options.enableOnboarding && !this.hasSeenOnboarding()) {
-            this.showOnboarding();
-        }
-
         // Initialize ripple effects on buttons
         this.initRippleEffects();
 
@@ -38,129 +31,6 @@ class PremiumUX {
 
         // Expose globally
         window.premiumUX = this;
-    }
-
-    // ==========================================
-    // ONBOARDING
-    // ==========================================
-
-    hasSeenOnboarding() {
-        return localStorage.getItem('visa_onboarding_seen') === 'true';
-    }
-
-    showOnboarding() {
-        const overlay = document.createElement('div');
-        overlay.className = 'onboarding-overlay';
-        overlay.id = 'onboardingOverlay';
-        overlay.innerHTML = `
-            <div class="onboarding-container">
-                <!-- Flag Animation -->
-                <div class="flag-animation">
-                    <div class="flag-stripe orange"></div>
-                    <div class="flag-stripe white"></div>
-                    <div class="flag-stripe green"></div>
-                </div>
-
-                <!-- Welcome Text -->
-                <h1 class="onboarding-title">Bienvenue</h1>
-                <p class="onboarding-subtitle">Ambassade de Côte d'Ivoire - Service e-Visa</p>
-
-                <!-- Time Estimate -->
-                <div class="time-estimate">
-                    <svg class="time-estimate-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                        <polyline points="12,6 12,12 16,14" stroke-width="2"/>
-                    </svg>
-                    <span>Environ 8-10 minutes</span>
-                </div>
-
-                <!-- Steps Preview -->
-                <div class="steps-preview">
-                    <div class="step-preview-item">
-                        <div class="step-preview-icon">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
-                        </div>
-                        <span class="step-preview-label">Identité</span>
-                    </div>
-                    <div class="step-preview-item">
-                        <div class="step-preview-icon">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                            </svg>
-                        </div>
-                        <span class="step-preview-label">Passeport</span>
-                    </div>
-                    <div class="step-preview-item">
-                        <div class="step-preview-icon">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                            </svg>
-                        </div>
-                        <span class="step-preview-label">Résidence</span>
-                    </div>
-                    <div class="step-preview-item">
-                        <div class="step-preview-icon">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <span class="step-preview-label">Validation</span>
-                    </div>
-                </div>
-
-                <!-- Start Button -->
-                <button class="onboarding-start-btn" id="startOnboarding">
-                    <span>Commencer ma demande</span>
-                    <svg class="arrow" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                    </svg>
-                </button>
-
-                <!-- Trust Badges -->
-                <div class="trust-badges">
-                    <div class="trust-badge">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
-                        </svg>
-                        <span>Données sécurisées</span>
-                    </div>
-                    <div class="trust-badge">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                        </svg>
-                        <span>Service officiel</span>
-                    </div>
-                    <div class="trust-badge">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-                        </svg>
-                        <span>Traitement rapide</span>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(overlay);
-
-        // Add click handler
-        document.getElementById('startOnboarding').addEventListener('click', () => {
-            this.hideOnboarding();
-        });
-
-        this.state.onboardingShown = true;
-    }
-
-    hideOnboarding() {
-        const overlay = document.getElementById('onboardingOverlay');
-        if (overlay) {
-            overlay.classList.add('fade-out');
-            setTimeout(() => {
-                overlay.remove();
-                localStorage.setItem('visa_onboarding_seen', 'true');
-            }, 800);
-        }
     }
 
     // ==========================================
@@ -816,9 +686,7 @@ class PremiumUX {
 document.addEventListener('DOMContentLoaded', () => {
     // Check if we should auto-init
     if (!window.premiumUXInitialized) {
-        window.premiumUX = new PremiumUX({
-            enableOnboarding: !localStorage.getItem('visa_onboarding_seen')
-        });
+        window.premiumUX = new PremiumUX();
         window.premiumUXInitialized = true;
     }
 });

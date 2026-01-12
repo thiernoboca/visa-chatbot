@@ -29,10 +29,12 @@ class VaccinationCardExtractor extends AbstractExtractor {
                 // OCR error variants (common misreads)
                 'YELLOW FAVER', 'YELOW FEVER', 'YELL0W FEVER', 'YELLOW F3VER',
                 'FIEVRE JUNE', 'FIEVRE JAUN', 'FI3VRE JAUNE',
-                // Abbreviations
-                'YF', 'YF VAX', 'Y.F.', 'Y F',
-                // International Certificate format
-                'INTERNATIONAL CERTIFICATE', 'ICV', 'YELLOW CARD',
+                // Abbreviations - NOTE: 'YF' alone is too short, could false match
+                'YF-VAX', 'Y.F.', 'Y F',
+                // International Certificate format - MUST include yellow fever context
+                // Removed 'INTERNATIONAL CERTIFICATE' - too generic, matches any vaccination cert!
+                // Removed 'ICV' alone - too short, could false match
+                'YELLOW CARD', 'ICV YELLOW',
                 // French variants
                 'VACCINATION ANTI-AMARILE', 'VACCIN AMARIL', 'ANTI AMARIL'
             ],
@@ -258,15 +260,16 @@ class VaccinationCardExtractor extends AbstractExtractor {
         }
 
         // Recherche explicite avec patterns étendus (inclut erreurs OCR)
+        // NOTE: Les patterns doivent être spécifiques à la fièvre jaune, pas génériques
         $yellowFeverPatterns = [
             // Standard
             'YELLOW FEVER', 'FIEVRE JAUNE', 'FIÈVRE JAUNE', 'AMARIL',
             'ANTI-AMARIL', 'ANTIAMARIL', 'YF-VAX', '17D-204', 'STAMARIL',
             // OCR errors
             'YELLOW FAVER', 'YELOW FEVER', 'YELL0W', 'FIEVRE JUNE',
-            // International certificate indicators
-            'INTERNATIONAL CERTIFICATE OF VACCINATION',
-            'CERTIFICAT INTERNATIONAL DE VACCINATION',
+            // International certificate indicators - ONLY with yellow fever context
+            // Removed generic 'INTERNATIONAL CERTIFICATE OF VACCINATION' - too broad!
+            // Removed generic 'CERTIFICAT INTERNATIONAL DE VACCINATION' - too broad!
             'ICV YELLOW', 'YELLOW CARD'
         ];
 
@@ -290,6 +293,7 @@ class VaccinationCardExtractor extends AbstractExtractor {
      */
     private function fuzzyYellowFeverSearch(string $text): ?array {
         // Patterns regex qui tolèrent les erreurs OCR
+        // NOTE: All patterns MUST be specific to yellow fever, not generic vaccination
         $fuzzyPatterns = [
             // YELLOW FEVER avec substitutions communes (O→0, E→3, etc.)
             '/Y[E3]LL[O0]W\s*F[E3][AV][E3]R/i',
@@ -297,10 +301,10 @@ class VaccinationCardExtractor extends AbstractExtractor {
             '/FI[E3É]VR[E3]\s*J[AU][UN][E3]/i',
             // AMARIL avec variations
             '/A?N?T?I?[\-\s]?AM[AE]R[I1]L/i',
-            // Pattern générique certificat vaccination + fever/jaune dans le même bloc
-            '/(?:VACCIN|CERTIFICATE|CERTIFICAT)[\s\S]{0,50}(?:FEV[AE]R|JAUNE|AMARIL)/i',
-            // International certificate format
-            '/INTERNATIONAL[\s\S]{0,20}CERTIFICAT?E?[\s\S]{0,30}(?:VACCIN|IMMUNIZ)/i'
+            // Pattern certificat vaccination + fever/jaune dans le même bloc (yellow fever specific)
+            '/(?:VACCIN|CERTIFICATE|CERTIFICAT)[\s\S]{0,50}(?:YELLOW|FEV[AE]R|JAUNE|AMARIL)/i'
+            // Removed generic '/INTERNATIONAL[\s\S]{0,20}CERTIFICAT?E?[\s\S]{0,30}(?:VACCIN|IMMUNIZ)/i'
+            // - was too broad and matched any international vaccination certificate
         ];
 
         foreach ($fuzzyPatterns as $pattern) {

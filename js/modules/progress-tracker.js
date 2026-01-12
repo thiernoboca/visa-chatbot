@@ -46,7 +46,10 @@ export class ProgressTracker {
      * @param {Object} options Configuration options
      */
     constructor(options = {}) {
-        this.container = options.container || document.getElementById('progress-tracker');
+        // Try to find existing timeline container first, then fallback to progress-tracker
+        this.container = options.container
+            || document.getElementById('step-timeline')
+            || document.getElementById('progress-tracker');
         this.language = options.language || 'fr';
         this.steps = [...WORKFLOW_STEPS];
         this.currentStepIndex = 0;
@@ -66,7 +69,13 @@ export class ProgressTracker {
             this.createContainer();
         }
 
-        this.render();
+        // Check if container is a simple timeline (like #step-timeline in hero.php)
+        if (this.container.id === 'step-timeline') {
+            this.renderSimpleTimeline();
+        } else {
+            this.render();
+        }
+
         this.bindEvents();
     }
 
@@ -136,6 +145,41 @@ export class ProgressTracker {
                 fill.style.transition = 'width 0.5s ease-out';
             }
         }, 100);
+    }
+
+    /**
+     * Render simple timeline for hero.php integration
+     * Creates lightweight step indicators that fit the existing design
+     */
+    renderSimpleTimeline() {
+        const lang = this.language;
+
+        this.container.innerHTML = this.steps.map((step, index) => {
+            let status = 'pending';
+            let iconClasses = 'text-gray-400 dark:text-gray-600';
+            let textClasses = 'text-secondary';
+
+            if (this.completedSteps.has(step.id)) {
+                status = 'completed';
+                iconClasses = 'text-primary';
+                textClasses = 'text-primary font-medium';
+            } else if (index === this.currentStepIndex) {
+                status = 'current';
+                iconClasses = 'text-primary';
+                textClasses = 'text-primary dark:text-white font-bold';
+            }
+
+            const label = step.label[lang] || step.label.en;
+
+            return `
+                <div class="flex items-center gap-3 p-2 rounded-lg transition-all ${status === 'current' ? 'bg-primary/5' : ''}" data-step="${step.id}">
+                    <span class="material-symbols-outlined text-xl ${iconClasses}">${
+                        status === 'completed' ? 'check_circle' : step.icon
+                    }</span>
+                    <span class="text-sm ${textClasses}">${label}</span>
+                </div>
+            `;
+        }).join('');
     }
 
     /**
@@ -305,6 +349,71 @@ export class ProgressTracker {
         this.documentsValidated = validated;
         this.totalDocuments = total;
         this.render();
+    }
+
+    /**
+     * Set progress directly by percentage (like redesign version)
+     * Useful for direct percentage updates without step-based calculation
+     * @param {number} percent Progress percentage (0-100)
+     */
+    setProgressPercent(percent) {
+        percent = Math.max(0, Math.min(100, percent));
+
+        // Update main progress bar
+        const progressBar = this.container?.querySelector('.progress-bar-fill') ||
+                           document.getElementById('progress-bar');
+        const progressPercent = this.container?.querySelector('.progress-percentage') ||
+                               document.getElementById('progress-percent');
+
+        if (progressBar) {
+            progressBar.style.width = `${percent}%`;
+            progressBar.style.transition = 'width 0.5s ease-out';
+        }
+        if (progressPercent) {
+            progressPercent.textContent = `${percent}%`;
+        }
+
+        // Update mobile progress bar (hero.php)
+        const mobileBar = document.getElementById('mobile-progress-bar');
+        if (mobileBar) {
+            mobileBar.style.width = `${percent}%`;
+        }
+
+        // Update hero progress bar if exists
+        const heroBar = document.getElementById('progressFill');
+        if (heroBar) {
+            heroBar.style.width = `${percent}%`;
+        }
+
+        // Check milestones based on percentage
+        this.checkPercentMilestones(percent);
+    }
+
+    /**
+     * Check milestones based on direct percentage value
+     * @param {number} percent Current progress percentage
+     */
+    checkPercentMilestones(percent) {
+        if (percent >= 50 && !this._milestone50) {
+            this._milestone50 = true;
+            document.dispatchEvent(new CustomEvent('trigger-celebration', {
+                detail: { type: 'milestone', milestone: '50%' }
+            }));
+        }
+
+        if (percent >= 75 && !this._milestone75) {
+            this._milestone75 = true;
+            document.dispatchEvent(new CustomEvent('trigger-celebration', {
+                detail: { type: 'milestone', milestone: '75%' }
+            }));
+        }
+
+        if (percent >= 100 && !this._milestone100) {
+            this._milestone100 = true;
+            document.dispatchEvent(new CustomEvent('trigger-celebration', {
+                detail: { type: 'milestone', milestone: '100%' }
+            }));
+        }
     }
 
     /**

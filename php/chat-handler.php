@@ -15,29 +15,25 @@
 // Augmenter la limite mémoire pour les gros PDFs/images
 ini_set('memory_limit', '256M');
 
-// Headers CORS et JSON
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, X-Session-ID, X-Enable-Claude-Validation');
+// Headers CORS et JSON - UNIQUEMENT si appelé directement
+if (basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, X-Session-ID, X-Enable-Claude-Validation');
 
-// Gérer les requêtes OPTIONS (preflight)
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
+    // Gérer les requêtes OPTIONS (preflight)
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
 }
 
 // Charger les dépendances
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/session-manager.php';
 
-// NOTE: proactive-suggestions.php doit être chargé AVANT workflow-engine.php
-// car workflow-engine.php inclut services/ProactiveSuggestions.php qui
-// définit aussi une classe ProactiveSuggestions. La version root est celle
-// utilisée par chat-handler.php (avec setContext/getSuggestions interface).
-if (!class_exists('ProactiveSuggestions')) {
-    require_once __DIR__ . '/proactive-suggestions.php';
-}
+require_once __DIR__ . '/proactive-suggestions.php';
 
 require_once __DIR__ . '/workflow-engine.php';
 require_once __DIR__ . '/document-extractor.php';  // Pour DOCUMENT_TYPES (constantes)
@@ -208,12 +204,20 @@ class ChatHandler {
     private function handleGet(): void {
         $action = $_GET['action'] ?? 'init';
         $sessionId = $_GET['session_id'] ?? $_SERVER['HTTP_X_SESSION_ID'] ?? null;
-        
+
+        // Reset session if requested (for testing/prototyping)
+        if (isset($_GET['reset']) && $_GET['reset'] === '1') {
+            if ($sessionId) {
+                SessionManager::destroy($sessionId);
+            }
+            $sessionId = null; // Force new session
+        }
+
         $this->session = new SessionManager($sessionId);
         $this->workflow = new WorkflowEngine($this->session);
         $this->conversationEngine = new ConversationEngine(['debug' => false]);
         $this->suggestions = new ProactiveSuggestions($this->session->getCollectedData());
-        
+
         switch ($action) {
             case 'init':
                 $this->initSession();
@@ -538,10 +542,11 @@ class ChatHandler {
             'step_info' => $response['step_info'],
             'workflow_category' => $response['workflow_category'],
             'metadata' => $enrichedMetadata,
-            'status' => $this->session->getStatus()
+            'status' => $this->session->getStatus(),
+            'language' => $this->session->getLanguage()
         ]);
     }
-    
+
     /**
      * Enrichit les metadata avec les suggestions proactives
      */
@@ -1042,6 +1047,9 @@ class ChatHandler {
 }
 
 // Exécuter le handler
-$handler = new ChatHandler();
-$handler->handle();
+// Exécuter le handler uniquement si appelé directement (pas via include)
+if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'])) {
+    $handler = new ChatHandler();
+    $handler->handle();
+}
 

@@ -2,7 +2,7 @@
  * Chatbot Main Class
  * Integrates all modules into a cohesive chatbot experience
  *
- * @version 6.0.0
+ * @version 6.0.1 - Fixed i18n.updateDOM fallback
  * @module Chatbot
  *
  * Now integrates:
@@ -110,12 +110,27 @@ export class VisaChatbot {
     async init() {
         this.log('Initializing VisaChatbot v5.0...');
 
+        // Check for reset parameter - clear all local storage for fresh start
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('reset') === '1') {
+            this.log('Reset requested - clearing local storage');
+            localStorage.removeItem('visa_session_id');
+            localStorage.removeItem('visa_chat_state');
+            localStorage.removeItem('visa_onboarding_seen');
+            // Remove reset param from URL without reload
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+
         // Bind DOM elements
         this.bindElements();
 
         // Initialize core modules
         this.messages.init(this.elements.chatMessages);
-        this.ui.init();
+        this.ui.init({
+            progressFill: 'progress-bar',
+            mobileProgressFill: 'mobile-progress-bar',
+            progressPercent: 'progress-percent'
+        });
         this.upload.init({
             apiEndpoint: this.config.apiEndpoint,
             ocrEndpoint: this.config.ocrEndpoint
@@ -313,6 +328,18 @@ export class VisaChatbot {
                 this.log('TimeEstimator initialized');
             }
 
+            // Phase 7.0 - Initialize InlineEditingManager EARLY
+            if (InlineEditingManager && CONFIG.features.inlineEditing.enabled) {
+                this.inlineEditor = new InlineEditingManager({
+                    messagesManager: this.messages,
+                    uiManager: this.ui,
+                    apiManager: this.api,
+                    onConfirm: this.handleInlineDataConfirmed.bind(this),
+                    onEdit: this.handleInlineDataEdit.bind(this)
+                });
+                this.log('InlineEditingManager initialized (early)');
+            }
+
         } catch (error) {
             this.log('Gamification initialization error (non-blocking):', error.message);
         }
@@ -343,6 +370,24 @@ export class VisaChatbot {
         };
 
         this.ui.updateProgress(stepInfo);
+    }
+
+    /**
+     * Update progress bar directly by percentage
+     * Uses ProgressTracker.setProgressPercent() when in percentage mode
+     * @param {number} percent - Progress percentage (0-100)
+     */
+    updateProgressPercent(percent) {
+        const mode = CONFIG.features?.progressTracking?.mode || 'steps';
+
+        if (mode === 'percentage' && this.progressTracker) {
+            this.progressTracker.setProgressPercent(percent);
+        } else {
+            // Fallback to step-based update
+            this.ui.updateProgress({ percentage: percent });
+        }
+
+        this.log(`Progress updated to ${percent}%`);
     }
 
     /**
@@ -754,6 +799,11 @@ export class VisaChatbot {
                 // Show quick actions if present
                 if (msg.quick_actions?.length > 0) {
                     this.ui.showQuickActions(msg.quick_actions);
+
+                    // Auto-scroll to show language buttons on welcome step
+                    setTimeout(() => {
+                        this.scrollToQuickActions();
+                    }, 300);
                 }
             }
 
@@ -1082,6 +1132,33 @@ export class VisaChatbot {
             currentStep: newStep,
             workflowCategory: data.workflow_category
         });
+
+        // Update language if changed (from welcome step selection)
+        if (data.language && data.language !== this.state.get('language')) {
+            this.state.set('language', data.language);
+            this.i18n.setLanguage(data.language);
+
+            // Update DOM with new language (fallback if method doesn't exist)
+            if (typeof this.i18n.updateDOM === 'function') {
+                this.i18n.updateDOM();
+            } else {
+                // Inline fallback for DOM update
+                const lang = data.language;
+                const langAttr = lang === 'fr' ? 'data-i18n-fr' : 'data-i18n-en';
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const translation = el.getAttribute(langAttr);
+                    if (translation) el.textContent = translation;
+                });
+                document.documentElement.lang = lang;
+                window.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: lang } }));
+            }
+            this.log(`Language changed to: ${data.language}`);
+
+            // Update ProgressTracker language for step labels translation
+            if (this.progressTracker) {
+                this.progressTracker.setLanguage(data.language);
+            }
+        }
 
         // Track step changes
         if (previousStep !== newStep && previousStep) {
@@ -1606,10 +1683,139 @@ export class VisaChatbot {
 
     /**
      * Open passport scanner
+     * Uses Innovatrics openChoiceModal() when feature flag is enabled
      */
     openPassportScanner() {
+        // Check if we should use Innovatrics choice modal
+        const useChoiceModal = CONFIG.features?.innovatricsCamera?.useChoiceModal;
+
+        if (useChoiceModal) {
+            this.openInnovatricsChoiceModal('passport');
+            return;
+        }
+
+        // Fallback to legacy overlay
         if (this.elements.passportScannerOverlay) {
             this.elements.passportScannerOverlay.hidden = false;
+        }
+    }
+
+    /**
+     * Open Innovatrics camera choice modal (Desktop/Mobile)
+     * @param {string} docType - Document type (passport, ticket, etc.)
+     */
+    openInnovatricsChoiceModal(docType = 'passport') {
+        this.log(`Opening Innovatrics choice modal for: ${docType}`);
+
+        // Check if Innovatrics is available
+        if (typeof window.InnovatricsCameraCapture === 'undefined') {
+            this.log('InnovatricsCameraCapture not available, falling back to file upload');
+            this.ui.showNotification(
+                'Info',
+                this.state.get('language') === 'fr'
+                    ? 'Module caméra non disponible. Utilisez l\'upload de fichier.'
+                    : 'Camera module not available. Use file upload.',
+                'warning'
+            );
+            return;
+        }
+
+        const lang = this.state.get('language') || 'fr';
+
+        // Create Innovatrics instance
+        const cameraCapture = new window.InnovatricsCameraCapture({
+            type: docType,
+            language: lang,
+            debug: this.config.debug,
+            assetsPath: window.APP_CONFIG?.baseUrl || '/hunyuanocr/visa-chatbot',
+
+            onCapture: async (captureData) => {
+                this.log('Camera capture received:', captureData);
+                await this.handleCapturedDocument(captureData, docType);
+            },
+
+            onError: (error) => {
+                this.log('Camera error:', error);
+                this.ui.showNotification(
+                    lang === 'fr' ? 'Erreur' : 'Error',
+                    error?.message || error,
+                    'error'
+                );
+            },
+
+            onClose: () => {
+                this.log('Camera modal closed');
+            }
+        });
+
+        // Open the Desktop/Mobile choice modal
+        cameraCapture.openChoiceModal();
+    }
+
+    /**
+     * Handle captured document from Innovatrics camera
+     * @param {Object} captureData - Capture data with file/blob
+     * @param {string} docType - Document type
+     */
+    async handleCapturedDocument(captureData, docType) {
+        const lang = this.state.get('language') || 'fr';
+
+        try {
+            // Extract the file from capture data
+            let file = captureData?.file || captureData?.blob;
+
+            if (!file) {
+                throw new Error(lang === 'fr'
+                    ? 'Aucune image capturée'
+                    : 'No image captured');
+            }
+
+            // Convert Blob to File if needed
+            if (file instanceof Blob && !(file instanceof File)) {
+                file = new File([file], `${docType}-capture.jpg`, {
+                    type: 'image/jpeg'
+                });
+            }
+
+            // Show processing message
+            this.messages.addUserMessage(
+                lang === 'fr'
+                    ? `[📷 ${docType.charAt(0).toUpperCase() + docType.slice(1)} capturé]`
+                    : `[📷 ${docType.charAt(0).toUpperCase() + docType.slice(1)} captured]`
+            );
+
+            // Process via OCR
+            this.log(`Processing captured ${docType} via OCR...`);
+            const ocrResult = await this.upload.processDocument(file, docType);
+
+            if (ocrResult?.success && ocrResult?.data) {
+                // Store and display extracted data
+                this.state.set(`${docType}Data`, ocrResult.data);
+
+                // Use inline editing to show data and get confirmation
+                if (this.inlineEditing) {
+                    this.inlineEditing.showExtractedData(ocrResult.data, docType, lang);
+                } else {
+                    // Fallback: send success message
+                    this.messages.addBotMessage(
+                        lang === 'fr'
+                            ? `✅ ${docType} traité avec succès !`
+                            : `✅ ${docType} processed successfully!`
+                    );
+                }
+            } else {
+                throw new Error(ocrResult?.error || 'OCR processing failed');
+            }
+
+        } catch (error) {
+            this.log('Error processing captured document:', error);
+            this.ui.showNotification(
+                lang === 'fr' ? 'Erreur' : 'Error',
+                error?.message || (lang === 'fr'
+                    ? 'Erreur lors du traitement du document'
+                    : 'Error processing document'),
+                'error'
+            );
         }
     }
 
@@ -1704,14 +1910,42 @@ export class VisaChatbot {
             this.messages.hideTyping();
 
             if (data.success) {
-                await this.handleSuccessResponse(data.data);
+                // Phase 7.0 - Inline editing flow for passport
+                console.log('[DEBUG sendPassportData] CONFIG.features:', CONFIG?.features);
+                console.log('[DEBUG sendPassportData] inlineEditing.enabled:', CONFIG?.features?.inlineEditing?.enabled);
+                console.log('[DEBUG sendPassportData] this.inlineEditor:', !!this.inlineEditor);
+                console.log('[DEBUG sendPassportData] condition:', CONFIG?.features?.inlineEditing?.enabled && !!this.inlineEditor);
+                if (CONFIG.features.inlineEditing.enabled && this.inlineEditor) {
+                    // Store extracted data for later use
+                    this.currentExtractedData = {
+                        docType: 'passport',
+                        extractedData: ocrData.fields || ocrData,
+                        fileName: 'passport',
+                        serverResponse: data.data
+                    };
 
-                if (data.data.is_free) {
-                    this.ui.showNotification(
-                        lang === 'fr' ? 'Passeport diplomatique' : 'Diplomatic passport',
-                        lang === 'fr' ? 'Traitement prioritaire et gratuit !' : 'Priority and free processing!',
-                        'success'
-                    );
+                    // Show inline confirmation instead of immediate success response
+                    this.inlineEditor.showInlineConfirmation(ocrData.fields || ocrData, 'passport');
+
+                    // Show diplomatic passport notification if applicable
+                    if (data.data.is_free) {
+                        this.ui.showNotification(
+                            lang === 'fr' ? 'Passeport diplomatique' : 'Diplomatic passport',
+                            lang === 'fr' ? 'Traitement prioritaire et gratuit !' : 'Priority and free processing!',
+                            'success'
+                        );
+                    }
+                } else {
+                    // Traditional flow: immediate success response
+                    await this.handleSuccessResponse(data.data);
+
+                    if (data.data.is_free) {
+                        this.ui.showNotification(
+                            lang === 'fr' ? 'Passeport diplomatique' : 'Diplomatic passport',
+                            lang === 'fr' ? 'Traitement prioritaire et gratuit !' : 'Priority and free processing!',
+                            'success'
+                        );
+                    }
                 }
             } else {
                 await this.messages.addBotMessage(data.error || 'Erreur lors du traitement du passeport');
@@ -2001,6 +2235,23 @@ export class VisaChatbot {
         if (message.includes('format') || message.includes('type')) return 'unsupported_format';
 
         return 'default';
+    }
+
+    /**
+     * Scroll chat to show quick actions area
+     * Used to ensure language buttons are visible on welcome step
+     */
+    scrollToQuickActions() {
+        if (this.elements.quickActions && this.elements.chatMessages) {
+            // Scroll to bottom to show quick actions
+            this.messages.scrollToBottom();
+
+            // Also ensure the quick actions area is in view
+            this.elements.quickActions.scrollIntoView({
+                behavior: 'smooth',
+                block: 'end'
+            });
+        }
     }
 
     /**

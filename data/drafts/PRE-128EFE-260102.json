@@ -1,0 +1,74 @@
+{
+    "pre_application_id": "PRE-128EFE-260102",
+    "session_id": "chat_045dfc04ec2bfe5f5fc53ec223a8416c",
+    "language": "fr",
+    "current_step": "passport",
+    "workflow_category": null,
+    "collected_data": {
+        "language": "fr",
+        "geolocation_data": {
+            "success": false,
+            "ip": null,
+            "country_code": null,
+            "country_name": null,
+            "city": null,
+            "in_jurisdiction": false,
+            "jurisdiction_countries": {
+                "ET": {
+                    "en": "Ethiopia",
+                    "fr": "Éthiopie",
+                    "flag": "🇪🇹",
+                    "capital": "Addis Ababa"
+                },
+                "KE": {
+                    "en": "Kenya",
+                    "fr": "Kenya",
+                    "flag": "🇰🇪",
+                    "capital": "Nairobi"
+                },
+                "DJ": {
+                    "en": "Djibouti",
+                    "fr": "Djibouti",
+                    "flag": "🇩🇯",
+                    "capital": "Djibouti"
+                },
+                "TZ": {
+                    "en": "Tanzania",
+                    "fr": "Tanzanie",
+                    "flag": "🇹🇿",
+                    "capital": "Dodoma"
+                },
+                "UG": {
+                    "en": "Uganda",
+                    "fr": "Ouganda",
+                    "flag": "🇺🇬",
+                    "capital": "Kampala"
+                },
+                "SS": {
+                    "en": "South Sudan",
+                    "fr": "Soudan du Sud",
+                    "flag": "🇸🇸",
+                    "capital": "Juba"
+                },
+                "SO": {
+                    "en": "Somalia",
+                    "fr": "Somalie",
+                    "flag": "🇸🇴",
+                    "capital": "Mogadishu"
+                }
+            },
+            "is_local": true,
+            "message": "Local IP detected, geolocation not available"
+        },
+        "pre_application_id": "PRE-128EFE-260102",
+        "residence_country": "ETH",
+        "geolocation_confirmed": true
+    },
+    "completed_steps": [
+        "welcome",
+        "geolocation"
+    ],
+    "highest_step_reached": 2,
+    "saved_at": 1767382271,
+    "expires_at": 1767987071
+}

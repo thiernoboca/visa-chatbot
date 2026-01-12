@@ -319,17 +319,28 @@ class OCRService {
 
         $this->trace('layer2_start', 'Gemini structuration starting', ['doc_type' => $docType]);
 
+        // ÉTAPE 1: TOUJOURS utiliser l'extracteur spécialisé pour extraction de base
+        $extractorResult = $this->fallbackExtraction($rawText, $docType);
+
+        $this->trace('extractor_done', 'Specialized extractor completed', [
+            'fields' => count($extractorResult['extracted'] ?? []),
+            'has_data' => !empty($extractorResult['extracted'])
+        ]);
+
         // Charger le prompt approprié pour ce type de document
         $prompt = $this->getExtractionPrompt($docType, $rawText, $layer1Result);
 
         try {
             if ($this->geminiClient) {
-                // Utiliser Gemini Flash
+                // ÉTAPE 2: Utiliser Gemini Flash pour enrichir/valider
                 $response = $this->geminiClient->chat($prompt);
-                $structured = $this->parseGeminiResponse($response, $docType);
+                $geminiResult = $this->parseGeminiResponse($response, $docType);
+
+                // ÉTAPE 3: Fusionner les résultats (extracteur prioritaire car plus précis)
+                $structured = $this->mergeExtractionResults($extractorResult, $geminiResult);
             } else {
-                // Fallback: extraction basique
-                $structured = $this->fallbackExtraction($rawText, $docType);
+                // Si pas de Gemini, utiliser uniquement l'extracteur
+                $structured = $extractorResult;
             }
 
             $processingTime = round((microtime(true) - $startTime) * 1000);
@@ -346,17 +357,41 @@ class OCRService {
             ];
 
         } catch (Exception $e) {
-            $this->trace('layer2_error', 'Gemini failed, using fallback', ['error' => $e->getMessage()]);
-
-            // Fallback
-            $structured = $this->fallbackExtraction($rawText, $docType);
+            $this->trace('layer2_error', 'Gemini failed, using extractor results only', ['error' => $e->getMessage()]);
 
             return [
-                'extracted' => $structured['extracted'] ?? [],
-                'validations' => $structured['validations'] ?? [],
+                'extracted' => $extractorResult['extracted'] ?? [],
+                'validations' => $extractorResult['validations'] ?? [],
                 'processing_time_ms' => round((microtime(true) - $startTime) * 1000)
             ];
         }
+    }
+
+    /**
+     * Fusionne les résultats d'extraction (extracteur + Gemini)
+     * L'extracteur a priorité car ses patterns sont plus précis
+     */
+    private function mergeExtractionResults(array $extractorResult, array $geminiResult): array {
+        $extracted = $extractorResult['extracted'] ?? [];
+        $geminiExtracted = $geminiResult['extracted'] ?? [];
+
+        // Pour chaque champ Gemini, utiliser seulement si l'extracteur n'a pas de valeur
+        foreach ($geminiExtracted as $key => $value) {
+            if (!isset($extracted[$key]) || empty($extracted[$key])) {
+                $extracted[$key] = $value;
+            }
+        }
+
+        // Fusionner les validations
+        $validations = array_merge(
+            $extractorResult['validations'] ?? [],
+            $geminiResult['validations'] ?? []
+        );
+
+        return [
+            'extracted' => $extracted,
+            'validations' => $validations
+        ];
     }
 
     /**
@@ -858,10 +893,31 @@ PROMPT;
     }
 
     /**
-     * Extraction de fallback (basique)
+     * Extraction de fallback - utilise les extracteurs spécialisés
      */
     private function fallbackExtraction(string $rawText, string $docType): array {
-        // Extraction basique par regex selon le type
+        $this->trace('fallback_extraction', "Using specialized extractor for {$docType}");
+
+        // Utiliser l'extracteur spécialisé si disponible
+        if (isset($this->extractors[$docType])) {
+            $extractor = $this->extractors[$docType];
+            $result = $extractor->extract($rawText);
+
+            $this->trace('extractor_result', "Extractor returned", [
+                'success' => $result['success'] ?? false,
+                'fields_count' => count($result['extracted'] ?? [])
+            ]);
+
+            // Retourner les données extraites + validations
+            return [
+                'extracted' => $result['extracted'] ?? [],
+                'validations' => $extractor->validate($result['extracted'] ?? [])
+            ];
+        }
+
+        $this->trace('fallback_basic', "No specialized extractor for {$docType}, using basic patterns");
+
+        // Extraction basique par regex si pas d'extracteur
         $extracted = [];
         $validations = [];
 

@@ -523,7 +523,8 @@ body {
     border: 2px solid white;
 }
 
-[data-theme="dark"] .message.bot .avatar-online-indicator {
+[data-theme="dark"] .message.bot .avatar-online-indicator,
+.dark .message.bot .avatar-online-indicator {
     border-color: var(--macos-bg-secondary);
 }
 
@@ -550,13 +551,16 @@ body {
 
 .message.bot .message-content {
     background: #f0f2f4;
+    color: #111418;
     border-radius: var(--radius-xl);
     border-bottom-left-radius: var(--radius-sm);
     box-shadow: var(--shadow-xs);
 }
 
-[data-theme="dark"] .message.bot .message-content {
+[data-theme="dark"] .message.bot .message-content,
+.dark .message.bot .message-content {
     background: #374151;
+    color: #F9FAFB;
 }
 
 .message.user .message-content {
@@ -577,6 +581,87 @@ body {
 
 .message.user .message-content strong {
     color: var(--text-inverse);
+}
+
+/* Message List (markdown bullet points) */
+.message-content .message-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-2) 0;
+}
+
+.message-content .message-list li {
+    padding: var(--space-1) 0;
+    padding-left: 1.5em;
+    position: relative;
+    line-height: 1.5;
+}
+
+.message-content .message-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.message-content .message-list li.check::before {
+    content: '✓';
+    color: var(--success, #10b981);
+}
+
+.message-content .message-list li.cross::before {
+    content: '✗';
+    color: var(--error, #ef4444);
+}
+
+.message-content code {
+    background: rgba(0, 0, 0, 0.08);
+    padding: 0.15em 0.4em;
+    border-radius: var(--radius-sm);
+    font-family: ui-monospace, monospace;
+    font-size: 0.9em;
+}
+
+.message-content em {
+    font-style: italic;
+}
+
+/* Dark mode for message content elements */
+[data-theme="dark"] .message-content strong,
+.dark .message-content strong {
+    color: #10b981;
+}
+
+[data-theme="dark"] .message-content .message-list li::before,
+.dark .message-content .message-list li::before {
+    color: #10b981;
+}
+
+[data-theme="dark"] .message-content .message-list li.check::before,
+.dark .message-content .message-list li.check::before {
+    color: #22c55e;
+}
+
+[data-theme="dark"] .message-content .message-list li.cross::before,
+.dark .message-content .message-list li.cross::before {
+    color: #f87171;
+}
+
+[data-theme="dark"] .message-content code,
+.dark .message-content code {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+}
+
+[data-theme="dark"] .message-content p,
+.dark .message-content p {
+    color: #f3f4f6;
+}
+
+[data-theme="dark"] .message-content .message-list li,
+.dark .message-content .message-list li {
+    color: #f3f4f6;
 }
 
 .message-time {
@@ -643,7 +728,9 @@ body {
 }
 
 [data-theme="dark"] .typing-indicator,
-[data-theme="dark"] .typing-bubble {
+[data-theme="dark"] .typing-bubble,
+.dark .typing-indicator,
+.dark .typing-bubble {
     background: #374151;
 }
 
@@ -700,7 +787,8 @@ body {
     white-space: nowrap;
 }
 
-[data-theme="dark"] .quick-action-btn {
+[data-theme="dark"] .quick-action-btn,
+.dark .quick-action-btn {
     background: #374151;
     color: #f5f5f7;
 }
@@ -711,7 +799,8 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-[data-theme="dark"] .quick-action-btn:hover {
+[data-theme="dark"] .quick-action-btn:hover,
+.dark .quick-action-btn:hover {
     background: #4b5563;
 }
 
@@ -752,7 +841,8 @@ body {
     border: none;
 }
 
-[data-theme="dark"] .input-container {
+[data-theme="dark"] .input-container,
+.dark .input-container {
     background: #374151;
 }
 
@@ -1979,7 +2069,8 @@ button:focus-visible {
 /* ========================================
    DARK MODE
 ======================================== */
-[data-theme="dark"] {
+[data-theme="dark"],
+.dark {
     --macos-bg: #1a1a1a;
     --macos-bg-secondary: #2d2d2d;
     --macos-bg-tertiary: #3d3d3d;
@@ -1998,25 +2089,32 @@ button:focus-visible {
     --green-light: rgba(52, 199, 89, 0.2);
 }
 
-[data-theme="dark"] .chat-app {
+[data-theme="dark"] .chat-app,
+.dark .chat-app {
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
 }
 
-[data-theme="dark"] .message.bot .message-content {
+[data-theme="dark"] .message.bot .message-content,
+.dark .message.bot .message-content {
     background: var(--macos-bg-tertiary);
+    color: #F9FAFB;
     border-color: var(--border-light);
 }
 
 [data-theme="dark"] .passport-scanner-modal,
-[data-theme="dark"] .sync-modal {
+[data-theme="dark"] .sync-modal,
+.dark .passport-scanner-modal,
+.dark .sync-modal {
     background: var(--macos-bg-secondary);
 }
 
-[data-theme="dark"] .notification {
+[data-theme="dark"] .notification,
+.dark .notification {
     background: var(--macos-bg-tertiary);
 }
 
-[data-theme="dark"] .scroll-to-bottom {
+[data-theme="dark"] .scroll-to-bottom,
+.dark .scroll-to-bottom {
     background: var(--macos-bg-tertiary);
     border-color: var(--border-medium);
 }

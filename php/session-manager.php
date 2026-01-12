@@ -110,7 +110,22 @@ class SessionManager {
     private function getSessionFilePath(string $sessionId): string {
         return self::SESSIONS_DIR . $sessionId . '.json';
     }
-    
+
+    /**
+     * Détruit une session existante (supprime le fichier)
+     * Utilisé pour les tests/prototypage
+     */
+    public static function destroy(?string $sessionId): bool {
+        if (!$sessionId) {
+            return false;
+        }
+        $filePath = self::SESSIONS_DIR . $sessionId . '.json';
+        if (file_exists($filePath)) {
+            return @unlink($filePath);
+        }
+        return false;
+    }
+
     /**
      * Crée une nouvelle session de chat
      */

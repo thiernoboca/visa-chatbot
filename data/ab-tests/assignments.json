@@ -2394,5 +2394,765 @@
         "variant": "with_icons",
         "assigned_at": 1767117957,
         "converted": false
+    },
+    "chat_dadc39f83630d5efca7d45310e0be890:cta_text": {
+        "variant": "confirm",
+        "assigned_at": 1767170961,
+        "converted": false
+    },
+    "chat_dadc39f83630d5efca7d45310e0be890:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767170961,
+        "converted": false
+    },
+    "chat_dadc39f83630d5efca7d45310e0be890:quick_actions_style": {
+        "variant": "with_emoji",
+        "assigned_at": 1767170961,
+        "converted": false
+    },
+    "chat_dadc39f83630d5efca7d45310e0be890:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1767170961,
+        "converted": false
+    },
+    "chat_69e6a733531e64312ee4027b6e825368:cta_text": {
+        "variant": "submit_application",
+        "assigned_at": 1767171067,
+        "converted": false
+    },
+    "chat_69e6a733531e64312ee4027b6e825368:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767171067,
+        "converted": false
+    },
+    "chat_69e6a733531e64312ee4027b6e825368:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767171067,
+        "converted": false
+    },
+    "chat_69e6a733531e64312ee4027b6e825368:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767171067,
+        "converted": false
+    },
+    "chat_f1604f22ef14f761d537b4277e2d8cc0:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767172325,
+        "converted": false
+    },
+    "chat_f1604f22ef14f761d537b4277e2d8cc0:quick_actions_style": {
+        "variant": "with_emoji",
+        "assigned_at": 1767172325,
+        "converted": false
+    },
+    "chat_f1604f22ef14f761d537b4277e2d8cc0:cta_text": {
+        "variant": "finish",
+        "assigned_at": 1767172325,
+        "converted": false
+    },
+    "chat_f1604f22ef14f761d537b4277e2d8cc0:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767172325,
+        "converted": false
+    },
+    "chat_64df23544add1d30adb6814763968a7b:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1767172888,
+        "converted": false
+    },
+    "chat_64df23544add1d30adb6814763968a7b:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767172888,
+        "converted": false
+    },
+    "chat_64df23544add1d30adb6814763968a7b:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767172888,
+        "converted": false
+    },
+    "chat_64df23544add1d30adb6814763968a7b:cta_text": {
+        "variant": "submit_application",
+        "assigned_at": 1767172888,
+        "converted": false
+    },
+    "chat_6908ef13673a3bf999088e656d5c54e7:quick_actions_style": {
+        "variant": "with_emoji",
+        "assigned_at": 1767262892,
+        "converted": false
+    },
+    "chat_6908ef13673a3bf999088e656d5c54e7:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1767262892,
+        "converted": false
+    },
+    "chat_6908ef13673a3bf999088e656d5c54e7:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767262892,
+        "converted": false
+    },
+    "chat_6908ef13673a3bf999088e656d5c54e7:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767262892,
+        "converted": false
+    },
+    "chat_aaec2ddb523c4bcc21c1a7d553543a6f:cta_text": {
+        "variant": "finish",
+        "assigned_at": 1767263767,
+        "converted": false
+    },
+    "chat_aaec2ddb523c4bcc21c1a7d553543a6f:quick_actions_style": {
+        "variant": "with_emoji",
+        "assigned_at": 1767263767,
+        "converted": false
+    },
+    "chat_aaec2ddb523c4bcc21c1a7d553543a6f:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1767263767,
+        "converted": false
+    },
+    "chat_aaec2ddb523c4bcc21c1a7d553543a6f:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767263767,
+        "converted": false
+    },
+    "chat_8b58890d0add9435c234b92fc1d391dd:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767265657,
+        "converted": false
+    },
+    "chat_8b58890d0add9435c234b92fc1d391dd:quick_actions_style": {
+        "variant": "with_emoji",
+        "assigned_at": 1767265657,
+        "converted": false
+    },
+    "chat_8b58890d0add9435c234b92fc1d391dd:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767265657,
+        "converted": false
+    },
+    "chat_8b58890d0add9435c234b92fc1d391dd:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767265657,
+        "converted": false
+    },
+    "chat_6f75c3906fe504061854ee5d83ad5d81:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1767266626,
+        "converted": false
+    },
+    "chat_6f75c3906fe504061854ee5d83ad5d81:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767266626,
+        "converted": false
+    },
+    "chat_6f75c3906fe504061854ee5d83ad5d81:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767266626,
+        "converted": false
+    },
+    "chat_6f75c3906fe504061854ee5d83ad5d81:cta_text": {
+        "variant": "submit_application",
+        "assigned_at": 1767266626,
+        "converted": false
+    },
+    "chat_1513e3e8590a676d284b845959522332:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1767269382,
+        "converted": false
+    },
+    "chat_1513e3e8590a676d284b845959522332:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1767269382,
+        "converted": false
+    },
+    "chat_1513e3e8590a676d284b845959522332:quick_actions_style": {
+        "variant": "with_icons",
+        "assigned_at": 1767269382,
+        "converted": false
+    },
+    "chat_1513e3e8590a676d284b845959522332:cta_text": {
+        "variant": "confirm",
+        "assigned_at": 1767269382,
+        "converted": false
+    },
+    "chat_d24ce2526580df9fe809638b43d9d0b2:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767269586,
+        "converted": false
+    },
+    "chat_d24ce2526580df9fe809638b43d9d0b2:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1767269586,
+        "converted": false
+    },
+    "chat_d24ce2526580df9fe809638b43d9d0b2:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767269586,
+        "converted": false
+    },
+    "chat_d24ce2526580df9fe809638b43d9d0b2:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1767269586,
+        "converted": false
+    },
+    "chat_4d5ba1310bcd96da65c2b5503135c298:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1767269845,
+        "converted": false
+    },
+    "chat_4d5ba1310bcd96da65c2b5503135c298:quick_actions_style": {
+        "variant": "with_icons",
+        "assigned_at": 1767269845,
+        "converted": false
+    },
+    "chat_4d5ba1310bcd96da65c2b5503135c298:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767269845,
+        "converted": false
+    },
+    "chat_4d5ba1310bcd96da65c2b5503135c298:cta_text": {
+        "variant": "confirm",
+        "assigned_at": 1767269845,
+        "converted": false
+    },
+    "chat_90d9300ffa4fd72a14d2d8b9312e2b83:cta_text": {
+        "variant": "finish",
+        "assigned_at": 1767270312,
+        "converted": false
+    },
+    "chat_90d9300ffa4fd72a14d2d8b9312e2b83:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767270312,
+        "converted": false
+    },
+    "chat_90d9300ffa4fd72a14d2d8b9312e2b83:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767270312,
+        "converted": false
+    },
+    "chat_90d9300ffa4fd72a14d2d8b9312e2b83:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767270312,
+        "converted": false
+    },
+    "chat_a63724db5e28a7fff8cfcb5c5964fb3b:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767270637,
+        "converted": false
+    },
+    "chat_a63724db5e28a7fff8cfcb5c5964fb3b:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767270637,
+        "converted": false
+    },
+    "chat_a63724db5e28a7fff8cfcb5c5964fb3b:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1767270637,
+        "converted": false
+    },
+    "chat_a63724db5e28a7fff8cfcb5c5964fb3b:cta_text": {
+        "variant": "submit_application",
+        "assigned_at": 1767270637,
+        "converted": false
+    },
+    "chat_45dc5597dbc25096e7798bd7d51caa7b:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767290792,
+        "converted": false
+    },
+    "chat_45dc5597dbc25096e7798bd7d51caa7b:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1767290792,
+        "converted": false
+    },
+    "chat_45dc5597dbc25096e7798bd7d51caa7b:cta_text": {
+        "variant": "confirm",
+        "assigned_at": 1767290792,
+        "converted": false
+    },
+    "chat_45dc5597dbc25096e7798bd7d51caa7b:quick_actions_style": {
+        "variant": "with_icons",
+        "assigned_at": 1767290792,
+        "converted": false
+    },
+    "chat_c7159f632d029e767435f15ce91c31b7:quick_actions_style": {
+        "variant": "with_icons",
+        "assigned_at": 1767301338,
+        "converted": false
+    },
+    "chat_c7159f632d029e767435f15ce91c31b7:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1767301338,
+        "converted": false
+    },
+    "chat_c7159f632d029e767435f15ce91c31b7:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767301338,
+        "converted": false
+    },
+    "chat_c7159f632d029e767435f15ce91c31b7:cta_text": {
+        "variant": "submit_application",
+        "assigned_at": 1767301338,
+        "converted": false
+    },
+    "chat_73f187e5c03dbc5b1092e7ec3035e4a7:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1767302187,
+        "converted": false
+    },
+    "chat_73f187e5c03dbc5b1092e7ec3035e4a7:quick_actions_style": {
+        "variant": "with_icons",
+        "assigned_at": 1767302187,
+        "converted": false
+    },
+    "chat_73f187e5c03dbc5b1092e7ec3035e4a7:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767302187,
+        "converted": false
+    },
+    "chat_73f187e5c03dbc5b1092e7ec3035e4a7:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767302187,
+        "converted": false
+    },
+    "chat_b5f54f7d89688ddb4dfa26dafbe886a2:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767336292,
+        "converted": false
+    },
+    "chat_b5f54f7d89688ddb4dfa26dafbe886a2:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767336292,
+        "converted": false
+    },
+    "chat_b5f54f7d89688ddb4dfa26dafbe886a2:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1767336292,
+        "converted": false
+    },
+    "chat_b5f54f7d89688ddb4dfa26dafbe886a2:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767336292,
+        "converted": false
+    },
+    "chat_c801bc603735f67197217894bd0bb92a:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767337393,
+        "converted": false
+    },
+    "chat_c801bc603735f67197217894bd0bb92a:quick_actions_style": {
+        "variant": "with_icons",
+        "assigned_at": 1767337393,
+        "converted": false
+    },
+    "chat_c801bc603735f67197217894bd0bb92a:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767337393,
+        "converted": false
+    },
+    "chat_c801bc603735f67197217894bd0bb92a:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767337393,
+        "converted": false
+    },
+    "chat_f031b3ead3c3f2159d1662b8305bce9c:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767337664,
+        "converted": false
+    },
+    "chat_f031b3ead3c3f2159d1662b8305bce9c:cta_text": {
+        "variant": "finish",
+        "assigned_at": 1767337664,
+        "converted": false
+    },
+    "chat_f031b3ead3c3f2159d1662b8305bce9c:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767337664,
+        "converted": false
+    },
+    "chat_f031b3ead3c3f2159d1662b8305bce9c:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767337664,
+        "converted": false
+    },
+    "chat_dab691c7612d37bd0656aa4ec0d271f3:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1767343219,
+        "converted": false
+    },
+    "chat_dab691c7612d37bd0656aa4ec0d271f3:quick_actions_style": {
+        "variant": "with_icons",
+        "assigned_at": 1767343219,
+        "converted": false
+    },
+    "chat_dab691c7612d37bd0656aa4ec0d271f3:cta_text": {
+        "variant": "confirm",
+        "assigned_at": 1767343219,
+        "converted": false
+    },
+    "chat_dab691c7612d37bd0656aa4ec0d271f3:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767343219,
+        "converted": false
+    },
+    "chat_37f7055053af742682d817ef5152809a:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1767343450,
+        "converted": false
+    },
+    "chat_37f7055053af742682d817ef5152809a:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767343450,
+        "converted": false
+    },
+    "chat_37f7055053af742682d817ef5152809a:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767343450,
+        "converted": false
+    },
+    "chat_37f7055053af742682d817ef5152809a:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767343450,
+        "converted": false
+    },
+    "chat_2375416e8dbe043dfd9b6f2abf8d50f2:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767343553,
+        "converted": false
+    },
+    "chat_2375416e8dbe043dfd9b6f2abf8d50f2:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1767343553,
+        "converted": false
+    },
+    "chat_2375416e8dbe043dfd9b6f2abf8d50f2:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767343553,
+        "converted": false
+    },
+    "chat_2375416e8dbe043dfd9b6f2abf8d50f2:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767343553,
+        "converted": false
+    },
+    "chat_afdd433dd4523460824d61379680e34b:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1767374480,
+        "converted": false
+    },
+    "chat_afdd433dd4523460824d61379680e34b:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767374480,
+        "converted": false
+    },
+    "chat_afdd433dd4523460824d61379680e34b:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767374480,
+        "converted": false
+    },
+    "chat_afdd433dd4523460824d61379680e34b:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767374480,
+        "converted": false
+    },
+    "chat_c32883b991881a52c3c1ee5f18e6b8be:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767374579,
+        "converted": false
+    },
+    "chat_c32883b991881a52c3c1ee5f18e6b8be:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1767374579,
+        "converted": false
+    },
+    "chat_c32883b991881a52c3c1ee5f18e6b8be:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767374579,
+        "converted": false
+    },
+    "chat_c32883b991881a52c3c1ee5f18e6b8be:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767374579,
+        "converted": false
+    },
+    "chat_90d45e9bced9accce9614e13a44dd33f:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767374985,
+        "converted": false
+    },
+    "chat_90d45e9bced9accce9614e13a44dd33f:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767374985,
+        "converted": false
+    },
+    "chat_90d45e9bced9accce9614e13a44dd33f:cta_text": {
+        "variant": "submit_application",
+        "assigned_at": 1767374985,
+        "converted": false
+    },
+    "chat_90d45e9bced9accce9614e13a44dd33f:quick_actions_style": {
+        "variant": "with_icons",
+        "assigned_at": 1767374985,
+        "converted": false
+    },
+    "chat_c8c8d492bc8a8b42d48f56c173e70432:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767375213,
+        "converted": false
+    },
+    "chat_c8c8d492bc8a8b42d48f56c173e70432:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767375213,
+        "converted": false
+    },
+    "chat_c8c8d492bc8a8b42d48f56c173e70432:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767375213,
+        "converted": false
+    },
+    "chat_c8c8d492bc8a8b42d48f56c173e70432:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767375213,
+        "converted": false
+    },
+    "chat_c0e4358f417ae316582ef173f7da0ad7:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767375531,
+        "converted": false
+    },
+    "chat_c0e4358f417ae316582ef173f7da0ad7:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767375531,
+        "converted": false
+    },
+    "chat_c0e4358f417ae316582ef173f7da0ad7:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767375531,
+        "converted": false
+    },
+    "chat_c0e4358f417ae316582ef173f7da0ad7:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1767375531,
+        "converted": false
+    },
+    "chat_edb7833b8b1d504cd5fef95cfe6bef34:quick_actions_style": {
+        "variant": "with_emoji",
+        "assigned_at": 1767376364,
+        "converted": false
+    },
+    "chat_edb7833b8b1d504cd5fef95cfe6bef34:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767376364,
+        "converted": false
+    },
+    "chat_edb7833b8b1d504cd5fef95cfe6bef34:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767376364,
+        "converted": false
+    },
+    "chat_edb7833b8b1d504cd5fef95cfe6bef34:cta_text": {
+        "variant": "confirm",
+        "assigned_at": 1767376364,
+        "converted": false
+    },
+    "chat_04db46f694c0cccfabc636ced8540ca2:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767376476,
+        "converted": false
+    },
+    "chat_04db46f694c0cccfabc636ced8540ca2:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767376476,
+        "converted": false
+    },
+    "chat_04db46f694c0cccfabc636ced8540ca2:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767376476,
+        "converted": false
+    },
+    "chat_04db46f694c0cccfabc636ced8540ca2:cta_text": {
+        "variant": "confirm",
+        "assigned_at": 1767376476,
+        "converted": false
+    },
+    "chat_045dfc04ec2bfe5f5fc53ec223a8416c:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1767382210,
+        "converted": false
+    },
+    "chat_045dfc04ec2bfe5f5fc53ec223a8416c:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767382210,
+        "converted": false
+    },
+    "chat_045dfc04ec2bfe5f5fc53ec223a8416c:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767382210,
+        "converted": false
+    },
+    "chat_045dfc04ec2bfe5f5fc53ec223a8416c:cta_text": {
+        "variant": "finish",
+        "assigned_at": 1767382210,
+        "converted": false
+    },
+    "chat_62c0b19cabb6b4656daecbb639593a70:cta_text": {
+        "variant": "confirm",
+        "assigned_at": 1767385997,
+        "converted": false
+    },
+    "chat_62c0b19cabb6b4656daecbb639593a70:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767385997,
+        "converted": false
+    },
+    "chat_62c0b19cabb6b4656daecbb639593a70:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767385997,
+        "converted": false
+    },
+    "chat_62c0b19cabb6b4656daecbb639593a70:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767385997,
+        "converted": false
+    },
+    "chat_d732ff4cfe195162fa7a6fa84b045170:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767386168,
+        "converted": false
+    },
+    "chat_d732ff4cfe195162fa7a6fa84b045170:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767386168,
+        "converted": false
+    },
+    "chat_d732ff4cfe195162fa7a6fa84b045170:quick_actions_style": {
+        "variant": "with_emoji",
+        "assigned_at": 1767386168,
+        "converted": false
+    },
+    "chat_d732ff4cfe195162fa7a6fa84b045170:cta_text": {
+        "variant": "submit_application",
+        "assigned_at": 1767386168,
+        "converted": false
+    },
+    "chat_a41128ce0061ad2f7ab24966aad1cf0a:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767386234,
+        "converted": false
+    },
+    "chat_a41128ce0061ad2f7ab24966aad1cf0a:quick_actions_style": {
+        "variant": "with_icons",
+        "assigned_at": 1767386234,
+        "converted": false
+    },
+    "chat_a41128ce0061ad2f7ab24966aad1cf0a:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1767386234,
+        "converted": false
+    },
+    "chat_a41128ce0061ad2f7ab24966aad1cf0a:cta_text": {
+        "variant": "validate_continue",
+        "assigned_at": 1767386234,
+        "converted": false
+    },
+    "chat_1113ddaf234daa23aafd5f5f18ed89bb:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767386267,
+        "converted": false
+    },
+    "chat_1113ddaf234daa23aafd5f5f18ed89bb:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1767386267,
+        "converted": false
+    },
+    "chat_1113ddaf234daa23aafd5f5f18ed89bb:cta_text": {
+        "variant": "confirm",
+        "assigned_at": 1767386267,
+        "converted": false
+    },
+    "chat_1113ddaf234daa23aafd5f5f18ed89bb:quick_actions_style": {
+        "variant": "with_emoji",
+        "assigned_at": 1767386267,
+        "converted": false
+    },
+    "chat_6b45cc826912b3fa8c741cfc236a6bdc:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1767386375,
+        "converted": false
+    },
+    "chat_6b45cc826912b3fa8c741cfc236a6bdc:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1767386375,
+        "converted": false
+    },
+    "chat_6b45cc826912b3fa8c741cfc236a6bdc:cta_text": {
+        "variant": "finish",
+        "assigned_at": 1767386375,
+        "converted": false
+    },
+    "chat_6b45cc826912b3fa8c741cfc236a6bdc:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1767386375,
+        "converted": false
+    },
+    "chat_8659659173bfcf62aa93564bd141f1b7:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1768209550,
+        "converted": false
+    },
+    "chat_8659659173bfcf62aa93564bd141f1b7:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1768209550,
+        "converted": false
+    },
+    "chat_8659659173bfcf62aa93564bd141f1b7:cta_text": {
+        "variant": "confirm",
+        "assigned_at": 1768209550,
+        "converted": false
+    },
+    "chat_8659659173bfcf62aa93564bd141f1b7:quick_actions_style": {
+        "variant": "with_icons",
+        "assigned_at": 1768209550,
+        "converted": false
+    },
+    "chat_c6788b36dc7f0896282545f31d503f68:welcome_message": {
+        "variant": "control",
+        "assigned_at": 1768209974,
+        "converted": false
+    },
+    "chat_c6788b36dc7f0896282545f31d503f68:cta_text": {
+        "variant": "finish",
+        "assigned_at": 1768209974,
+        "converted": false
+    },
+    "chat_c6788b36dc7f0896282545f31d503f68:passport_scan_ui": {
+        "variant": "upload_first",
+        "assigned_at": 1768209974,
+        "converted": false
+    },
+    "chat_c6788b36dc7f0896282545f31d503f68:quick_actions_style": {
+        "variant": "with_emoji",
+        "assigned_at": 1768209974,
+        "converted": false
+    },
+    "chat_0a5bd7fdffa258ca30a66fe0c844a370:quick_actions_style": {
+        "variant": "text_only",
+        "assigned_at": 1768210032,
+        "converted": false
+    },
+    "chat_0a5bd7fdffa258ca30a66fe0c844a370:welcome_message": {
+        "variant": "friendly",
+        "assigned_at": 1768210032,
+        "converted": false
+    },
+    "chat_0a5bd7fdffa258ca30a66fe0c844a370:passport_scan_ui": {
+        "variant": "camera_first",
+        "assigned_at": 1768210032,
+        "converted": false
+    },
+    "chat_0a5bd7fdffa258ca30a66fe0c844a370:cta_text": {
+        "variant": "finish",
+        "assigned_at": 1768210032,
+        "converted": false
     }
 }

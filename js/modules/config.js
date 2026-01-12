@@ -9,12 +9,12 @@
 export const CONFIG = {
     // API Endpoints
     endpoints: {
-        api: 'php/chat-handler.php',
-        upload: 'php/document-upload-handler-v2.php',
-        session: 'php/session-manager.php',
+        api: 'index.php?action=api',
+        upload: 'index.php?action=upload',
+        session: 'index.php?action=api', // Session is managed via API
         // Use new OCR Integration Service with fixed extractors
-        ocr: 'php/document-upload-handler-v2.php',
-        coherence: 'php/coherence-validator-api.php'
+        ocr: 'index.php?action=upload',
+        coherence: 'index.php?action=validate'
     },
 
     // Default settings
@@ -32,16 +32,31 @@ export const CONFIG = {
         inlineEditing: {
             enabled: true,  // Activé pour tests
             abTestVariant: 'inline', // 'control' ou 'inline'
-            rolloutPercentage: 100  // 0% → 10% → 25% → 50% → 100%
+            rolloutPercentage: 100,  // 0% → 10% → 25% → 50% → 100%
+            // NEW: Mode de confirmation après OCR
+            // 'inline' = boutons dans le chat, 'actionArea' = boutons dans zone d'action, 'modal' = modal VerificationModal
+            confirmationMode: 'actionArea',
+            // NEW: Mode d'édition des données OCR
+            // 'inline' = formulaire dans le chat, 'modal' = modal VerificationModal
+            editMode: 'inline'
         },
         glassmorphismUI: {
             enabled: false,
             modernStyling: true
         },
         innovatricsCamera: {
-            enabled: false,
+            enabled: true,  // Activé pour utiliser Innovatrics
             desktopCapture: true,
-            mobileQRCapture: true
+            mobileQRCapture: true,
+            // NEW: Utiliser openChoiceModal() au lieu de l'overlay
+            useChoiceModal: true
+        },
+        // NEW: Configuration du suivi de progression
+        progressTracking: {
+            // 'steps' = basé sur les étapes, 'percentage' = pourcentage direct
+            mode: 'percentage',
+            showPercentage: true,
+            showStepIndicators: true
         }
     },
 

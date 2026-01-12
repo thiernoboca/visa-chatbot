@@ -1,25 +1,25 @@
 {
-    "total_sessions": 151,
+    "total_sessions": 308,
     "completed_sessions": 0,
     "abandoned_sessions": 0,
     "steps": {
         "welcome": {
-            "completions": 37,
+            "completions": 66,
             "abandons": 0,
-            "total_duration": 591.7100000000002,
-            "count_duration": 37
+            "total_duration": 3644.9300000000007,
+            "count_duration": 66
         },
         "residence": {
-            "completions": 8,
+            "completions": 11,
             "abandons": 0,
-            "total_duration": 166.61,
-            "count_duration": 8
+            "total_duration": 250.63000000000002,
+            "count_duration": 11
         },
         "passport": {
-            "completions": 9,
+            "completions": 12,
             "abandons": 0,
-            "total_duration": 1617.5300000000002,
-            "count_duration": 9
+            "total_duration": 2292.6200000000003,
+            "count_duration": 12
         },
         "contact": {
             "completions": 2,
@@ -74,6 +74,12 @@
             "abandons": 0,
             "total_duration": 64.98,
             "count_duration": 1
+        },
+        "geolocation": {
+            "completions": 9,
+            "abandons": 0,
+            "total_duration": 429.7799999999999,
+            "count_duration": 9
         }
     },
     "passport_scans": {
@@ -81,7 +87,7 @@
         "failure": 0
     },
     "validation_errors": {
-        "connection_error:connection_error": 1
+        "connection_error:connection_error": 18
     },
-    "updated_at": "2025-12-30T18:06:31+00:00"
+    "updated_at": "2026-01-12T09:27:42+00:00"
 }

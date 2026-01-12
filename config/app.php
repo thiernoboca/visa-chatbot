@@ -99,16 +99,18 @@ $config = [
     ],
     
     // Étapes du processus de visa
+    // Étapes du processus de visa (10 étapes)
     'steps' => [
-        'welcome' => ['order' => 1, 'label_fr' => 'Accueil', 'label_en' => 'Welcome'],
-        'passport' => ['order' => 2, 'label_fr' => 'Passeport', 'label_en' => 'Passport'],
-        'residence' => ['order' => 3, 'label_fr' => 'Résidence', 'label_en' => 'Residence'],
-        'eligibility' => ['order' => 4, 'label_fr' => 'Éligibilité', 'label_en' => 'Eligibility'],
-        'photo' => ['order' => 5, 'label_fr' => 'Photo', 'label_en' => 'Photo'],
-        'contact' => ['order' => 6, 'label_fr' => 'Contact', 'label_en' => 'Contact'],
-        'trip' => ['order' => 7, 'label_fr' => 'Voyage', 'label_en' => 'Trip'],
-        'health' => ['order' => 8, 'label_fr' => 'Santé', 'label_en' => 'Health'],
-        'summary' => ['order' => 9, 'label_fr' => 'Récapitulatif', 'label_en' => 'Summary'],
+        'welcome'       => ['order' => 1,  'label_fr' => 'Langue',            'label_en' => 'Language',         'progress' => 5],
+        'geolocation'   => ['order' => 2,  'label_fr' => 'Géolocalisation',   'label_en' => 'Geolocation',      'progress' => 10],
+        'passport'      => ['order' => 3,  'label_fr' => 'Passeport',         'label_en' => 'Passport',         'progress' => 25],
+        'ticket'        => ['order' => 4,  'label_fr' => 'Billet d\'avion',   'label_en' => 'Flight Ticket',    'progress' => 40],
+        'vaccination'   => ['order' => 5,  'label_fr' => 'Vaccination',       'label_en' => 'Vaccination',      'progress' => 50],
+        'photo'         => ['order' => 6,  'label_fr' => 'Photo ID',          'label_en' => 'Photo ID',         'progress' => 60],
+        'contact'       => ['order' => 7,  'label_fr' => 'Contact',           'label_en' => 'Contact',          'progress' => 70],
+        'trip'          => ['order' => 8,  'label_fr' => 'Voyage',            'label_en' => 'Trip',             'progress' => 80],
+        'payment'       => ['order' => 9,  'label_fr' => 'Paiement',          'label_en' => 'Payment',          'progress' => 90],
+        'confirm'       => ['order' => 10, 'label_fr' => 'Confirmation',      'label_en' => 'Confirmation',     'progress' => 100],
     ],
     
     // Pays de la juridiction

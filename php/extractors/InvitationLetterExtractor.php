@@ -160,25 +160,60 @@ class InvitationLetterExtractor extends AbstractExtractor {
     private function extractInviterInfo(string $text): array {
         $inviter = [];
 
-        // Nom de l'invitant
+        // Nom de l'invitant - Patterns pour lettres officielles d'entreprise
         $namePatterns = [
+            // Entreprises/Organisations en en-tête (première ligne)
+            '/^([A-Z][A-Za-z\s\'\-]+(?:S\.?A\.?|SARL|SAS|AIRLINE[S]?|COMPAGNIE|ENTREPRISE|SOCIETE)?)\s*\n/mi',
+            // "Le Directeur de XXX" ou "Directeur des Ressources Humaines"
+            '/(?:Le\s*)?Directeur\s+(?:des?\s+)?([A-Za-zÀ-ÿ\s\-]+?)(?:\n|$)/i',
+            // Signature avec nom (ex: "Mahamoud Babinet SAKO")
+            '/(?:^|\n)([A-Z][a-zÀ-ÿ]+\s+[A-Z][a-zÀ-ÿ]*\s+[A-Z]+)\s*$/m',
+            // Patterns classiques
             '/(?:I|JE),?\s*([A-Z][A-Za-z\s\-\']+),?\s*(?:RESIDING|RESIDANT|HEREBY|PAR LA PRESENTE)/i',
             '/(?:UNDERSIGNED|SOUSSIGNE)[:\s]*([A-Z][A-Za-z\s\-\']+)/i',
             '/(?:INVITER|INVITANT|HOST|HOTE)[:\s]*([A-Z][A-Za-z\s\-\']+)/i',
             '/(?:MR|MRS|MS|MME|MLLE)[\.:\s]+([A-Z][A-Za-z\s\-\']+)(?:,?\s*(?:RESIDING|RESIDANT|LIVING))/i'
         ];
 
-        foreach ($namePatterns as $pattern) {
-            if (preg_match($pattern, $text, $match)) {
-                $inviter['name'] = $this->normalizeName(trim($match[1]));
+        // Chercher d'abord une entreprise connue en Côte d'Ivoire
+        $knownCompanies = [
+            'Air Côte d\'Ivoire' => '/Air\s*C[oô]te\s*d[\'`]?\s*Ivoire/i',
+            'Ethiopian Airlines' => '/Ethiopian\s*Airlines?/i',
+            'Orange Côte d\'Ivoire' => '/Orange\s*C[oô]te\s*d[\'`]?\s*Ivoire/i',
+            'MTN' => '/\bMTN\b/i',
+            'SODECI' => '/\bSODECI\b/i',
+            'CIE' => '/\bCIE\b/i'
+        ];
+
+        foreach ($knownCompanies as $company => $pattern) {
+            if (preg_match($pattern, $text)) {
+                $inviter['name'] = $company;
+                $inviter['type'] = 'COMPANY';
                 break;
+            }
+        }
+
+        // Si pas d'entreprise connue, essayer les patterns classiques
+        if (empty($inviter['name'])) {
+            foreach ($namePatterns as $pattern) {
+                if (preg_match($pattern, $text, $match)) {
+                    $name = trim($match[1]);
+                    // Éviter les faux positifs (trop court ou mots-clés)
+                    if (strlen($name) > 3 && !preg_match('/^(LE|LA|LES|DES|DU|DE|ET|OU|MONSIEUR|MADAME)$/i', $name)) {
+                        $inviter['name'] = $this->normalizeName($name);
+                        break;
+                    }
+                }
             }
         }
 
         // Adresse
         $addressPatterns = [
             '/(?:RESIDING\s*AT|RESIDANT\s*A|ADDRESS|ADRESSE)[:\s]*([^\n,]+(?:,\s*[^\n]+)?)/i',
-            '/(?:LIVING\s*AT|HABITANT\s*A)[:\s]*([^\n]+)/i'
+            '/(?:LIVING\s*AT|HABITANT\s*A)[:\s]*([^\n]+)/i',
+            // Adresse postale format français
+            '/Adresse\s*(?:postale)?[:\s]*([^\n]+)/i',
+            '/(?:Siège\s*social|Siege\s*social)[:\s]*([^\n]+)/i'
         ];
 
         foreach ($addressPatterns as $pattern) {
@@ -189,16 +224,25 @@ class InvitationLetterExtractor extends AbstractExtractor {
         }
 
         // Ville (chercher ville CI)
-        foreach (['ABIDJAN', 'YAMOUSSOUKRO', 'BOUAKE', 'DALOA', 'SAN PEDRO'] as $city) {
+        foreach (['ABIDJAN', 'YAMOUSSOUKRO', 'BOUAKE', 'DALOA', 'SAN PEDRO', 'KORHOGO'] as $city) {
             if (stripos($text, $city) !== false) {
                 $inviter['city'] = $city;
                 break;
             }
         }
 
-        // Téléphone
-        if (preg_match('/(?:TEL|PHONE|TELEPHONE)[:\s]*(\+?\d[\d\s\-]{8,})/i', $text, $match)) {
-            $inviter['phone'] = preg_replace('/\s/', '', $match[1]);
+        // Téléphone - format CI (+225) et international
+        $phonePatterns = [
+            '/(?:T[eé]l|PHONE|TELEPHONE)[\.:\s]*(\+?225?[\s\.\-]?\d{2}[\s\.\-]?\d{2}[\s\.\-]?\d{2}[\s\.\-]?\d{2}[\s\.\-]?\d{2})/i',
+            '/(?:T[eé]l|PHONE|TELEPHONE)[:\s]*(\+?\d[\d\s\-]{8,})/i',
+            '/(\+225[\s\.\-]?\d{2}[\s\.\-]?\d{2}[\s\.\-]?\d{2}[\s\.\-]?\d{2}[\s\.\-]?\d{2})/i'
+        ];
+
+        foreach ($phonePatterns as $pattern) {
+            if (preg_match($pattern, $text, $match)) {
+                $inviter['phone'] = preg_replace('/[\s\.\-]/', '', $match[1]);
+                break;
+            }
         }
 
         // Email
@@ -227,37 +271,109 @@ class InvitationLetterExtractor extends AbstractExtractor {
      */
     private function extractInviteeInfo(string $text): array {
         $invitee = [];
+        $surname = null;
+        $givenNames = null;
 
-        // Nom de l'invité
-        $namePatterns = [
-            '/(?:INVITE|INVITING|TO\s*INVITE)[:\s]*(?:MR|MRS|MS)?[\.:\s]*([A-Z][A-Za-z\s\-\']+)/i',
-            '/(?:GUEST|VISITEUR|VISITOR)[:\s]*([A-Z][A-Za-z\s\-\']+)/i',
-            '/(?:MY\s*(?:FRIEND|RELATIVE|BROTHER|SISTER|FATHER|MOTHER))[,:\s]*([A-Z][A-Za-z\s\-\']+)/i'
+        // ============================================
+        // FORMAT LETTRE OFFICIELLE FRANÇAISE
+        // ============================================
+        // Pattern: "au nom de SURNAME Given Names"
+        if (preg_match('/(?:au\s*nom\s*de|en\s*faveur\s*de)\s+([A-Z]+)\s+([A-Za-zÀ-ÿ\s]+?)(?:,|\.|en\s*sa)/i', $text, $match)) {
+            $surname = strtoupper(trim($match[1]));
+            $givenNames = trim($match[2]);
+            $invitee['name'] = $surname . ' ' . $givenNames;
+        }
+
+        // Pattern: "Nom : SURNAME" + "Prénom : Given Names"
+        if (preg_match('/Nom\s*:\s*([A-Z][A-Za-zÀ-ÿ\-]+)/i', $text, $match)) {
+            $surname = strtoupper(trim($match[1]));
+        }
+        if (preg_match('/Pr[eé]nom\s*:?\s*([A-Za-zÀ-ÿ\s\-]+?)(?:\n|Nationalit|Passeport|Sexe|$)/i', $text, $match)) {
+            $givenNames = trim($match[1]);
+        }
+
+        // Combiner nom et prénom si trouvés séparément
+        if ($surname && $givenNames && empty($invitee['name'])) {
+            $invitee['name'] = $surname . ' ' . $givenNames;
+        } elseif ($surname && empty($invitee['name'])) {
+            $invitee['name'] = $surname;
+        }
+
+        // ============================================
+        // PATTERNS CLASSIQUES
+        // ============================================
+        if (empty($invitee['name'])) {
+            $namePatterns = [
+                // "visa au nom de XXX" ou "établir un visa au nom de"
+                '/visa\s+(?:au\s*nom\s*de|pour)\s+([A-Z][A-Za-zÀ-ÿ\s\-\']+?)(?:,|\.|\s+en\s+sa)/i',
+                // Patterns standards
+                '/(?:INVITE|INVITING|TO\s*INVITE)[:\s]*(?:MR|MRS|MS)?[\.:\s]*([A-Z][A-Za-z\s\-\']+)/i',
+                '/(?:GUEST|VISITEUR|VISITOR)[:\s]*([A-Z][A-Za-z\s\-\']+)/i',
+                '/(?:MY\s*(?:FRIEND|RELATIVE|BROTHER|SISTER|FATHER|MOTHER))[,:\s]*([A-Z][A-Za-z\s\-\']+)/i'
+            ];
+
+            foreach ($namePatterns as $pattern) {
+                if (preg_match($pattern, $text, $match)) {
+                    $invitee['name'] = $this->normalizeName(trim($match[1]));
+                    break;
+                }
+            }
+        }
+
+        // ============================================
+        // NUMÉRO DE PASSEPORT
+        // ============================================
+        $passportPatterns = [
+            // Format français: "Passeport n° XX1234567" ou "Passeport n°XX1234567"
+            '/Passeport\s*n[°o]?\s*:?\s*([A-Z]{1,2}\d{6,9})/i',
+            // Format standard
+            '/(?:PASSPORT|PASSEPORT)\s*(?:(?:NO|N°|NUMBER)[:\s]*)?([A-Z]{1,2}\d{6,9})/i',
+            // N° passeport isolé
+            '/\b([A-Z]{2}\d{7})\b/'
         ];
 
-        foreach ($namePatterns as $pattern) {
+        foreach ($passportPatterns as $pattern) {
             if (preg_match($pattern, $text, $match)) {
-                $invitee['name'] = $this->normalizeName(trim($match[1]));
+                $invitee['passport_number'] = strtoupper($match[1]);
                 break;
             }
         }
 
-        // Numéro de passeport de l'invité
-        if (preg_match('/(?:PASSPORT|PASSEPORT)\s*(?:(?:NO|N°|NUMBER)[:\s]*)?([A-Z]{1,2}\d{6,9})/i', $text, $match)) {
-            $invitee['passport_number'] = strtoupper($match[1]);
-        }
-
-        // Nationalité
+        // ============================================
+        // NATIONALITÉ
+        // ============================================
         $nationalityPatterns = [
+            // Format français: "Nationalité : Ethiopienne"
+            '/Nationalit[eé]\s*:?\s*([A-Za-zÀ-ÿ]+)/i',
             '/(?:NATIONALITY|NATIONALITE)[:\s]*([A-Z][A-Za-z\s]+)/i',
             '/(?:CITIZEN\s*OF|RESSORTISSANT\s*(?:DE|DU))[:\s]*([A-Z][A-Za-z\s]+)/i'
         ];
 
         foreach ($nationalityPatterns as $pattern) {
             if (preg_match($pattern, $text, $match)) {
-                $invitee['nationality'] = strtoupper(trim($match[1]));
+                $nationality = strtoupper(trim($match[1]));
+                // Normaliser les nationalités courantes
+                $nationalityMap = [
+                    'ETHIOPIENNE' => 'ETHIOPIAN',
+                    'ETHIOPIAN' => 'ETHIOPIAN',
+                    'KENYANE' => 'KENYAN',
+                    'DJIBOUTIENNE' => 'DJIBOUTIAN',
+                    'TANZANIENNE' => 'TANZANIAN',
+                    'OUGANDAISE' => 'UGANDAN',
+                    'SOMALIENNE' => 'SOMALI',
+                    'SUD-SOUDANAISE' => 'SOUTH SUDANESE'
+                ];
+                $invitee['nationality'] = $nationalityMap[$nationality] ?? $nationality;
                 break;
             }
+        }
+
+        // ============================================
+        // SEXE
+        // ============================================
+        if (preg_match('/Sexe\s*:?\s*(Masculin|F[eé]minin|M|F)/i', $text, $match)) {
+            $sex = strtoupper(trim($match[1]));
+            $invitee['sex'] = in_array($sex, ['MASCULIN', 'M']) ? 'M' : 'F';
         }
 
         return $invitee;
@@ -269,6 +385,25 @@ class InvitationLetterExtractor extends AbstractExtractor {
     private function extractRelationship(string $text): ?string {
         $textUpper = strtoupper($text);
 
+        // Détection spécifique pour relations professionnelles (lettres d'entreprise)
+        $professionalIndicators = [
+            // Qualifications professionnelles
+            '/en\s+sa\s+qualit[eé]\s+d[\'`]?\s*(instructeur|formateur|technicien|ingénieur|consultant|expert|directeur|manager|pilote)/i',
+            // Formation/stage professionnel
+            '/formation\s+(?:des?\s+)?(?:pilotes?|techniciens?|personnels?|employ[eé]s?)/i',
+            // Termes business
+            '/(?:compagnie|airline|society|entreprise|corporation)/i',
+            // Département RH
+            '/(?:ressources\s*humaines|human\s*resources|DRH|HR)/i'
+        ];
+
+        foreach ($professionalIndicators as $pattern) {
+            if (preg_match($pattern, $text)) {
+                return 'EMPLOYER';
+            }
+        }
+
+        // Recherche classique par mots-clés
         foreach (self::RELATIONSHIPS as $type => $keywords) {
             foreach ($keywords as $keyword) {
                 if (strpos($textUpper, $keyword) !== false) {
@@ -286,13 +421,58 @@ class InvitationLetterExtractor extends AbstractExtractor {
     private function extractVisitDetails(string $text): array {
         $details = [];
 
-        // But de la visite
+        // ============================================
+        // BUT DE LA VISITE - EXTRACTION AVANCÉE
+        // ============================================
         $textUpper = strtoupper($text);
-        foreach (self::VISIT_PURPOSES as $purpose => $keywords) {
-            foreach ($keywords as $keyword) {
-                if (strpos($textUpper, $keyword) !== false) {
-                    $details['purpose'] = $purpose;
-                    break 2;
+
+        // Chercher d'abord des descriptions de motif explicites
+        $purposePatterns = [
+            // "dans le cadre de/d'une XXX"
+            '/dans\s+le\s+cadre\s+d[\'`]?\s*(?:une?\s+)?([A-Za-zÀ-ÿ\s\-]+?)(?:\.|,|\n|$)/i',
+            // "pour une/la XXX"
+            '/pour\s+(?:une?|la|le)\s+([A-Za-zÀ-ÿ\s\-]+?)(?:\.|,|\n|Veuillez|$)/i',
+            // "en sa qualité de XXX"
+            '/en\s+sa\s+qualit[eé]\s+d[\'`]?\s*([A-Za-zÀ-ÿ\s\-]+?)(?:\.|,|Il|$)/i',
+            // "objet: XXX" ou "motif: XXX"
+            '/(?:objet|motif|purpose)[:\s]+([A-Za-zÀ-ÿ\s\-]+?)(?:\.|,|\n|$)/i'
+        ];
+
+        foreach ($purposePatterns as $pattern) {
+            if (preg_match($pattern, $text, $match)) {
+                $purposeText = trim($match[1]);
+                $details['purpose_description'] = $purposeText;
+
+                // Mapper vers les catégories
+                $purposeMapping = [
+                    'STUDIES' => ['formation', 'training', 'stage', 'cours', 'étude', 'study'],
+                    'BUSINESS' => ['affaire', 'business', 'réunion', 'meeting', 'conférence', 'professionnel', 'mission'],
+                    'TOURISM' => ['tourisme', 'tourism', 'vacance', 'visite', 'découverte'],
+                    'FAMILY' => ['famille', 'family', 'parent', 'réunification'],
+                    'MEDICAL' => ['médical', 'medical', 'santé', 'traitement', 'soin'],
+                    'CULTURAL' => ['culturel', 'cultural', 'artistique', 'exposition']
+                ];
+
+                foreach ($purposeMapping as $category => $keywords) {
+                    foreach ($keywords as $keyword) {
+                        if (stripos($purposeText, $keyword) !== false) {
+                            $details['purpose'] = $category;
+                            break 2;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+        // Fallback: recherche par mots-clés si pas de pattern trouvé
+        if (empty($details['purpose'])) {
+            foreach (self::VISIT_PURPOSES as $purpose => $keywords) {
+                foreach ($keywords as $keyword) {
+                    if (strpos($textUpper, $keyword) !== false) {
+                        $details['purpose'] = $purpose;
+                        break 2;
+                    }
                 }
             }
         }
@@ -325,6 +505,17 @@ class InvitationLetterExtractor extends AbstractExtractor {
         // ======================================
         // EXTRACTION DES DATES DE VISITE
         // ======================================
+
+        // Pattern spécifique: "Arrivée à Abidjan : 27 Décembre" (format lettre officielle)
+        $arrivalTextPattern = '/(?:Arriv[eé]e?\s*(?:[àa]\s*)?(?:Abidjan)?|se\s*rendre\s*[àa]\s*Abidjan\s*(?:le|du)?)\s*[:\s]*(\d{1,2})\s*(janvier|janv|f[eé]vrier|fevrier|fev|mars|avril|avr|mai|juin|juillet|juil|ao[uû]t|aout|septembre|sept|octobre|oct|novembre|nov|d[eé]cembre|decembre|dec)\.?\s*(\d{4})?/i';
+
+        if (preg_match($arrivalTextPattern, $text, $match)) {
+            $day = str_pad($match[1], 2, '0', STR_PAD_LEFT);
+            $monthLower = strtolower($match[2]);
+            $month = self::FRENCH_MONTHS[$monthLower] ?? '01';
+            $year = $match[3] ?? date('Y');
+            $details['arrival_date'] = "{$year}-{$month}-{$day}";
+        }
 
         // Pattern 1: Dates numériques (dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy)
         $numericPeriodPatterns = [

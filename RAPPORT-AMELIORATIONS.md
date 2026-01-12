@@ -13,7 +13,7 @@
 **Solution:** Prompt Gemini amélioré avec instructions spécifiques pour détecter le vol retour.
 
 | Avant | Après |
-|-------|-------|
+| ------- | ------- |
 | Vol retour: `null` | Vol retour: `ET 513` |
 | Date retour: `null` | Date retour: `2026-01-25` |
 | Aller-retour: `false` | Aller-retour: `true` |
@@ -23,6 +23,7 @@
 ### 1.2 Champs Billet Enrichis (NOUVEAU)
 
 Nouveaux champs extraits:
+
 - `airline`: Ethiopian Airlines
 - `airline_code`: ET
 - `ticket_number`: 0712157308494
@@ -36,10 +37,11 @@ Nouveaux champs extraits:
 **Solution:** Cross-validation automatique avec les données du passeport.
 
 | Avant | Après |
-|-------|-------|
+| ------- | ------- |
 | `Gezahegn Moges` | `EJIGU GEZAHEGN MOGES` |
 
 **Métadonnées ajoutées:**
+
 ```json
 {
   "cross_validation": {
@@ -64,7 +66,7 @@ Nouveaux champs extraits:
 ### 2.2 Règles Implémentées
 
 | Règle | Sévérité | Description |
-|-------|----------|-------------|
+| ------- | ---------- | ------------- |
 | Vol retour | Warning | Alerte si vol retour absent |
 | Hébergement | Info/Warning | Compare nuits hôtel vs durée séjour |
 | Dates | Info | Cohérence vol/invitation |
@@ -74,7 +76,7 @@ Nouveaux champs extraits:
 
 ### 2.3 Résultat Actuel du Dossier Test
 
-```
+```text
 Demandeur:     EJIGU GEZAHEGN MOGES
 Destination:   Côte d'Ivoire
 Motif:         Formation des Pilotes et Techniciens
@@ -90,9 +92,10 @@ Alertes:       4 infos, 0 warnings, 0 errors
 ### 3.1 Améliorations Prioritaires (Quick Wins)
 
 #### A. Affichage du Résumé de Cohérence
+
 Après l'upload de tous les documents, afficher un résumé visuel:
 
-```
+```text
 ┌─────────────────────────────────────────────┐
 │ 📋 RÉSUMÉ DE VOTRE DOSSIER                  │
 ├─────────────────────────────────────────────┤
@@ -108,9 +111,10 @@ Après l'upload de tous les documents, afficher un résumé visuel:
 ```
 
 #### B. Alertes de Cohérence Interactives
+
 Afficher les alertes avec boutons d'action:
 
-```
+```text
 ⚠️ Votre hôtel est à Yamoussoukro mais votre
    vol arrive à Abidjan (220 km).
 
@@ -118,9 +122,10 @@ Afficher les alertes avec boutons d'action:
 ```
 
 #### C. Progress Bar Améliorée
+
 Remplacer la barre de progression linéaire par une checklist:
 
-```
+```text
 Documents requis:
 ☑️ Passeport (vérifié)
 ☑️ Billet d'avion (vérifié)
@@ -132,9 +137,10 @@ Documents requis:
 ### 3.2 Améliorations Moyennes (Phase 2)
 
 #### D. Preview des Données Extraites
+
 Avant validation, montrer un aperçu éditable:
 
-```
+```text
 📄 Données extraites du passeport:
 ─────────────────────────────────
 Nom:        EJIGU
@@ -146,9 +152,10 @@ Expiration: 16/09/2030
 ```
 
 #### E. Timeline du Voyage
+
 Afficher une frise chronologique:
 
-```
+```text
 27 DÉC ─── 28 DÉC ─── 29 DÉC ─── ... ─── 25 JAN
    │         │          │                   │
 Début    ✈️ Vol     🏨 Checkout          ✈️ Retour
@@ -158,12 +165,15 @@ invitation  aller     hôtel
 ### 3.3 Améliorations Futures (Phase 3)
 
 #### F. Mode Sombre
+
 Ajouter support du mode sombre système.
 
 #### G. Multi-langues
+
 Supporter EN/FR/AM (Amharique).
 
 #### H. Notifications Push
+
 Notifier l'utilisateur du statut de sa demande.
 
 ---
@@ -171,7 +181,7 @@ Notifier l'utilisateur du statut de sa demande.
 ## 4. Fichiers Créés/Modifiés
 
 | Fichier | Action | Description |
-|---------|--------|-------------|
+| --------- | -------- | ------------- |
 | `php/services/DocumentCoherenceValidator.php` | CRÉÉ | Service validation cohérence |
 | `php/coherence-validator-api.php` | CRÉÉ | Endpoint API |
 | `test-coherence.php` | CRÉÉ | Script de test CLI |
@@ -208,10 +218,12 @@ curl -X POST http://localhost:8888/hunyuanocr/visa-chatbot/php/coherence-validat
 ### 7.1 Correction du Doublon Vaccination
 
 **Problème:** Le carnet de vaccination était demandé 2 fois:
+
 - Dans le document queue après le passeport
 - Dans le step `health` (étape 8)
 
 **Solution:** Modification de `renderHealthStep()` pour:
+
 1. Vérifier si la vaccination a déjà été uploadée via le document queue
 2. Si oui: afficher confirmation et passer directement aux douanes
 3. Si non: utiliser le système OCR standard (`handleDocumentUpload`) au lieu d'un simple upload
@@ -223,11 +235,13 @@ curl -X POST http://localhost:8888/hunyuanocr/visa-chatbot/php/coherence-validat
 **Nouveauté:** Vérification de cohérence après chaque document uploadé.
 
 **Comportement:**
+
 - Après 2+ documents uploadés, appel automatique à l'API de cohérence
 - Affichage des warnings/errors sous le dernier message
 - Non-bloquant: l'utilisateur peut continuer
 
 **Méthodes ajoutées:**
+
 - `checkRealTimeCoherence(documentType)` - ligne 2589
 - `showRealTimeCoherenceAlert(issues, documentType)` - ligne 2628
 
@@ -249,6 +263,7 @@ formatDate(dateString) {
 ### 7.4 UX Améliorée - Step Health
 
 **Améliorations:**
+
 - Info box avec icône et message clair sur la vaccination obligatoire
 - Bouton "Scanner mon carnet de vaccination" (utilise OCR)
 - Lien discret "Je n'ai pas de carnet" avec gestion du cas bloquant
@@ -259,8 +274,8 @@ formatDate(dateString) {
 ## 8. Récapitulatif des Fichiers Modifiés
 
 | Fichier | Modifications |
-|---------|---------------|
-| `js/chatbot-redesign.js` | • renderHealthStep() amélioré<br>• renderHealthActionArea() refait<br>• renderVaccinationBlockedActions() ajouté<br>• checkRealTimeCoherence() ajouté<br>• showRealTimeCoherenceAlert() ajouté<br>• formatDate() ajouté |
+| --------- | --------------- |
+| `js/chatbot-redesign.js` | • renderHealthStep() amélioré; • renderHealthActionArea() refait; • renderVaccinationBlockedActions() ajouté; • checkRealTimeCoherence() ajouté; • showRealTimeCoherenceAlert() ajouté; • formatDate() ajouté |
 | `js/coherence-ui.js` | Timeline & Checklist (existant) |
 | `css/coherence-ui.css` | Styles pour CoherenceUI (existant) |
 
@@ -273,6 +288,7 @@ formatDate(dateString) {
 **Nouveauté:** Carte "Documents" dans la sidebar montrant les pièces requises avec leur statut.
 
 **Fonctionnalités:**
+
 - Affiche la liste des documents requis après détection du type de passeport
 - Barre de progression des documents fournis
 - Compteur X/Y documents
@@ -281,6 +297,7 @@ formatDate(dateString) {
 - Mise à jour dynamique après chaque upload
 
 **Fichiers modifiés:**
+
 - `views/partials/hero.php` - Ajout HTML de la carte documents
 - `js/chatbot-redesign.js` - Ajout méthode `renderDocumentChecklist()` (ligne 817-908)
 - `js/chatbot-redesign.js` - Éléments DOM ajoutés (ligne 535-539)
@@ -288,7 +305,7 @@ formatDate(dateString) {
 ### 9.2 Statut des Recommandations
 
 | Recommandation | Priorité | État |
-|----------------|----------|------|
+| ---------------- | ---------- | ------ |
 | A. Résumé de Cohérence | Quick Win | ✅ Implémenté |
 | B. Alertes Interactives | Quick Win | ✅ Implémenté |
 | C. Progress Bar Checklist | Quick Win | ✅ Implémenté |
@@ -302,7 +319,7 @@ formatDate(dateString) {
 
 ## 10. Architecture UX Finale
 
-```
+```text
 ┌────────────────────────────────────────────────────────────────┐
 │                         HEADER                                  │
 │  [Logo Côte d'Ivoire]     [FR/EN Toggle] [☀️/🌙 Theme]        │
@@ -367,6 +384,7 @@ open http://localhost:8888/hunyuanocr/visa-chatbot/index.php
 **Signalement utilisateur:** L'affichage du billet ne montrait que le vol aller, alors que les données OCR contenaient bien le vol retour.
 
 **Données OCR disponibles:**
+
 ```json
 {
   "flight_number": "ET 935",
@@ -379,7 +397,8 @@ open http://localhost:8888/hunyuanocr/visa-chatbot/index.php
 ```
 
 **Affichage avant correction:**
-```
+
+```text
 ✈️ Vol: ET 935
 📅 Date: 2025-12-28
 🛫 Addis Ababa → Abidjan
@@ -391,7 +410,8 @@ open http://localhost:8888/hunyuanocr/visa-chatbot/index.php
 **Fichier modifié:** `js/chatbot-redesign.js` (lignes 2616-2660)
 
 **Nouvel affichage:**
-```
+
+```text
 ✅ Flight Ticket
 
 🛫 Outbound flight
@@ -409,7 +429,7 @@ open http://localhost:8888/hunyuanocr/visa-chatbot/index.php
 ### 12.3 Fonctionnalités Ajoutées
 
 | Fonctionnalité | Description |
-|----------------|-------------|
+| ---------------- | ------------- |
 | **Vol aller** | Affiche numéro de vol, date formatée, trajet |
 | **Vol retour** | Affiche si `is_round_trip`, `return_date` ou `return_flight_number` existe |
 | **Aller simple** | Avertissement jaune si pas de vol retour détecté |
@@ -422,14 +442,16 @@ open http://localhost:8888/hunyuanocr/visa-chatbot/index.php
 **Problème:** L'affichage ne montrait que 3 champs sur 10 extraits.
 
 **Avant:**
-```
+
+```text
 🏨 Hôtel: Appartement...
 📍 Yamoussoukro
 📅 2025-12-28 → 2025-12-29
 ```
 
 **Après:**
-```
+
+```text
 🏨 Appartement 1 à 3 pièces Equipé Cosy Calme - Aigle
    Résidence Belle Plume, Yamoussoukro, Côte d'Ivoire
 
@@ -444,14 +466,16 @@ Dec 28, 2025  →   Dec 29, 2025    [1 night]
 **Problème:** Les dates de séjour (critiques pour la cohérence) n'étaient pas affichées.
 
 **Avant:**
-```
+
+```text
 👤 Invitant: Mahamoud Babinet SAKO
 🏢 Air Côte d'Ivoire
 📋 Motif: Formation des Pilotes...
 ```
 
 **Après:**
-```
+
+```text
 Host
 👤 Mahamoud Babinet SAKO
 🏢 Air Côte d'Ivoire
@@ -473,7 +497,8 @@ Dec 27, 2025  →   Feb 10, 2026    [45 days]
 **Problème:** Aucun affichage spécifique n'existait pour la vaccination (utilisait le default).
 
 **Nouvel affichage:**
-```
+
+```text
 💉 Yellow Fever                    [✓ Valid]
    Required vaccine
 
@@ -488,7 +513,7 @@ ETHIOPIA PUBLIC HEALTH INSTITUTE TRAVELLERS VACCINATION SERVICE
 ### 12.7 Récapitulatif des Corrections UI
 
 | Document | Champs OCR | Avant | Après | Statut |
-|----------|------------|-------|-------|--------|
+| ---------- | ------------ | ------- | ------- | -------- |
 | **Ticket** | 10 | 4 affichés | 10 affichés | ✅ |
 | **Hotel** | 10 | 3 affichés | 8 affichés | ✅ |
 | **Invitation** | 12 | 3 affichés | 9 affichés | ✅ |
@@ -503,14 +528,16 @@ ETHIOPIA PUBLIC HEALTH INSTITUTE TRAVELLERS VACCINATION SERVICE
 ### 13.1 Création du Framework
 
 **Fichiers créés:**
+
 - `tests/personas/PersonaTestRunner.php` - Classe de test
 - `test-personas.php` - Script CLI
 
 ### 13.2 Personas de Test (20 au total)
 
 #### Catégorie: Happy Path
+
 | ID | Nom | Description | Workflow | Issues Attendues |
-|----|-----|-------------|----------|------------------|
+| ---- | ----- | ------------- | ---------- | ------------------ |
 | `ethiopian_business` | Abebe Kebede | Voyage court, hôtel réservé | STANDARD | ∅ |
 | `valid_student_short` | Hanna Gebremedhin | Stage 60 jours (< 90) | STANDARD | ∅ |
 | `conference_attendee` | Dr. Wondimu Assefa | Congrès médical 5 jours | STANDARD | ∅ |
@@ -520,14 +547,16 @@ ETHIOPIA PUBLIC HEALTH INSTITUTE TRAVELLERS VACCINATION SERVICE
 | `resident_abroad` | Bekele Worku | Éthiopien résident au Kenya | STANDARD | ∅ |
 
 #### Catégorie: Workflows Spéciaux
+
 | ID | Nom | Description | Workflow | Issues Attendues |
-|----|-----|-------------|----------|------------------|
+| ---- | ----- | ------------- | ---------- | ------------------ |
 | `kenyan_diplomat` | James Ochieng | Passeport diplomatique | DIPLOMATIC | ∅ |
 | `service_passport` | Amina Wako | Passeport de service | SERVICE | ∅ |
 
 #### Catégorie: Issues & Blocages
+
 | ID | Nom | Description | Workflow | Issues Attendues |
-|----|-----|-------------|----------|------------------|
+| ---- | ----- | ------------- | ---------- | ------------------ |
 | `one_way_traveler` | Solomon Tesfaye | Billet aller simple | STANDARD | `RETURN_FLIGHT_MISSING` |
 | `expired_passport` | Dawit Mengistu | Passeport expiré | STANDARD | `PASSPORT_EXPIRY` |
 | `accommodation_gap` | Tigist Bekele | 1 nuit pour 14 jours | STANDARD | `ACCOMMODATION_GAP` |
@@ -543,7 +572,7 @@ ETHIOPIA PUBLIC HEALTH INSTITUTE TRAVELLERS VACCINATION SERVICE
 ### 13.3 Nouvelles Règles de Validation
 
 | Règle | Type | Sévérité | Description |
-|-------|------|----------|-------------|
+| ------- | ------ | ---------- | ------------- |
 | `LONG_STAY` | Blocage | **ERROR** | e-Visa limité à 90 jours max |
 | `NON_JURISDICTION` | Redirection | WARNING | Nationalité hors juridiction Addis-Abeba |
 | `VACCINATION_EXPIRED` | Alerte | WARNING | Vaccination > 10 ans |
@@ -553,7 +582,7 @@ ETHIOPIA PUBLIC HEALTH INSTITUTE TRAVELLERS VACCINATION SERVICE
 
 ### 13.4 Résultats des Tests
 
-```
+```text
 ======================================================================
 📊 RÉSUMÉ DES TESTS
 ======================================================================
@@ -605,7 +634,7 @@ php test-personas.php --json
 
 ### 14.1 Workflow Actuel du Chatbot
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                     FLUX DE CONVERSATION                         │
 ├─────────────────────────────────────────────────────────────────┤
@@ -658,7 +687,7 @@ php test-personas.php --json
 ### 14.2 Points Forts Identifiés
 
 | Feature | Description |
-|---------|-------------|
+| --------- | ------------- |
 | ✅ **Détection IP** | Auto-détecte le pays de résidence via `ip-api.com` |
 | ✅ **OCR Triple Layer** | Google Vision → Gemini → Claude |
 | ✅ **Validation temps réel** | Cohérence vérifiée après chaque document |
@@ -675,6 +704,7 @@ php test-personas.php --json
 **Problème:** Le blocage pour séjour > 90 jours n'apparaît qu'à l'étape CONFIRM.
 
 **Solution suggérée:**
+
 ```javascript
 // Après extraction des dates d'invitation/vol
 if (stayDays > 90) {
@@ -695,6 +725,7 @@ if (stayDays > 90) {
 **Problème:** L'utilisateur attend l'étape 8 pour apprendre que la vaccination est obligatoire.
 
 **Solution suggérée:**
+
 - Afficher un bandeau d'information dès l'étape WELCOME
 - Demander confirmation "Avez-vous votre carnet de vaccination ?" avant de commencer
 
@@ -702,7 +733,7 @@ if (stayDays > 90) {
 
 **Suggestion:** Après l'upload des documents (étape 5), afficher un résumé intermédiaire:
 
-```
+```text
 ┌─────────────────────────────────────────────┐
 │ 📋 RÉCAPITULATIF DES DOCUMENTS              │
 ├─────────────────────────────────────────────┤
@@ -720,6 +751,7 @@ if (stayDays > 90) {
 **Problème:** Pas de moyen clair pour reprendre une demande commencée.
 
 **Solution suggérée:**
+
 - Bouton "Enregistrer et continuer plus tard"
 - Email avec lien de reprise sécurisé
 - Code de référence pour reprendre la demande
@@ -727,7 +759,8 @@ if (stayDays > 90) {
 #### E. Estimation Délai de Traitement (Priorité: BASSE)
 
 **Suggestion:** À l'étape CONFIRM, afficher:
-```
+
+```text
 ⏱️ Délai estimé: 3-5 jours ouvrés
 💡 Passeport diplomatique: 24-48h (prioritaire)
 ```
@@ -735,7 +768,7 @@ if (stayDays > 90) {
 ### 14.4 Prochaines Actions Recommandées
 
 | Action | Priorité | Effort | Impact |
-|--------|----------|--------|--------|
+| -------- | ---------- | -------- | -------- |
 | Alerte LONG_STAY précoce | 🔴 HAUTE | Faible | Fort |
 | Info vaccination dès welcome | 🔴 HAUTE | Faible | Fort |
 | Résumé intermédiaire docs | 🟡 MOYENNE | Moyen | Moyen |
@@ -749,7 +782,7 @@ if (stayDays > 90) {
 ### Travail Accompli
 
 | Catégorie | Éléments |
-|-----------|----------|
+| ----------- | ---------- |
 | **OCR** | Extraction vol retour, cross-validation vaccination |
 | **Validation** | 12 règles de cohérence, 2 règles bloquantes |
 | **UI** | 4 affichages documents corrigés, CoherenceUI, Checklist |
@@ -758,7 +791,7 @@ if (stayDays > 90) {
 
 ### Fichiers Modifiés/Créés
 
-```
+```text
 📁 visa-chatbot/
 ├── 📝 js/chatbot-redesign.js          # UI chatbot
 ├── 📝 php/services/DocumentCoherenceValidator.php  # 12 règles
@@ -771,7 +804,7 @@ if (stayDays > 90) {
 ### Métriques Clés
 
 | Métrique | Valeur |
-|----------|--------|
+| ---------- | -------- |
 | Personas de test | 20 |
 | Tests passés | 20/20 (100%) |
 | Règles de validation | 12 |
@@ -788,12 +821,14 @@ if (stayDays > 90) {
 **Implémenté:** Après l'upload de chaque document, le système vérifie la cohérence. Si un séjour > 90 jours est détecté, une alerte bloquante s'affiche immédiatement.
 
 **Nouvelles fonctions:**
+
 - `showBlockingCoherenceError(errors)` - Affiche l'alerte bloquante avec options
 - `handleBlockingErrorAction(actionId, error)` - Gère les actions (contacter ambassade, modifier dates, etc.)
 
 **Erreurs bloquantes gérées:**
+
 | Type | Couleur | Actions |
-|------|---------|---------|
+| ------ | --------- | --------- |
 | `LONG_STAY` | Rouge | Contacter ambassade, Modifier dates |
 | `PASSPORT_EXPIRY` | Rouge | Scanner nouveau passeport |
 | `NON_JURISDICTION` | Ambre | Trouver mon ambassade |
@@ -802,6 +837,7 @@ if (stayDays > 90) {
 ### 16.2 Info Vaccination dès Welcome
 
 **Implémenté:** Dès l'étape de bienvenue, l'utilisateur voit :
+
 - Liste des documents requis (passeport, billet, hébergement, vaccination)
 - Avertissement clair: "La vaccination fièvre jaune est **obligatoire**"
 - Info sur la limite e-Visa de 90 jours
@@ -812,7 +848,7 @@ if (stayDays > 90) {
 
 **Implémenté:** Après l'upload de tous les documents de voyage (avant photo), un récapitulatif s'affiche :
 
-```
+```text
 ┌─────────────────────────────────────────────┐
 │ ✅ Documents fournis                    4/5 │
 ├─────────────────────────────────────────────┤
@@ -837,7 +873,7 @@ if (stayDays > 90) {
 **Déjà implémenté:** Les délais sont affichés à l'étape de confirmation via `passportRequirementsMatrix` :
 
 | Type Passeport | Délai Estimé |
-|----------------|--------------|
+| ---------------- | -------------- |
 | ORDINAIRE | 5-10 jours |
 | DIPLOMATIQUE | 24-48h |
 | SERVICE | 24-48h |
@@ -846,7 +882,7 @@ if (stayDays > 90) {
 ### 16.5 Récapitulatif des Modifications
 
 | Fonction | Lignes | Description |
-|----------|--------|-------------|
+| ---------- | -------- | ------------- |
 | `checkRealTimeCoherence()` | 2862-2913 | Retourne maintenant `{blocked, issues}` |
 | `showBlockingCoherenceError()` | 2920-3055 | **NOUVEAU** - Alerte bloquante |
 | `handleBlockingErrorAction()` | 3060-3110 | **NOUVEAU** - Gère les actions |
@@ -872,7 +908,7 @@ curl -s -X POST http://localhost:8888/hunyuanocr/visa-chatbot/php/coherence-vali
 ### 16.7 Statut Final des Améliorations
 
 | Amélioration | Priorité | Statut |
-|--------------|----------|--------|
+| -------------- | ---------- | -------- |
 | Alerte LONG_STAY précoce | 🔴 HAUTE | ✅ Implémenté |
 | Info vaccination dès welcome | 🔴 HAUTE | ✅ Implémenté |
 | Résumé intermédiaire documents | 🟡 MOYENNE | ✅ Implémenté |
