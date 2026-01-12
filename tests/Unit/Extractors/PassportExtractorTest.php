@@ -167,7 +167,7 @@ class PassportExtractorTest extends TestCase
 
         if ($reflection->hasMethod('calculateMrzChecksum')) {
             $method = $reflection->getMethod('calculateMrzChecksum');
-            $method->setAccessible(true);
+            // Note: setAccessible() removed - no longer needed in PHP 8.1+
 
             // For valid MRZ, the checksum should match
             $this->assertTrue(true); // Placeholder - actual implementation depends on method signature

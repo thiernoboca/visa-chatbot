@@ -19,10 +19,8 @@ export default defineConfig({
         // Rollup options
         rollupOptions: {
             input: {
-                // Main entry point
-                main: resolve(__dirname, 'js/modules/index.js'),
-                // CSS entry point
-                styles: resolve(__dirname, 'css/main.css')
+                // Main entry point (CSS linked separately in HTML when cssCodeSplit: false)
+                main: resolve(__dirname, 'js/modules/index.js')
             },
             output: {
                 // Entry file naming

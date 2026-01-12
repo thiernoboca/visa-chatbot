@@ -85,7 +85,7 @@ class PaymentProofExtractorTest extends TestCase
         $reflection = new \ReflectionClass($this->extractor);
         if ($reflection->hasMethod('analyzeAmount')) {
             $method = $reflection->getMethod('analyzeAmount');
-            $method->setAccessible(true);
+            // Note: setAccessible() removed - no longer needed in PHP 8.1+
 
             $analysis = $method->invoke($this->extractor, $amount, 'XOF');
 
