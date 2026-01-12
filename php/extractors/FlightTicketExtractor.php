@@ -194,8 +194,13 @@ class FlightTicketExtractor extends AbstractExtractor {
                 }
             }
 
-            // Extract date: DD/Mon/YYYY format (28/Dec/2025)
+            // Extract date: multiple formats
+            // Format 1: DD/Mon/YYYY (28/Dec/2025)
+            // Format 2: DD Mon YYYY (15 MAR 2026)
+            // Format 3: DATE: DD Mon YYYY
             if (preg_match('/(\d{1,2})[\/\-]([A-Z]{3})[\/\-](\d{4})/i', $segment, $dateMatch)) {
+                $flight['departure_date'] = $this->parseDateText($dateMatch[0]);
+            } elseif (preg_match('/(?:DATE:?\s*)?(\d{1,2})\s+([A-Z]{3,9})\s+(\d{4})/i', $segment, $dateMatch)) {
                 $flight['departure_date'] = $this->parseDateText($dateMatch[0]);
             }
 
