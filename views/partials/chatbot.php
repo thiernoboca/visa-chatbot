@@ -134,7 +134,7 @@
 
         <!-- Footer -->
         <div class="scanner-footer p-4 border-t border-[#f0f2f4] dark:border-gray-700 flex gap-3">
-            <button type="button" id="btnCancelScanner" class="flex-1 px-4 py-3 rounded-full border border-gray-300 dark:border-gray-600 text-[#111418] dark:text-white font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" data-i18n="btn_cancel" data-i18n-fr="Annuler" data-i18n-en="Cancel">
+            <button type="button" id="btnCancelScanner" class="flex-1 px-4 py-3 rounded-full border border-gray-300 dark:border-gray-600 text-[#111418] dark:text-white font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="Annuler / Cancel" data-i18n-aria="cancel_scanner" data-i18n-aria-fr="Annuler le scan" data-i18n-aria-en="Cancel scan" data-i18n="btn_cancel" data-i18n-fr="Annuler" data-i18n-en="Cancel">
                 Annuler
             </button>
             <button type="button" id="btnConfirmPassport" class="flex-1 px-4 py-3 rounded-full bg-primary text-white font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled aria-label="Confirmer / Confirm" data-i18n-aria="confirm_passport" data-i18n-aria-fr="Confirmer le scan du passeport" data-i18n-aria-en="Confirm passport scan">

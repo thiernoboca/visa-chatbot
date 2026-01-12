@@ -128,6 +128,7 @@ The Visa Chatbot project is in good health with all core functionality implement
 |-----------|---------|-------|-----|
 | 28 | Code Reviewer | Browser testing - "Session expired" error blocking chatbot | Fixed ProactiveSuggestions class conflict in ChatbotController.php |
 | 29 | System Architect | Two ProactiveSuggestions classes with same name, different interfaces | Renamed services/ProactiveSuggestions.php → DocumentAnalysisSuggestions.php |
+| 30 | Frontend Designer | Cancel button in passport scanner missing aria-label | Added aria-label and data-i18n-aria attributes for accessibility |
 
 ---
 
