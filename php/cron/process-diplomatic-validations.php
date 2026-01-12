@@ -216,7 +216,8 @@ class DiplomaticValidationProcessor {
         // Mettre à jour la session si possible
         $this->updateSessionWithValidation($sessionId, $validation);
         
-        $this->log("Validation terminée: {$validation['recommendation'] ?? 'N/A'}");
+        $recommendation = $validation['recommendation'] ?? 'N/A';
+        $this->log("Validation terminée: {$recommendation}");
         
         return [
             'file' => $filename,

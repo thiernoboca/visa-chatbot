@@ -1,16 +1,16 @@
 <?php
 /**
  * Cron Job: Process Pending Claude Validations
- * 
+ *
  * Ce script doit être exécuté périodiquement (ex: toutes les 5 minutes)
  * pour traiter les validations Claude en attente (Layer 3 async)
- * 
+ *
  * Usage:
  *   php /path/to/visa-chatbot/php/cron/process-claude-validations.php
- * 
- * Crontab:
- *   */5 * * * * php /var/www/visa-chatbot/php/cron/process-claude-validations.php >> /var/log/claude-validations.log 2>&1
- * 
+ *
+ * Crontab (every 5 minutes):
+ *   0,5,10,15,20,25,30,35,40,45,50,55 * * * * php /var/www/visa-chatbot/php/cron/process-claude-validations.php
+ *
  * @package VisaChatbot
  * @version 1.0.0
  */
