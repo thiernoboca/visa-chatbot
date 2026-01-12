@@ -139,6 +139,7 @@ The Visa Chatbot project is in good health with all core functionality implement
 |-----------|---------|-------|-----|
 | 34 | Code Reviewer | YELLOW_FEVER_EXEMPT_COUNTRIES duplicate export causing Vite warning | Removed duplicate, now imports from canonical source |
 | 35 | System Architect | Architecture review | ✅ No issues - Clean MVC, 8 services, 9 extractors, 4 validators, no circular deps |
+| 36 | Frontend Designer | UI/UX and accessibility review | ✅ No issues - 30+ ARIA attributes, images have alt, responsive breakpoints |
 
 ---
 
