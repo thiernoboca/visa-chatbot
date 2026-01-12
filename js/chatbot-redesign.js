@@ -12,8 +12,7 @@
     const CONFIG = {
         apiEndpoint: 'index.php?action=api',
         ocrEndpoint: 'index.php?action=upload',
-        ocrEndpoint: 'index.php?action=upload',
-        geolocationEndpoint: 'index.php?action=geolocation', // ADDED
+        geolocationEndpoint: 'index.php?action=geolocation',
         debug: true
     };
 

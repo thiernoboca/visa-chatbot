@@ -43,6 +43,13 @@ export default [
                 DataTransfer: 'readonly',
                 performance: 'readonly',
                 Intl: 'readonly',
+                Image: 'readonly',
+                AbortController: 'readonly',
+                customElements: 'readonly',
+                QRCode: 'readonly',
+                AnalyticsClient: 'readonly',
+                ABTestingClient: 'readonly',
+                ConfettiGenerator: 'readonly',
                 // App-specific globals (lazy-loaded modules)
                 CoherenceUI: 'readonly',
                 VerificationModal: 'readonly',

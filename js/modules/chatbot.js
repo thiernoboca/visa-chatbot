@@ -279,71 +279,7 @@ export class VisaChatbot {
         });
     }
 
-    /**
-     * Initialize Coherence UI module
-     */
-    initCoherenceUI() {
-        try {
-            // Check if CoherenceUI is available globally
-            if (window.CoherenceUI) {
-                this._coherenceUI = new window.CoherenceUI();
-                this.log('CoherenceUI initialized');
-            }
-        } catch (error) {
-            this.log('CoherenceUI initialization failed (non-blocking):', error.message);
-        }
-    }
-
-    /**
-     * Initialize Gamification modules (v6.0)
-     * - ProgressTracker: Visual progress visualization
-     * - CelebrationManager: Confetti and milestone celebrations
-     * - TimeEstimator: Dynamic completion time estimation
-     */
-    initGamification() {
-        try {
-            // Initialize ProgressTracker
-            const progressContainer = document.getElementById('step-timeline');
-            if (progressContainer && ProgressTracker) {
-                this.progressTracker = new ProgressTracker({
-                    container: progressContainer,
-                    language: this.config.language || 'fr'
-                });
-                this.log('ProgressTracker initialized');
-            }
-
-            // Initialize CelebrationManager
-            if (CelebrationManager) {
-                this.celebrations = new CelebrationManager({
-                    language: this.config.language || 'fr'
-                });
-                this.log('CelebrationManager initialized');
-            }
-
-            // Initialize TimeEstimator
-            if (TimeEstimator) {
-                this.timeEstimator = new TimeEstimator({
-                    language: this.config.language || 'fr'
-                });
-                this.log('TimeEstimator initialized');
-            }
-
-            // Phase 7.0 - Initialize InlineEditingManager EARLY
-            if (InlineEditingManager && CONFIG.features.inlineEditing.enabled) {
-                this.inlineEditor = new InlineEditingManager({
-                    messagesManager: this.messages,
-                    uiManager: this.ui,
-                    apiManager: this.api,
-                    onConfirm: this.handleInlineDataConfirmed.bind(this),
-                    onEdit: this.handleInlineDataEdit.bind(this)
-                });
-                this.log('InlineEditingManager initialized (early)');
-            }
-
-        } catch (error) {
-            this.log('Gamification initialization error (non-blocking):', error.message);
-        }
-    }
+    // NOTE: initCoherenceUI() and initGamification() defined below (after initGeoLocation)
 
     /**
      * Sync flow state with UI
