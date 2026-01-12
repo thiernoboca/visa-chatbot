@@ -2,7 +2,7 @@
  * Internationalization Module
  * French and English translations
  *
- * @version 4.0.0
+ * @version 4.1.0 - Added updateDOM method
  * @module I18n
  */
 
@@ -534,6 +534,52 @@ export class I18n {
             hour: '2-digit',
             minute: '2-digit'
         });
+    }
+
+    /**
+     * Update all DOM elements with data-i18n attributes
+     * Looks for data-i18n-fr and data-i18n-en attributes
+     * Also updates aria-label and alt attributes for accessibility
+     */
+    updateDOM() {
+        const langAttr = this.language === 'fr' ? 'data-i18n-fr' : 'data-i18n-en';
+        const ariaLangAttr = this.language === 'fr' ? 'data-i18n-aria-fr' : 'data-i18n-aria-en';
+        const altLangAttr = this.language === 'fr' ? 'data-i18n-alt-fr' : 'data-i18n-alt-en';
+
+        // Update text content
+        const elements = document.querySelectorAll('[data-i18n]');
+        elements.forEach(el => {
+            const translation = el.getAttribute(langAttr);
+            if (translation) {
+                el.textContent = translation;
+            }
+        });
+
+        // Update aria-label attributes for accessibility
+        const ariaElements = document.querySelectorAll('[data-i18n-aria]');
+        ariaElements.forEach(el => {
+            const translation = el.getAttribute(ariaLangAttr);
+            if (translation) {
+                el.setAttribute('aria-label', translation);
+            }
+        });
+
+        // Update alt attributes for images
+        const altElements = document.querySelectorAll('[data-i18n-alt]');
+        altElements.forEach(el => {
+            const translation = el.getAttribute(altLangAttr);
+            if (translation) {
+                el.setAttribute('alt', translation);
+            }
+        });
+
+        // Update HTML lang attribute
+        document.documentElement.lang = this.language;
+
+        // Dispatch event for other components
+        window.dispatchEvent(new CustomEvent('languageChanged', {
+            detail: { language: this.language }
+        }));
     }
 }
 
