@@ -396,8 +396,9 @@ class FlightTicketExtractor extends AbstractExtractor {
         }
 
         // Format numérique: 15/01/2025, 15-01-2025 (excluding issue dates context)
-        preg_match_all('/(?<!ISSUE\s)(?<!ISSUE\s*DATE\s)(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/i', $text, $dateMatches, PREG_SET_ORDER);
-        foreach ($dateMatches as $match) {
+        // Note: Variable-length lookbehinds not supported in PHP PCRE, filtering done post-match
+        preg_match_all('/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/i', $text, $dateMatches, PREG_SET_ORDER);
+        foreach ($dateMatches ?? [] as $match) {
             $parsed = $this->parseDate($match[0]);
             if ($parsed && !in_array($parsed, $issueDates)) {
                 $departureDates[] = $parsed;
