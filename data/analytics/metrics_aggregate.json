@@ -1,5 +1,5 @@
 {
-    "total_sessions": 308,
+    "total_sessions": 309,
     "completed_sessions": 0,
     "abandoned_sessions": 0,
     "steps": {
@@ -76,10 +76,10 @@
             "count_duration": 1
         },
         "geolocation": {
-            "completions": 9,
+            "completions": 10,
             "abandons": 0,
-            "total_duration": 429.7799999999999,
-            "count_duration": 9
+            "total_duration": 444.0499999999999,
+            "count_duration": 10
         }
     },
     "passport_scans": {
@@ -89,5 +89,5 @@
     "validation_errors": {
         "connection_error:connection_error": 18
     },
-    "updated_at": "2026-01-12T09:27:42+00:00"
+    "updated_at": "2026-01-12T13:31:11+00:00"
 }

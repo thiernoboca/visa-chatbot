@@ -11,7 +11,8 @@ import {
     RequirementStatus,
     PassportType,
     DocumentTypes,
-    JurisdictionCountries
+    JurisdictionCountries,
+    YELLOW_FEVER_EXEMPT_COUNTRIES
 } from './requirements-matrix.js';
 
 /**
@@ -42,21 +43,8 @@ export const StepType = {
     COMPLETION: 'completion'       // NEW: Confirmation finale
 };
 
-/**
- * Pays exemptés de vaccination fièvre jaune
- * (Europe, Amérique du Nord, Australie, NZ, Japon, Corée, Singapour)
- */
-export const YELLOW_FEVER_EXEMPT_COUNTRIES = [
-    // Europe
-    'FRA', 'DEU', 'GBR', 'ITA', 'ESP', 'PRT', 'NLD', 'BEL', 'CHE', 'AUT',
-    'SWE', 'NOR', 'DNK', 'FIN', 'IRL', 'POL', 'CZE', 'HUN', 'ROU', 'GRC',
-    // Amérique du Nord
-    'USA', 'CAN',
-    // Océanie
-    'AUS', 'NZL',
-    // Asie (exemptés)
-    'JPN', 'KOR', 'SGP'
-];
+// Re-export for backwards compatibility (canonical definition is in requirements-matrix.js)
+export { YELLOW_FEVER_EXEMPT_COUNTRIES };
 
 /**
  * Step status
