@@ -102,6 +102,21 @@ try {
             throw new Exception("Fichier trop volumineux. Taille max: " . round($maxSize / 1048576, 1) . "MB");
         }
 
+        // Security: Validate MIME type using finfo (magic bytes detection)
+        $allowedMimeTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+            'application/pdf'
+        ];
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $detectedMimeType = $finfo->file($file['tmp_name']);
+
+        if (!in_array($detectedMimeType, $allowedMimeTypes)) {
+            throw new Exception("Type de fichier non autorisé. Types acceptés: JPEG, PNG, WebP, PDF");
+        }
+
         // Read file content
         $fileContent = file_get_contents($file['tmp_name']);
         if ($fileContent === false) {
