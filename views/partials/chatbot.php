@@ -137,7 +137,7 @@
             <button type="button" id="btnCancelScanner" class="flex-1 px-4 py-3 rounded-full border border-gray-300 dark:border-gray-600 text-[#111418] dark:text-white font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" data-i18n="btn_cancel" data-i18n-fr="Annuler" data-i18n-en="Cancel">
                 Annuler
             </button>
-            <button type="button" id="btnConfirmPassport" class="flex-1 px-4 py-3 rounded-full bg-primary text-white font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled aria-label="Confirmer / Confirm">
+            <button type="button" id="btnConfirmPassport" class="flex-1 px-4 py-3 rounded-full bg-primary text-white font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled aria-label="Confirmer / Confirm" data-i18n-aria="confirm_passport" data-i18n-aria-fr="Confirmer le scan du passeport" data-i18n-aria-en="Confirm passport scan">
                 <span class="flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[18px]" aria-hidden="true">check</span>
                     <span data-i18n="btn_confirm" data-i18n-fr="Confirmer" data-i18n-en="Confirm">Confirmer</span>
