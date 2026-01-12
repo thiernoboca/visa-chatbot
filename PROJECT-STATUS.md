@@ -16,9 +16,10 @@ The Visa Chatbot project is in good health with all core functionality implement
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| Total Tests | 117 | - |
-| Passing | 106 | 90.6% |
-| Incomplete | 11 | 9.4% |
+| Total Tests | 117 | ✅ |
+| Passing | 117 | 100% |
+| PHP Warnings | 0 | ✅ Fixed |
+| Deprecations | 2 | Minor |
 | Failures | 0 | 0% |
 
 ---
@@ -51,17 +52,17 @@ The Visa Chatbot project is in good health with all core functionality implement
 
 ## Incomplete Tests (Needs Implementation)
 
-The following tests are marked as incomplete (warnings):
+The following tests use deprecated PHPUnit APIs or need implementation:
 
 ### FlightTicketExtractor
-- [ ] Handles empty input
-- [ ] Recognizes airline codes (Ethiopian, Kenya, Turkish, Air France, Emirates)
+- [x] Handles empty input ✅ Fixed in Cycle 4
+- [x] Recognizes airline codes ✅ Fixed in Cycle 4 (regex error resolved)
 
 ### PassportExtractor
-- [ ] MRZ checksum validation (valid/invalid cases)
+- [ ] MRZ checksum validation (uses deprecated ReflectionMethod::setAccessible)
 
 ### PaymentProofExtractor
-- [ ] Visa type detection by amount (court sejour, long sejour, transit)
+- [ ] Visa type detection by amount (uses deprecated ReflectionMethod::setAccessible)
 
 ---
 
@@ -97,6 +98,15 @@ The following tests are marked as incomplete (warnings):
 | 14 | Frontend Designer | Accessibility review | ✅ No critical issues |
 | 15 | QA Engineer | PHP syntax errors in cron scripts | Fixed docblock and string interpolation |
 | 16 | Project Manager | Documentation update | Updated PROJECT-STATUS.md |
+
+### Cycle 4
+
+| Iteration | Persona | Issue | Fix |
+|-----------|---------|-------|-----|
+| 17 | Code Reviewer | Missing MIME type validation using magic bytes | Added finfo-based validation in document-upload-handler-v2.php |
+| 18 | Frontend Designer | Modals missing ARIA attributes and i18n | Added role/aria-modal/aria-labelledby + bilingual button text |
+| 19 | QA Engineer | PCRE regex error causing PHP warnings in tests | Fixed variable-length lookbehind in FlightTicketExtractor |
+| 20 | Project Manager | Documentation outdated | Updated PROJECT-STATUS.md with accurate test results |
 
 ---
 
@@ -144,4 +154,4 @@ The following tests are marked as incomplete (warnings):
 
 ---
 
-*Report updated by Project Manager persona during Ralph Loop Cycle 3, iteration 16*
+*Report updated by Project Manager persona during Ralph Loop Cycle 4, iteration 20*
