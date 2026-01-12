@@ -8,7 +8,19 @@
 
 require_once __DIR__ . '/../php/services/GeolocationService.php';
 require_once __DIR__ . '/../php/session-manager.php';
+// CRITICAL: Load proactive-suggestions.php BEFORE workflow-engine.php
+// because both files have a ProactiveSuggestions class with different interfaces.
+// The root proactive-suggestions.php has setContext/getSuggestions methods needed by chat-handler.php.
+if (!class_exists('ProactiveSuggestions')) {
+    require_once __DIR__ . '/../php/proactive-suggestions.php';
+}
 require_once __DIR__ . '/../php/workflow-engine.php';
+require_once __DIR__ . '/../php/chat-handler.php';
+require_once __DIR__ . '/../php/services/OCRIntegrationService.php';
+require_once __DIR__ . '/../php/services/DocumentCoherenceValidator.php';
+
+use VisaChatbot\Services\OCRIntegrationService;
+use VisaChatbot\Services\DocumentCoherenceValidator;
 
 class ChatbotController {
 
@@ -39,8 +51,10 @@ class ChatbotController {
         // Initialiser le service de géolocalisation
         $this->geoService = new GeolocationService();
 
-        // Initialiser la session (reprendre si existante via cookie)
+        // Get session ID from URL param or cookie (reset is handled in index.php)
         $sessionId = $_GET['session_id'] ?? $_COOKIE['visa_session_id'] ?? null;
+
+        // Initialiser la session (reprendre si existante via cookie)
         $this->session = new SessionManager($sessionId);
 
         // Initialiser le moteur de workflow
@@ -276,6 +290,231 @@ class ChatbotController {
                strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     }
     
+    /**
+     * API Chatbot - Point d'entrée pour le chat
+     * 
+     * @route ?action=api
+     */
+    public function api() {
+        if ($this->isAjax()) {
+            ini_set('display_errors', 0);
+        }
+        
+        // Le ChatHandler gère déjà tout (CORS, JSON, Logic)
+        $handler = new ChatHandler();
+        $handler->handle();
+        exit;
+    }
+
+    /**
+     * API Upload - Point d'entrée pour l'upload de documents
+     * 
+     * @route ?action=upload
+     */
+    public function upload() {
+        // Configuration erreurs spécifique API
+        ini_set('display_errors', 0);
+        ini_set('log_errors', 1);
+
+        header('Content-Type: application/json; charset=utf-8');
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type');
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            http_response_code(200);
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json(['success' => false, 'error' => 'Method not allowed'], 405);
+        }
+
+        try {
+            // Check for JSON input (from legacy API format)
+            $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+            $isJsonInput = strpos($contentType, 'application/json') !== false;
+
+            if ($isJsonInput) {
+                $jsonInput = json_decode(file_get_contents('php://input'), true);
+                if (!$jsonInput || empty($jsonInput['image'])) {
+                    throw new Exception('No image data in JSON input');
+                }
+
+                $base64Content = $jsonInput['image'];
+                $mimeType = $jsonInput['mime_type'] ?? 'image/jpeg';
+                $documentType = $jsonInput['action'] === 'extract_passport' ? 'passport' : ($jsonInput['document_type'] ?? 'passport');
+                $sessionId = $jsonInput['session_id'] ?? null;
+                $validateWithClaude = $jsonInput['validate_with_claude'] ?? false;
+            } else {
+                if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+                    throw new Exception('No file uploaded or upload error');
+                }
+
+                $file = $_FILES['file'];
+                $documentType = $_POST['document_type'] ?? 'passport';
+                $sessionId = $_POST['session_id'] ?? null;
+                $validateWithClaude = filter_var($_POST['validate_with_claude'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+                // Validation taille max 10MB
+                if ($file['size'] > 10485760) {
+                    throw new Exception("Fichier trop volumineux. Taille max: 10MB");
+                }
+
+                $fileContent = file_get_contents($file['tmp_name']);
+                if ($fileContent === false) {
+                    throw new Exception('Impossible de lire le fichier');
+                }
+
+                $base64Content = base64_encode($fileContent);
+                $mimeType = $file['type'];
+            }
+
+            // Mapping types
+            $typeMapping = [
+                'passport' => 'passport', 'ticket' => 'ticket', 'hotel' => 'hotel',
+                'vaccination' => 'vaccination', 'invitation' => 'invitation',
+                'verbal_note' => 'verbal_note', 'residence_card' => 'residence_card',
+                'payment' => 'payment', 'payment_proof' => 'payment'
+            ];
+            $normalizedType = $typeMapping[$documentType] ?? $documentType;
+
+            // Service OCR
+            $integrationService = new OCRIntegrationService([
+                'debug' => defined('DEBUG_MODE') && DEBUG_MODE,
+                'use_claude_validation' => $validateWithClaude,
+                'cross_validation' => true
+            ]);
+
+            $result = $integrationService->processDocument($normalizedType, $base64Content, $mimeType, [
+                'validate_with_claude' => $validateWithClaude
+            ]);
+
+            $response = [
+                'success' => $result['success'] ?? false,
+                'document_type' => $documentType,
+                'fields' => $result['fields'] ?? [],
+                'validations' => $result['validations'] ?? [],
+                'confidence' => $result['confidence'] ?? 0,
+                'session_id' => $sessionId,
+                'extracted_data' => [
+                    'fields' => $result['fields'] ?? [],
+                    'passport_type' => $result['passport_type'] ?? 'ORDINAIRE',
+                    'validations' => $result['validations'] ?? [],
+                    'confidence' => $result['confidence'] ?? 0
+                ]
+            ];
+
+            // Specific fields mapping
+            if ($normalizedType === 'passport') {
+                $response['mrz'] = $result['mrz'] ?? null;
+                $response['passport_type'] = $result['passport_type'] ?? 'ORDINAIRE';
+                $response['extracted_data']['mrz'] = $result['mrz'] ?? null;
+            } elseif ($normalizedType === 'payment') {
+                $response['amount_analysis'] = $result['amount_analysis'] ?? [];
+                $response['payment_validated'] = $result['validations']['amount_matches_expected'] ?? false;
+            } elseif ($normalizedType === 'ticket') {
+                $response['is_round_trip'] = $result['fields']['return_flight']['value'] ?? false;
+            } elseif ($normalizedType === 'vaccination') {
+                $response['yellow_fever_valid'] = $result['validations']['yellow_fever_valid'] ?? false;
+            }
+
+            $this->json($response);
+
+        } catch (Exception $e) {
+            $this->json(['success' => false, 'error' => $e->getMessage()], 400);
+        } catch (Error $e) {
+            $this->json(['success' => false, 'error' => 'Erreur serveur: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * API Validation Cohérence
+     * 
+     * @route ?action=validate
+     */
+    public function validate() {
+        if (!$this->isAjax()) {
+            $this->redirect('index.php');
+            return;
+        }
+
+        try {
+             // Récupérer le corps de la requête JSON
+            $inputJSON = file_get_contents('php://input');
+            $input = json_decode($inputJSON, true);
+            
+            // Récupérer la session via input ou POST
+            $sessionId = $input['session_id'] ?? $this->post('session_id') ?? $_SESSION['visa_session_id'] ?? null;
+            
+            if (!$sessionId) {
+                throw new Exception("ID de session manquant");
+            }
+            
+            // Initialiser le validateur
+            $validator = new DocumentCoherenceValidator($sessionId);
+            
+            // Charger les documents déjà extraits (simulation ou depuis DB/Session)
+            // Dans une version réelle, on récupérerait les résultats OCR stockés en session/base
+            $documents = $this->loadDocumentsFromCache($sessionId);
+            $validator->loadDocuments($documents);
+            
+            // Exécuter la validation
+            $report = $validator->validateAll();
+            
+            $this->json([
+                'success' => true,
+                'data' => $report
+            ]);
+            
+        } catch (Exception $e) {
+            error_log("Validation API Error: " . $e->getMessage());
+            $this->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * API Géolocalisation
+     * 
+     * @route ?action=geolocation
+     */
+    public function geolocation() {
+        if (!$this->isAjax()) {
+            $this->redirect('index.php');
+            return;
+        }
+
+        $result = $this->detectGeolocation();
+        $this->json([
+            'success' => true,
+            'data' => $result
+        ]);
+    }
+
+    /**
+     * Helper: Charge les documents depuis le cache par session_id
+     */
+    protected function loadDocumentsFromCache($sessionId) {
+        $cacheDir = __DIR__ . '/../cache/sessions/' . $sessionId . '/';
+        $documents = [];
+        $docTypes = ['passport', 'ticket', 'hotel', 'invitation', 'vaccination', 'residence_card', 'verbal_note', 'payment'];
+
+        if (is_dir($cacheDir)) {
+            foreach ($docTypes as $type) {
+                $files = glob($cacheDir . $type . '_*.json');
+                if (!empty($files)) {
+                    usort($files, function ($a, $b) { return filemtime($b) - filemtime($a); });
+                    $data = json_decode(file_get_contents($files[0]), true);
+                    if ($data) $documents[$type] = $data;
+                }
+            }
+        }
+        return $documents;
+    }
+
     /**
      * Récupère un paramètre GET
      * 
