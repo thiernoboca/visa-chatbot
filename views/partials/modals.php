@@ -1,7 +1,7 @@
 <!-- ===== MODALS ===== -->
 
 <!-- Upload Modal (Glassmorphism) -->
-<div id="upload-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300" style="display: none;">
+<div id="upload-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="upload-modal-title">
     <div class="glass-panel w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl relative animate-enter">
 
         <button id="close-upload-modal" class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100/50 dark:hover:bg-white/10 transition-colors text-gray-500" aria-label="Fermer / Close" data-i18n-aria="close_upload_modal" data-i18n-aria-fr="Fermer la fenêtre d'import" data-i18n-aria-en="Close upload window">
@@ -45,27 +45,27 @@
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <button id="webcam-btn" class="py-3.5 px-6 rounded-xl border border-gray-200 dark:border-gray-700/50 font-bold text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex items-center justify-center gap-2 text-gray-700 dark:text-gray-200">
-                <span class="material-symbols-outlined">photo_camera</span>
-                Webcam
+            <button id="webcam-btn" class="py-3.5 px-6 rounded-xl border border-gray-200 dark:border-gray-700/50 font-bold text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex items-center justify-center gap-2 text-gray-700 dark:text-gray-200" aria-label="Webcam" data-i18n-aria="webcam_capture" data-i18n-aria-fr="Capturer avec la webcam" data-i18n-aria-en="Capture with webcam">
+                <span class="material-symbols-outlined" aria-hidden="true">photo_camera</span>
+                <span data-i18n="btn_webcam" data-i18n-fr="Webcam" data-i18n-en="Webcam">Webcam</span>
             </button>
-            <button id="confirm-upload-btn" class="btn-premium py-3.5 px-6 rounded-xl font-bold text-sm text-white shadow-glow disabled:opacity-50 disabled:shadow-none transition-all flex items-center justify-center gap-2" disabled>
-                <span class="material-symbols-outlined">check</span>
-                Confirmer
+            <button id="confirm-upload-btn" class="btn-premium py-3.5 px-6 rounded-xl font-bold text-sm text-white shadow-glow disabled:opacity-50 disabled:shadow-none transition-all flex items-center justify-center gap-2" disabled aria-label="Confirmer / Confirm" data-i18n-aria="confirm_upload" data-i18n-aria-fr="Confirmer l'import" data-i18n-aria-en="Confirm upload">
+                <span class="material-symbols-outlined" aria-hidden="true">check</span>
+                <span data-i18n="btn_confirm" data-i18n-fr="Confirmer" data-i18n-en="Confirm">Confirmer</span>
             </button>
         </div>
     </div>
 </div>
 
 <!-- Passport Data Confirmation Modal -->
-<div id="passport-confirm-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto" style="display: none;">
+<div id="passport-confirm-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="passport-modal-title">
     <div class="bg-white dark:bg-gray-800 w-full max-w-2xl rounded-3xl shadow-2xl relative animate-enter overflow-hidden my-8">
 
         <!-- Header -->
         <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800">
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary">badge</span>
-                Détails du Passeport
+            <h2 id="passport-modal-title" class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary" aria-hidden="true">badge</span>
+                <span data-i18n="passport_details_title" data-i18n-fr="Détails du Passeport" data-i18n-en="Passport Details">Détails du Passeport</span>
             </h2>
             <button id="close-passport-modal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors" aria-label="Fermer / Close" data-i18n-aria="close_passport_modal" data-i18n-aria-fr="Fermer les détails du passeport" data-i18n-aria-en="Close passport details">
                 <span class="material-symbols-outlined" aria-hidden="true">close</span>
@@ -179,13 +179,13 @@
 
         <!-- Action Footer -->
         <div class="px-6 py-5 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row gap-4 justify-between items-center">
-            <button id="ocr-edit-btn" class="w-full sm:w-auto px-6 py-3 rounded-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-bold hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-lg">edit</span>
-                Non, corriger
+            <button id="ocr-edit-btn" class="w-full sm:w-auto px-6 py-3 rounded-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-bold hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2" aria-label="Corriger / Edit" data-i18n-aria="edit_passport_data" data-i18n-aria-fr="Modifier les informations du passeport" data-i18n-aria-en="Edit passport information">
+                <span class="material-symbols-outlined text-lg" aria-hidden="true">edit</span>
+                <span data-i18n="btn_edit_data" data-i18n-fr="Non, corriger" data-i18n-en="No, edit">Non, corriger</span>
             </button>
-            <button id="ocr-confirm-btn" class="w-full sm:w-auto px-8 py-3 rounded-full bg-primary text-white font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-primary/30 flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-lg">check</span>
-                Oui, c'est correct
+            <button id="ocr-confirm-btn" class="w-full sm:w-auto px-8 py-3 rounded-full bg-primary text-white font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-primary/30 flex items-center justify-center gap-2" aria-label="Confirmer / Confirm" data-i18n-aria="confirm_passport_data" data-i18n-aria-fr="Confirmer les informations du passeport" data-i18n-aria-en="Confirm passport information">
+                <span class="material-symbols-outlined text-lg" aria-hidden="true">check</span>
+                <span data-i18n="btn_confirm_data" data-i18n-fr="Oui, c'est correct" data-i18n-en="Yes, it's correct">Oui, c'est correct</span>
             </button>
         </div>
 
