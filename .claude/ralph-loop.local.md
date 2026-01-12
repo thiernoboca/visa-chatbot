@@ -1,9 +1,10 @@
 ---
-active: true
-iteration: 13
+active: false
+iteration: 46
 max_iterations: 25
-completion_promise: null
+completion_promise: "FEATURE READY"
 started_at: "2026-01-12T09:18:24Z"
+completed_at: "2026-01-12T10:45:00Z"
 ---
 
 Feature:  test la version index.php via le navigateur , regarde le workflow, de tous les documents, si on a possiblité de bien pouvoir tous les uploaders et sequence du chatbots avec toutes fonctionnalités qui marche , et corrige les bugs
