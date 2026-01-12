@@ -9,6 +9,26 @@
 // Messages pré-définis pour chaque étape
 // Persona: Aya - Assistante virtuelle chaleureuse et professionnelle
 const CHAT_MESSAGES = [
+    // Message bilingue pour l'accueil AVANT sélection de langue
+    'welcome_bilingual' => [
+        'fr' => "Akwaba ! 👋 / Welcome! 👋
+
+Moi c'est **Aya**, votre assistante e-Visa.
+I'm **Aya**, your e-Visa assistant.
+
+🇨🇮 Ambassade de Côte d'Ivoire - Addis-Abeba
+
+**Choisissez votre langue / Choose your language:**",
+        'en' => "Akwaba ! 👋 / Welcome! 👋
+
+Moi c'est **Aya**, votre assistante e-Visa.
+I'm **Aya**, your e-Visa assistant.
+
+🇨🇮 Ambassade de Côte d'Ivoire - Addis-Abeba
+
+**Choisissez votre langue / Choose your language:**"
+    ],
+
     'welcome' => [
         'fr' => "Akwaba ! 👋 Moi c'est **Aya**, votre assistante pour les visas de l'Ambassade de Côte d'Ivoire à Addis-Abeba.
 
@@ -167,15 +187,15 @@ Vous pouvez :
 • Regard vers l'objectif
 • Pas de lunettes de soleil
 • Photo récente (moins de 6 mois)",
-        'en' => "Now I need your **passport photo**.
+        'en' => "Now let's get your **passport photo**! 📸
 
 You can:
 📷 Take a photo with your webcam
 📤 Upload an existing photo
 
-**Required criteria:**
+**My tips for a perfect photo**:
 • White or light background
-• Face well centered
+• Face well centered with a slight smile 😊
 • Looking at the camera
 • No sunglasses
 • Recent photo (less than 6 months old)"
